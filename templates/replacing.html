@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+</head>
+<body>
+<script>
+$(function() {
+    $.ajax({
+        url: '/transfer',
+        type: 'GET',
+        success: function(response) {
+            document.getElementById("p1").innerHTML="done"
+            const json = jQuery.parseJSON(response);
+            document.getElementById("errors").innerHTML=json.errors
+
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+});
+    </script>
+<p id="p1">replacing</p>
+<div id="errors"></div>
+</body>
+</html>

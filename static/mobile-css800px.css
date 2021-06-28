@@ -1,0 +1,29 @@
+.logo {
+  font-size: 18px;
+}
+
+.logo span {
+  height: 15px;
+  vertical-align: middle;
+}
+
+.banner * {
+  font-size: 28px;
+}
+
+.test {
+  max-width: 236px;
+}
+
+.btn-start button {
+  font-size: 24px;
+}
+
+.FAQ {
+  font-size: 26px;
+}
+
+.qst {
+  font-size: 22px;
+}
+/*# sourceMappingURL=mobile-css800px.css.map */
