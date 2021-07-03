@@ -231,6 +231,10 @@ a {
   cursor: pointer;
 }
 
+#errors {
+  display: none;
+}
+
 .FAQ {
   color: #505050;
   font-weight: bold;
