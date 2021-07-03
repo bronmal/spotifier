@@ -1,0 +1,5 @@
+/.spotify_caches/
+/flask_session/
+/venv/
+/vk_config.v2.json
+/.idea/
