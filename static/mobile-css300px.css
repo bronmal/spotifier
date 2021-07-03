@@ -219,6 +219,10 @@ a {
   width: 75%;
 }
 
+#transfer {
+  width: auto;
+}
+
 #removable div {
   white-space: nowrap;
 }
