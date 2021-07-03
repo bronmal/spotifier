@@ -21,13 +21,12 @@ $(function() {
         success: function(response) {
             document.getElementById("transfer").innerHTML="завершено"
             const json = jQuery.parseJSON(response);
-            if (json.errors != null) {
+            console.log(typeof json)
+            if (isNaN(json.errors)) {
                 for (let key in json.errors) {
-                    $("#errors_transfer").append("<li>"+json.errors[key]+"</li>")
+                    $("#errors_transfer").append("<option>"+json.errors[key]+"</option>")
                 }
-            }
-            else {
-                $("#errors").css("display", "none");
+                $("#errors").css("display", "block");
             }
 
         },
@@ -63,7 +62,9 @@ $(function() {
                     <button id="transfer">перенос</button>
                 </div>
                 <div id="errors">
-                    <ul id="errors_transfer"></ul>
+                    <p>Выберите вариант</p>
+                    <select id="errors_transfer" size="5" multiple="multiple">
+                    </select>
                 </div>
             </div>
         </div>
