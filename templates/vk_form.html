@@ -41,19 +41,23 @@
                 <span>Авторизация VK</span>
             </div>
             <form action="" method="post" class="form">
-                <p>
-                    <label id="user" for="username">Логин</label>
-                    <!--suppress HtmlFormInputWithoutLabel -->
-                    <input type="text" name="login">
-                </p>
-                <p>
-                    <label id="pass" for="password">Пароль</label>
-                    <!--suppress HtmlFormInputWithoutLabel -->
-                    <input type="password" name="password">
-                </p>
-                <p>
-                    <input type="submit" value="Войти">
-                </p>
+                <div class="vk_auth_login">
+                    <p>
+                        <label id="user" for="username">Логин</label>
+                        <input type="text" name="login">
+                    </p>
+                </div>
+                <div class="vk_auth_pass">
+                    <p>
+                        <label id="pass" for="password">Пароль</label>
+                        <input type="password" name="password">
+                    </p>
+                </div>
+                <div class="vk_auth_submit">
+                    <p>
+                        <input type="submit" value="Войти">
+                    </p>
+                </div>
             </form>
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}

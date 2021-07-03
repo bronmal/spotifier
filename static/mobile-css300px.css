@@ -9,7 +9,6 @@ body * {
 
 .top-part {
   background-color: #e9e9e9;
-  height: 332px;
 }
 
 .header {
@@ -41,6 +40,7 @@ body * {
 
 .vk_form {
   position: relative;
+  margin-bottom: 20px;
   bottom: 110px;
   text-align: center;
 }
@@ -48,6 +48,8 @@ body * {
 .form {
   margin: 4px;
 }
+
+
 
 input[type="submit"] {
   appearance:none;
@@ -58,6 +60,7 @@ input[type="submit"] {
   font-weight:bold;
   border-radius:5px;
   width:100%;
+  min-width: 195px;
 }
 
 input[type="text"] {
@@ -179,16 +182,16 @@ a {
 }
 
 .btn-start {
-  max-width: 114px;
+  max-width: 203px;
   margin: 54px auto 0;
-  width: 38%;
+  width: 100%;
 }
 
 .btn-start button {
   margin: 0 auto;
   position: relative;
   bottom: 25px;
-  width: 100%;
+  width: 50%;
   padding: 0;
   height: 36px;
   font-size: 18px;
@@ -213,7 +216,7 @@ a {
 }
 
 #btn {
-  width: 100%;
+  width: 75%;
 }
 
 #removable div {
@@ -230,7 +233,7 @@ a {
   text-align: center;
   margin-top: 15px;
   font-family: montserrat, sans-serif;
-  font-size: 5px;
+  font-size: 20px;
   text-transform: uppercase;
 }
 

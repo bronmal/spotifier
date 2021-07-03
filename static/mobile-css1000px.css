@@ -3,7 +3,7 @@
 }
 
 .header {
-  padding: 18px 21px 0 9px;
+  padding: 18px 21px 0px 9px;
 }
 
 .logo {
@@ -41,6 +41,10 @@
 .test {
   height: 58px;
   max-width: 417px;
+}
+
+#btn {
+  width: 100%;
 }
 
 .btn-start {
