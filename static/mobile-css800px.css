@@ -23,6 +23,10 @@
   font-size: 18px;
 }
 
+#errors_transfer {
+  max-width: 400px;
+}
+
 .FAQ {
   font-size: 26px;
 }

@@ -1,6 +1,4 @@
-.top-part {
-  height: 527px;
-}
+
 
 .header {
   padding: 18px 21px 0px 9px;
@@ -47,8 +45,13 @@
   width: 100%;
 }
 
+#errors_transfer {
+  font-size: 30px;
+  max-width: 750px;
+}
+
 .btn-start {
-  margin: 130px auto;
+  margin: 130px auto 20px;
   width: 241px;
   max-width: 241px;
 }
