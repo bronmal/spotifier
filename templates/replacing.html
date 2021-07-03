@@ -21,7 +21,14 @@ $(function() {
         success: function(response) {
             document.getElementById("transfer").innerHTML="завершено"
             const json = jQuery.parseJSON(response);
-            document.getElementById("errors").innerHTML=json.errors
+            if (json.errors != null) {
+                for (let key in json.errors) {
+                    $("#errors_transfer").append("<li>"+json.errors[key]+"</li>")
+                }
+            }
+            else {
+                $("#errors").css("display", "none");
+            }
 
         },
         error: function(error) {
@@ -56,15 +63,7 @@ $(function() {
                     <button id="transfer">перенос</button>
                 </div>
                 <div id="errors">
-                    <p>Выберите вариант</p>
-                        <select name="form_select" size="5" multiple="multiple">
-                            <option value="Значение 1">Первый вариант</option>
-                            <option value="Значение 2">Второй вариант</option>
-                            <option value="Значение 3">Третий вариант</option>
-                            <option value="Значение 4">Четвертый вариант</option>
-                            <option value="Значение 5">Пятый вариант</option>
-                            <option value="Значение 6">Шестой вариант</option>
-                        </select>
+                    <ul id="errors_transfer"></ul>
                 </div>
             </div>
         </div>
