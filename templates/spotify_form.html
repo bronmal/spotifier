@@ -1,10 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<a href="{{ auth_url }}">Войти</a>
-</body>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="shortcut icon" href="/static/icon/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="/static/mobile-css300px.css" />
+        <link rel="stylesheet" href="/static/mobile-css600px.css" media="only screen and (min-device-width: 600px)" />
+        <link rel="stylesheet" href="/static/mobile-css800px.css" media="only screen and (min-device-width: 800px)" />
+        <link rel="stylesheet" href="/static/mobile-css1000px.css" media="only screen and (min-device-width: 1000px)" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+
+        <title>Авторизация Spotify</title>
+    </head>
+    <body>
+        <div class="top-part">
+            <div class="header">
+                <div class="logo">
+                    <a href="/">spotifier</a>
+                </div>
+
+                <div class="menu">
+                    <button>
+                        <div id="container">
+                            <div class="line"></div>
+                            <div class="line"></div>
+                            <div class="line"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="banner">
+                <div class="smth-1">Перенести</div>
+                <div class="test">C VK В SPOTIFY</div>
+                <div class="btn-start">
+                    <div id="hidden"></div>
+                    <button onclick="window.location.href = {{ auth_url }};" id="auth_spotify">войти в spotify</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="FAQ">
+            часто задаваемые вопросы
+            <div class="box">
+                <div class="qst">
+                    <p>почему мы?</p>
+                    <div>
+                        Перенос музыки за пару кликов, ваши данные не хранятся на наших серверах, все строго
+                        конфиденциально.
+                    </div>
+                </div>
+                <div class="qst">
+                    <p>Как все перенести?</p>
+                    <div>
+                        Жми на кнопку "ПЕРЕНЕСТИ". Затем заходишь в Vk, заходишь в Spotify и ждешь. Пару минут и ты
+                        можешь наслаждаться своей любимой музыкой в Spotify, который начнет учитывать твои вкусы.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

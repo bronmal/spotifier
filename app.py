@@ -92,5 +92,4 @@ def transfer():
 
 
 if __name__ == '__main__':
-    app.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 8080)), host='25.50.213.188')
-    # 25.50.213.188
+    app.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 8080)), host='0.0.0.0')
