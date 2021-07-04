@@ -254,6 +254,14 @@ a {
   overflow-y: hidden;
 }
 
+select {
+  color: #505050;
+}
+
+option {
+  color: #1c1c1c;
+}
+
 .FAQ {
   color: #505050;
   font-weight: bold;
