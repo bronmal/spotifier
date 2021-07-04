@@ -48,6 +48,7 @@
 #errors_transfer {
   font-size: 30px;
   max-width: 750px;
+  appearance: none;
 }
 
 .btn-start {
