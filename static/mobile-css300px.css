@@ -38,6 +38,14 @@ body * {
   text-transform: uppercase;
 }
 
+#user {
+  margin: 0;
+}
+
+#pass {
+  margin: 0;
+}
+
 .vk_form {
   position: relative;
   margin-bottom: 20px;

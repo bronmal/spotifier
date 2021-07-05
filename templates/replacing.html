@@ -14,26 +14,56 @@
 </head>
 <body>
 <script>
-$(function() {
+    let succes = false;
+    function addTochka(){
+        console.log("zdarovA");
+            {
+                if (count === 3) {
+                    document.getElementById("transfer").innerHTML = "перенос";
+                }
+                document.getElementById("transfer").innerHTML += ".";
+                count++;
+            }
+    }
+    async function b(){
+        console.log("wqcs")
+
+        let count = 0;
+        while (succes === false) {
+            setTimeout(addTochka, 1000)
+        }
+
+
+    }
+    async function a(){
+    console.log("jhafgahjsgdjkasgsjdgsa")
+
     $.ajax({
+
         url: '/transfer',
         type: 'GET',
-        success: function(response) {
-            document.getElementById("transfer").innerHTML="завершено"
+        success: function (response) {
+            document.getElementById("transfer").innerHTML = "завершено"
             const json = jQuery.parseJSON(response);
             if (isNaN(json.errors)) {
                 for (let key in json.errors) {
-                    $("#errors_transfer").append("<option>"+json.errors[key]+"</option>")
+                    $("#errors_transfer").append("<option>" + json.errors[key] + "</option>")
                 }
                 $("#errors").css("display", "block");
             }
-
+            succes = true;
         },
-        error: function(error) {
+        error: function (error) {
             console.log(error);
         }
     });
-});
+    }
+    console.log("eqwwd")
+    let func = async () =>{
+            await a()
+            await b()
+        }
+    func()
     </script>
 
         <div class="top-part">
@@ -62,7 +92,7 @@ $(function() {
                 </div>
                 <div id="errors">
                     <p id="errors_transfer_label">Не найденные треки:</p>
-                    <select id="errors_transfer" size="3" disabled="disabled">
+                    <select id="errors_transfer" size="3" >
                     </select>
                 </div>
             </div>
