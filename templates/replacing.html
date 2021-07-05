@@ -13,58 +13,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 </head>
 <body>
-<script>
-    let succes = false;
-    function addTochka(){
-        console.log("zdarovA");
-            {
-                if (count === 3) {
-                    document.getElementById("transfer").innerHTML = "перенос";
-                }
-                document.getElementById("transfer").innerHTML += ".";
-                count++;
-            }
-    }
-    async function b(){
-        console.log("wqcs")
 
-        let count = 0;
-        while (succes === false) {
-            setTimeout(addTochka, 1000)
-        }
-
-
-    }
-    async function a(){
-    console.log("jhafgahjsgdjkasgsjdgsa")
-
-    $.ajax({
-
-        url: '/transfer',
-        type: 'GET',
-        success: function (response) {
-            document.getElementById("transfer").innerHTML = "завершено"
-            const json = jQuery.parseJSON(response);
-            if (isNaN(json.errors)) {
-                for (let key in json.errors) {
-                    $("#errors_transfer").append("<option>" + json.errors[key] + "</option>")
-                }
-                $("#errors").css("display", "block");
-            }
-            succes = true;
-        },
-        error: function (error) {
-            console.log(error);
-        }
-    });
-    }
-    console.log("eqwwd")
-    let func = async () =>{
-            await a()
-            await b()
-        }
-    func()
-    </script>
 
         <div class="top-part">
             <div class="header">
@@ -118,4 +67,44 @@
             </div>
         </div>
 </body>
+<script>
+    let success = false
+    let intervalId;
+
+    async function a() {
+        let m = document.getElementById("transfer"),
+            s = m.innerHTML,
+            i = 0;
+        intervalId = setInterval(function () {
+            m.innerHTML = s + Array(i++ % 5).join('.');
+        }, 500);
+}
+
+
+    async function b(){
+    $(function () {
+        $.ajax({
+            url: '/transfer',
+            type: 'GET',
+            success: function (response) {
+                document.getElementById("transfer").innerHTML = "завершено"
+                const json = jQuery.parseJSON(response);
+                if (isNaN(json.errors)) {
+                    for (let key in json.errors) {
+                        $("#errors_transfer").append("<option>" + json.errors[key] + "</option>")
+                    }
+                    $("#errors").css("display", "block");
+                }
+                clearInterval(intervalId)
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    })
+
+    }
+    a()
+    b()
+    </script>
 </html>
