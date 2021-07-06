@@ -7,11 +7,11 @@ from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(64)
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_FILE_DIR'] = './flask_session/'
-Session(app)
+application = Flask(__name__)
+application.config['SECRET_KEY'] = os.urandom(64)
+application.config['SESSION_TYPE'] = 'filesystem'
+application.config['SESSION_FILE_DIR'] = './flask_session/'
+Session(application)
 
 os.environ['SPOTIPY_CLIENT_ID'] = config.ID
 os.environ['SPOTIPY_CLIENT_SECRET'] = config.SECRET
@@ -26,7 +26,7 @@ def session_cache_path():
     return caches_folder + session.get('uuid')
 
 
-@app.route('/')
+@application.route('/')
 def main_page():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
@@ -34,7 +34,7 @@ def main_page():
     return render_template('index.html')
 
 
-@app.route('/auth_vk', methods=['get', 'post'])
+@application.route('/auth_vk', methods=['get', 'post'])
 def vk():
     if not session.get('uuid'):
         return redirect('/')
@@ -55,7 +55,7 @@ def vk():
             return redirect('/auth_vk')
 
 
-@app.route('/auth_spotify')
+@application.route('/auth_spotify')
 def spotify():
     if not session.get('uuid'):
         return redirect('/')
@@ -77,12 +77,12 @@ def spotify():
     return redirect('/result')
 
 
-@app.route('/result')
+@application.route('/result')
 def waiting_page():
     return render_template('replacing.html')
 
 
-@app.route('/transfer')
+@application.route('/transfer')
 def transfer():
     login = session['login_vk']
     password = session['password_vk']
@@ -92,4 +92,4 @@ def transfer():
 
 
 if __name__ == '__main__':
-    app.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 8080)), host='0.0.0.0')
+    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 8080)), host='0.0.0.0')
