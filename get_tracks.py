@@ -32,18 +32,6 @@ def get_tracks(login, password):
     result = music.get()
     title_author = []
 
-    """for i in result:
-        q = i['title'] + ' ' + i['artist']
-        word_eng = str()
-        for b in range(0, len(q)):
-            if q[b] in alphabet:
-                sim = dic[q[b]]
-            else:
-                sim = q[b]
-            word_eng = word_eng + sim
-        word_eng.replace(' ', '_')
-        title_author.append(word_eng)"""
-
     for i in result:
         q = i['title'] + ' ' + i['artist']
         title_author.append(q)
