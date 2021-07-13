@@ -87,8 +87,17 @@ def transfer():
     login = session['login_vk']
     password = session['password_vk']
     tracks = get_tracks(login, password)
-    errors_transfer = search_add(session['spotify'], tracks)
-    return json.dumps({'errors': errors_transfer})
+    if len(tracks) <= config.MAX_TRACKS:
+        errors_transfer = search_add(session['spotify'], tracks)
+        max_tracks = False
+        return json.dumps({'errors': errors_transfer, 'max_tracks': max_tracks})
+
+    if len(tracks) > config.MAX_TRACKS:
+        while len(tracks) != config.MAX_TRACKS:
+            tracks.pop()
+        errors_transfer = search_add(session['spotify'], tracks)
+        max_tracks = True
+        return json.dumps({'errors': errors_transfer, 'max_tracks': max_tracks})
 
 
 if __name__ == '__main__':
