@@ -2,10 +2,18 @@ import os
 import uuid
 import config
 import spotipy
+from freekassa import FreeKassaApi
 from flask import Flask, session, request, redirect, render_template, json, flash
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
+
+'''client = FreeKassaApi(
+    first_secret='Сергей',
+    second_secret='Татьяна',
+    merchant_id=''
+)'''
+
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -101,4 +109,4 @@ def transfer():
 
 
 if __name__ == '__main__':
-    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 8080)), host='0.0.0.0')
+    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 8080)), host='0.0.0.0')  # .restart-app
