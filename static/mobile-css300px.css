@@ -4,9 +4,14 @@ body,html {
   height: 100%;
 }
 
+.wrapper {
+  display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
 .content {
-  min-height: 100%;
-  padding-bottom: -30px;
+  flex: 1 0 auto;
 }
 
 body * {
@@ -278,6 +283,7 @@ option {
 
 .FAQ {
   color: #505050;
+
   font-weight: bold;
   text-align: center;
   margin-top: 15px;
@@ -309,9 +315,8 @@ option {
 }
 
 .info {
-  width: 100%;
-  position: absolute;
-  bottom: 0;
+  margin-top: 30px;
+  flex: 0 0 auto;
 }
 
 
@@ -333,6 +338,7 @@ option {
   text-align: center;
   padding: 10px 0px 10px;
   display: table-cell;
+
 }
 
 
