@@ -6,7 +6,7 @@ body,html {
 
 .content {
   min-height: 100%;
-  padding-bottom: 90px;
+  padding-bottom: -30px;
 }
 
 body * {
@@ -310,6 +310,8 @@ option {
 
 .info {
   width: 100%;
+  position: absolute;
+  bottom: 0;
 }
 
 
