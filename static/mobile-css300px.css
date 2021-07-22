@@ -4,6 +4,11 @@ body,html {
   height: 100%;
 }
 
+.content {
+  min-height: 100%;
+  padding-bottom: 90px;
+}
+
 body * {
   font-family: montserrat, sans-serif;
 }
@@ -304,9 +309,7 @@ option {
 }
 
 .info {
-  position: absolute;
   width: 100%;
-  bottom: 0px;
 }
 
 
