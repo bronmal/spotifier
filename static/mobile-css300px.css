@@ -18,11 +18,11 @@ body * {
 
 .logo {
   display: inline-block;
-  height: 15px;
+  height: 14px;
   padding: 5px 6px;
   border: 2px solid black;
   font-weight: bold;
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
 }
 
