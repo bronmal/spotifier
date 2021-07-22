@@ -2,18 +2,18 @@ import os
 import uuid
 import config
 import spotipy
+import db
 from freekassa import FreeKassaApi
 from flask import Flask, session, request, redirect, render_template, json, flash
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
 
-'''client = FreeKassaApi(
+client = FreeKassaApi(
     first_secret='Сергей',
     second_secret='Татьяна',
-    merchant_id=''
-)'''
-
+    merchant_id='1509',
+    wallet_id='F111202832')
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -94,18 +94,30 @@ def waiting_page():
 def transfer():
     login = session['login_vk']
     password = session['password_vk']
+    db.create_user(login)
     tracks = get_tracks(login, password)
     if len(tracks) <= config.MAX_TRACKS:
         errors_transfer = search_add(session['spotify'], tracks)
-        max_tracks = False
-        return json.dumps({'errors': errors_transfer, 'max_tracks': max_tracks})
+        return json.dumps({'errors': errors_transfer})
 
     if len(tracks) > config.MAX_TRACKS:
         while len(tracks) != config.MAX_TRACKS:
             tracks.pop()
         errors_transfer = search_add(session['spotify'], tracks)
-        max_tracks = True
-        return json.dumps({'errors': errors_transfer, 'max_tracks': max_tracks})
+        return json.dumps({'errors': errors_transfer})
+
+
+@application.route('/pay')
+def pay():
+    login = session['login_vk']
+    password = session['password_vk']
+    tracks = get_tracks(login, password)
+
+    if len(tracks) > config.MAX_TRACKS:
+        url_to_pay = client.generate_payment_link(1231235, 1, 'tri2004@yandex.ru', 'ahbfhaben')
+        return json.dumps({'url_to_pay': url_to_pay})
+    else:
+        return json.dumps({'url_to_pay': None})
 
 
 if __name__ == '__main__':
