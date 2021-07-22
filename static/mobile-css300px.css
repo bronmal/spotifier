@@ -165,7 +165,7 @@ a {
 }
 
 .test {
-  max-width: 180px;
+  max-width: 174px;
   margin: 0 auto;
   background-position: center;
   white-space: nowrap;
@@ -186,7 +186,7 @@ a {
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#75a2d4", endColorstr="#b3d98f",GradientType=1 );
   /* IE6-9 */
   width: 56.6666666667%;
-  height: 31px;
+  height: 26px;
 }
 
 .btn-start {
