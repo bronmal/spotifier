@@ -82,6 +82,7 @@ def spotify():
 
     spot = spotipy.Spotify(auth_manager=auth_manager)
     session['spotify'] = spot
+    session['login_sp'] = spot.me()
     return redirect('/result')
 
 
@@ -92,10 +93,14 @@ def waiting_page():
 
 @application.route('/transfer')
 def transfer():
-    login = session['login_vk']
-    password = session['password_vk']
-    db.create_user(login)
-    tracks = get_tracks(login, password)
+    login_vk = session['login_vk']
+    password_vk = session['password_vk']
+    login_sp = session['login_sp']['external_urls']['spotify']
+    logins = f'{login_vk}, {login_sp}'
+    tracks = get_tracks(login_vk, password_vk)
+    if db.in_db(logins) is False:
+        db.create_user(logins)
+        db.fill_tracks(tracks, logins)
     if len(tracks) <= config.MAX_TRACKS:
         errors_transfer = search_add(session['spotify'], tracks)
         return json.dumps({'errors': errors_transfer})
