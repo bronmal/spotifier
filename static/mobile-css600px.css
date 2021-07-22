@@ -36,4 +36,12 @@
 .qst {
   font-size: 18px;
 }
+
+.info_box td{
+  font-size: 10px;
+}
+
+.info_box img {
+  height: 13px;
+}
 /*# sourceMappingURL=mobile-css600px.css.map */

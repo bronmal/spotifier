@@ -1,6 +1,7 @@
-body {
+body,html {
   margin: 0;
   padding: 0;
+  height: 100%;
 }
 
 body * {
@@ -300,4 +301,39 @@ option {
 .qst div {
   text-transform: none;
   font-weight: normal;
+}
+
+.info {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+}
+
+
+.info_box{
+  background-color: #F2F2F2;
+  white-space:nowrap;
+}
+
+
+
+.info_container{
+  width: 100%;
+  display: table;
+  border-collapse: collapse;
+  overflow:hidden;
+}
+.info_box td{
+  font-size: 6px;
+  text-align: center;
+  padding: 10px 0px 10px;
+  display: table-cell;
+}
+
+
+
+.info_box img{
+  margin-right: 10px;
+  height: 10px;
+  vertical-align: middle;
 }

@@ -75,4 +75,42 @@
 .qst {
   font-size: 24px;
 }
+
+.info {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
+
+
+.info_box{
+  background-color: #F2F2F2;
+  white-space:nowrap;
+  width: 100%;
+}
+
+
+
+.info_container{
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  overflow:hidden;
+}
+.info_box td{
+  font-size: 17px;
+  text-align: center;
+  padding: 10px 0px 10px;
+  display: table-cell;
+}
+
+
+
+.info_box img{
+  margin-right: 10px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+
 /*# sourceMappingURL=mobile-css1000px.css.map */
