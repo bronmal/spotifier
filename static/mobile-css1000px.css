@@ -87,7 +87,10 @@
   width: 100%;
 }
 
+#hidden {
+  font-size: 16px;
 
+}
 
 .info_container{
   display: table;
