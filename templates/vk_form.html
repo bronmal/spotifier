@@ -29,97 +29,99 @@
         <title>Авторизация VK</title>
 </head>
 <body>
-
-        <div class="content">
-            <div class="top-part">
-            <div class="header">
-                <div class="logo">
-                    <a href="/">spotifier</a>
-                </div>
-
-                <div class="menu">
-                    <button>
-                        <div id="container">
-                            <div class="line"></div>
-                            <div class="line"></div>
-                            <div class="line"></div>
-                        </div>
-                    </button>
-                </div>
+<div class="wrapper">
+    <div class="content">
+        <div class="top-part">
+        <div class="header">
+            <div class="logo">
+                <a href="/">spotifier</a>
             </div>
 
-            <div class="banner">
-                <div class="smth-1">Перенести</div>
-                <div class="test">C VK В SPOTIFY</div>
+            <div class="menu">
+                <button>
+                    <div id="container">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </button>
             </div>
-
-    <div class="btn-start">
-        <div class="vk_form">
-            <div class="vk_auth">
-                <span>Авторизация VK</span>
-            </div>
-            <form action="" method="post" class="form">
-                <div class="vk_auth_login">
-                    <p>
-                        <p id="user">Логин</p>
-                        <input type="text" name="login">
-                    </p>
-                </div>
-                <div class="vk_auth_pass">
-                    <p>
-                        <p id="pass">Пароль</p>
-                        <input type="password" name="password">
-                    </p>
-                </div>
-                <div class="vk_auth_submit">
-                    <p>
-                        <input type="submit" value="Войти">
-                    </p>
-                </div>
-            </form>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                <ul class=flashes>
-                {% for category, message in messages %}
-                  <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-                </ul>
-              {% endif %}
-            {% endwith %}
         </div>
+
+        <div class="banner">
+            <div class="smth-1">Перенести</div>
+            <div class="test">C VK В SPOTIFY</div>
+        </div>
+
+<div class="btn-start">
+    <div class="vk_form">
+        <div class="vk_auth">
+            <span>Авторизация VK</span>
+        </div>
+        <form action="" method="post" class="form">
+            <div class="vk_auth_login">
+                <p>
+                    <p id="user">Логин</p>
+                    <input type="text" name="login">
+                </p>
+            </div>
+            <div class="vk_auth_pass">
+                <p>
+                    <p id="pass">Пароль</p>
+                    <input type="password" name="password">
+                </p>
+            </div>
+            <div class="vk_auth_submit">
+                <p>
+                    <input type="submit" value="Войти">
+                </p>
+            </div>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </div>
 </div>
 
-        </div>
+    </div>
 
-        <div class="FAQ">
-            часто задаваемые вопросы
-            <div class="box">
-                <div class="qst">
-                    <p>почему мы?</p>
-                    <div>
-                        Перенос музыки за пару кликов, ваши данные не хранятся на наших серверах, все строго
-                        конфиденциально.
-                    </div>
+    <div class="FAQ">
+        часто задаваемые вопросы
+        <div class="box">
+            <div class="qst">
+                <p>почему мы?</p>
+                <div>
+                    Перенос музыки за пару кликов, ваши данные не хранятся на наших серверах, все строго
+                    конфиденциально.
                 </div>
-                <div class="qst">
-                    <p>Как все перенести?</p>
-                    <div>
-                        Жми на кнопку "ПЕРЕНЕСТИ". Затем заходишь в Vk, заходишь в Spotify и ждешь. Пара минут, и ты
-                        можешь наслаждаться своей любимой музыкой в Spotify, который начнет учитывать твои вкусы.
-                    </div>
+            </div>
+            <div class="qst">
+                <p>Как все перенести?</p>
+                <div>
+                    Жми на кнопку "ПЕРЕНЕСТИ". Затем заходишь в Vk, заходишь в Spotify и ждешь. Пара минут, и ты
+                    можешь наслаждаться своей любимой музыкой в Spotify, который начнет учитывать твои вкусы.
                 </div>
             </div>
         </div>
-        </div>
-            <footer class="info">
-                <table class="info_container">
-                    <tr class="info_box">
-                        <td>Арламенков Андрей Сергеевич</td>
-                        <td>ИНН: 784813689183 </td>
-                        <td><img src="/static/icon/mail-icon.png" alt="mail:">tri2004@yandex.ru</td>
-                        <td><img src="/static/icon/telegram-icon.png" alt="telegram:">@andrey_bronmal</td>
-                    </tr>
-                </table>
-            </footer>
+    </div>
+    </div>
+        <footer class="info">
+            <table class="info_container">
+                <tr class="info_box">
+                    <td>Арламенков Андрей Сергеевич</td>
+                    <td>ИНН: 784813689183 </td>
+                    <td><img src="/static/icon/mail-icon.png" alt="mail:">tri2004@yandex.ru</td>
+                    <td><img src="/static/icon/telegram-icon.png" alt="telegram:">@andrey_bronmal</td>
+                </tr>
+            </table>
+        </footer>
+</div>
+        
 </body>
 </html>

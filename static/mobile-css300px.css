@@ -348,3 +348,11 @@ option {
   height: 10px;
   vertical-align: middle;
 }
+
+#user_agreement, #user_agreement a{
+  font-size: 12px;
+}
+
+#user_agreement a{
+  color: navy;
+}
