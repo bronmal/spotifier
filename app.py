@@ -3,17 +3,11 @@ import uuid
 import config
 import spotipy
 import db
-from freekassa import FreeKassaApi
 from flask import Flask, session, request, redirect, render_template, json, flash
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
 
-client = FreeKassaApi(
-    first_secret='Сергей',
-    second_secret='Татьяна',
-    merchant_id='1509',
-    wallet_id='F111202832')
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -32,6 +26,14 @@ if not os.path.exists(caches_folder):
 
 def session_cache_path():
     return caches_folder + session.get('uuid')
+
+
+def database_work(logins, tracks):
+    if db.in_db(logins) is False:
+        db.create_user(logins)
+        db.fill_tracks(tracks, logins)
+    if db.in_db(logins) is True:
+        db.fill_tracks(tracks, logins)
 
 
 @application.route('/')
@@ -98,17 +100,18 @@ def transfer():
     login_sp = session['login_sp']['external_urls']['spotify']
     logins = f'{login_vk}, {login_sp}'
     tracks = get_tracks(login_vk, password_vk)
-    if db.in_db(logins) is False:
-        db.create_user(logins)
-        db.fill_tracks(tracks, logins)
+
     if len(tracks) <= config.MAX_TRACKS:
+        database_work(logins, tracks)
         errors_transfer = search_add(session['spotify'], tracks)
         return json.dumps({'errors': errors_transfer})
 
     if len(tracks) > config.MAX_TRACKS:
+        sorted_tracks = tracks
         while len(tracks) != config.MAX_TRACKS:
-            tracks.pop()
-        errors_transfer = search_add(session['spotify'], tracks)
+            sorted_tracks.pop()
+        database_work(logins, sorted_tracks)
+        errors_transfer = search_add(session['spotify'], sorted_tracks)
         return json.dumps({'errors': errors_transfer})
 
 
@@ -119,7 +122,7 @@ def pay():
     tracks = get_tracks(login, password)
 
     if len(tracks) > config.MAX_TRACKS:
-        url_to_pay = client.generate_payment_link(1231235, 1, 'tri2004@yandex.ru', 'ahbfhaben')
+        url_to_pay = '/'
         return json.dumps({'url_to_pay': url_to_pay})
     else:
         return json.dumps({'url_to_pay': None})
