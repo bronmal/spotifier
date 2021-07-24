@@ -1,4 +1,5 @@
 import pymysql
+import json
 
 con = pymysql.connect(user='u1420413_default', host='31.31.198.4',
                       password='8jPn8m4hUX27uPYY', database='u1420413_pay')
@@ -6,7 +7,7 @@ con = pymysql.connect(user='u1420413_default', host='31.31.198.4',
 
 def in_db(logins):
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM payed")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
     if rows == ():
@@ -20,7 +21,7 @@ def in_db(logins):
 
 def create_user(logins):
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("INSERT INTO payed (login, payed, transfered) VALUES (%s, %s, %s)", (logins, False, None))
+    cursor.execute("INSERT INTO spotifier (login, payed, transfered) VALUES (%s, %s, %s)", (logins, False, None))
     cursor.close()
     con.commit()
 
@@ -28,17 +29,18 @@ def create_user(logins):
 def fill_tracks(tracks, logins):
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
-    cursor.execute("SELECT * FROM payed")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     db_tracks = str()
     for i in rows:
         if i['login'] == logins:
             db_tracks = i['transfered']
 
-    query = """ UPDATE payed
+
+    query = """ UPDATE spotifier
                     SET transfered = %s
                     WHERE login = %s """
-    data = (str(tracks), logins)
+    data = (json.dumps({'tracks': tracks}), logins)
 
     cursor.execute(query, data)
     cursor.close()
