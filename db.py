@@ -31,16 +31,28 @@ def fill_tracks(tracks, logins):
 
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
-    db_tracks = str()
+    db_tracks = None
     for i in rows:
         if i['login'] == logins:
-            db_tracks = i['transfered']
+            if i['transfered'] is not None:
+                db_tracks = json.loads(i['transfered'])['tracks']
+            if i['transfered'] is None:
+                db_tracks = None
+
 
 
     query = """ UPDATE spotifier
                     SET transfered = %s
                     WHERE login = %s """
-    data = (json.dumps({'tracks': tracks}), logins)
+    data = ()
+    if db_tracks is None:
+        data = (json.dumps({'tracks': tracks}), logins)
+    if db_tracks is not None:
+        sort_tracks = tracks.copy()
+        for i in tracks:
+            if i in db_tracks:
+                sort_tracks.remove(i)
+        data = (json.dumps({'tracks': db_tracks + sort_tracks}), logins)
 
     cursor.execute(query, data)
     cursor.close()

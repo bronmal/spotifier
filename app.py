@@ -32,7 +32,7 @@ def database_work(logins, tracks):
     if db.in_db(logins) is False:
         db.create_user(logins)
         db.fill_tracks(tracks, logins)
-    if db.in_db(logins) is True:
+    elif db.in_db(logins) is True:
         db.fill_tracks(tracks, logins)
 
 
