@@ -102,16 +102,18 @@ def transfer():
     tracks = get_tracks(login_vk, password_vk)
 
     if len(tracks) <= config.MAX_TRACKS:
+        transferred_tracks = db.check_not_transferred(tracks, logins)
+        errors_transfer = search_add(session['spotify'], transferred_tracks)
         database_work(logins, tracks)
-        errors_transfer = search_add(session['spotify'], tracks)
         return json.dumps({'errors': errors_transfer})
 
     if len(tracks) > config.MAX_TRACKS:
         sorted_tracks = tracks
         while len(tracks) != config.MAX_TRACKS:
             sorted_tracks.pop()
+        transferred_tracks = db.check_not_transferred(sorted_tracks, logins)
+        errors_transfer = search_add(session['spotify'], transferred_tracks)
         database_work(logins, sorted_tracks)
-        errors_transfer = search_add(session['spotify'], sorted_tracks)
         return json.dumps({'errors': errors_transfer})
 
 

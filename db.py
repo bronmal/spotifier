@@ -57,3 +57,31 @@ def fill_tracks(tracks, logins):
     cursor.execute(query, data)
     cursor.close()
     con.commit()
+
+
+def check_not_transferred(tracks, logins):
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM spotifier")
+    rows = cursor.fetchall()
+    db_tracks = None
+    for i in rows:
+        if i['login'] == logins:
+            if i['transfered'] is not None:
+                db_tracks = json.loads(i['transfered'])['tracks']
+            if i['transfered'] is None:
+                db_tracks = None
+
+    cursor.close()
+    con.commit()
+
+    if db_tracks is None:
+        print(0, tracks)
+        return tracks
+    if db_tracks is not None:
+        sort_tracks = tracks.copy()
+        for i in tracks:
+            if i in db_tracks:
+                sort_tracks.remove(i)
+        print(1, sort_tracks)
+        return sort_tracks
+
