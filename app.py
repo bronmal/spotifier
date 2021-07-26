@@ -3,11 +3,11 @@ import uuid
 import config
 import spotipy
 import db
-from flask import Flask, session, request, redirect, render_template, json, flash
+import kassa
+from flask import Flask, session, request, redirect, render_template, json, flash, url_for
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
-
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -119,15 +119,27 @@ def transfer():
 
 @application.route('/pay')
 def pay():
-    login = session['login_vk']
+    login_vk = session['login_vk']
     password = session['password_vk']
-    tracks = get_tracks(login, password)
+    login_sp = session['login_sp']['external_urls']['spotify']
+    logins = f'{login_vk}, {login_sp}'
+    tracks = get_tracks(login_vk, password)  # TODO убрать гет трекс чтобы увеличить скорость
 
     if len(tracks) > config.MAX_TRACKS:
-        url_to_pay = '/'
+        info = kassa.rest(logins)
+        url_to_pay = info.confirmation.confirmation_url
         return json.dumps({'url_to_pay': url_to_pay})
     else:
         return json.dumps({'url_to_pay': None})
+
+
+@application.route('/check')
+def check():
+    logins = request.args.get("login")
+    id = db.get_id(logins)
+    payed = kassa.check(id)
+    print(payed)
+    return redirect('/')
 
 
 if __name__ == '__main__':
