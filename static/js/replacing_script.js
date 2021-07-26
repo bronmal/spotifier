@@ -7,7 +7,15 @@ async function a() {
         s = m.innerHTML,
         i = 0;
     intervalId = setInterval(function () {
-        m.innerHTML = s + Array(i++ % 5).join('.');
+        let space = '&nbsp;'
+        s.replace(space, '.')
+        m.innerHTML = m.innerHTML.replace(space, '.')
+        console.log(i)
+        i++;
+        if(i === 5){
+            i = 0
+            m.innerHTML = 'перенос&nbsp&nbsp&nbsp&nbsp&nbsp'
+        }
     }, 500);
 }
 
