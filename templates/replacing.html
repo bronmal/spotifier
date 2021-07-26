@@ -27,6 +27,7 @@
     <meta name="theme-color" content="#000000" />
     <title>Перенос музыки</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+
 </head>
 <body>
     <div class="wrapper">
@@ -108,65 +109,6 @@
         </div>
         </div>  
 </body>
-<script>
-    let success = false
-    let intervalId;
+<script src="static/js/replacing_script.js"></script>
 
-    async function a() {
-        let m = document.getElementById("transfer"),
-            s = m.innerHTML,
-            i = 0;
-        intervalId = setInterval(function () {
-            m.innerHTML = s + Array(i++ % 5).join('.');
-        }, 500);
-}
-
-
-    async function b(){
-        $(function () {
-            $.ajax({
-                url: '/transfer',
-                type: 'GET',
-                success: function (response) {
-                    document.getElementById("transfer").innerHTML = "завершено"
-                    const json = jQuery.parseJSON(response);
-                    if (isNaN(json.errors)) {
-                        for (let key in json.errors) {
-                            $("#errors_transfer").append("<option>" + json.errors[key] + "</option>")
-                        }
-                        $("#errors").css("display", "block");
-                    }
-                    clearInterval(intervalId)
-                    c()
-                },
-                error: function (error) {}
-            });
-        })
-    }
-
-    async function c() {
-        $(function () {
-            $.ajax({
-                url: '/pay',
-                type: 'GET',
-                success: function (response) {
-                    const json = jQuery.parseJSON(response);
-                    if (json.url_to_pay !== null)
-                    {
-                        document.getElementById("transfer").setAttribute("onclick", 'window.location.href = ' + "'" + json.url_to_pay + "'")
-                        document.getElementById("transfer").innerHTML = "Оплатить 69 руб*"
-                        document.getElementById("user_agreement").style.display = "block"
-                        document.getElementById("hidden").innerHTML = "Вы перенесли 100 треков, чтобы переносить без ограничений заплатите 69 рублей"
-                        document.getElementsByClassName("btn-start")[0].style.marginTop = 10 + "px";
-                    }
-                },
-                error: function (error) {
-                    console.log(error);
-                }
-            });
-        })
-    }
-    a()
-    b()
-    </script>
 </html>
