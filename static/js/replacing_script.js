@@ -10,7 +10,6 @@ async function a() {
         let space = '&nbsp;'
         s.replace(space, '.')
         m.innerHTML = m.innerHTML.replace(space, '.')
-        console.log(i)
         i++;
         if(i === 5){
             i = 0
