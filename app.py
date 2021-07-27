@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 import config
 import spotipy
@@ -100,32 +101,43 @@ def transfer():
     login_sp = session['login_sp']['external_urls']['spotify']
     logins = f'{login_vk}, {login_sp}'
     tracks = get_tracks(login_vk, password_vk)
+    session['tracks'] = tracks
+    payed = db.check_pay(logins)
 
-    if len(tracks) <= config.MAX_TRACKS:
+    if db.in_db(logins) is False:
+        db.create_user(logins)
+
+    if len(tracks) <= config.MAX_TRACKS and payed is False:
         transferred_tracks = db.check_not_transferred(tracks, logins)
+        db.fill_tracks(transferred_tracks, logins)
         errors_transfer = search_add(session['spotify'], transferred_tracks)
-        database_work(logins, tracks)
         return json.dumps({'errors': errors_transfer})
 
-    if len(tracks) > config.MAX_TRACKS:
-        sorted_tracks = tracks
-        while len(tracks) != config.MAX_TRACKS:
+    if len(tracks) > config.MAX_TRACKS and payed is False:
+        sorted_tracks = tracks.copy()
+        while len(sorted_tracks) != config.MAX_TRACKS:
             sorted_tracks.pop()
         transferred_tracks = db.check_not_transferred(sorted_tracks, logins)
+        db.fill_tracks(transferred_tracks, logins)
         errors_transfer = search_add(session['spotify'], transferred_tracks)
-        database_work(logins, sorted_tracks)
+        return json.dumps({'errors': errors_transfer})
+
+    if payed:
+        transferred_tracks = db.check_not_transferred(tracks, logins)
+        db.fill_tracks(transferred_tracks, logins)
+        errors_transfer = search_add(session['spotify'], transferred_tracks)
         return json.dumps({'errors': errors_transfer})
 
 
 @application.route('/pay')
 def pay():
     login_vk = session['login_vk']
-    password = session['password_vk']
     login_sp = session['login_sp']['external_urls']['spotify']
     logins = f'{login_vk}, {login_sp}'
-    tracks = get_tracks(login_vk, password)  # TODO убрать гет трекс чтобы увеличить скорость
+    tracks = session['tracks']
+    payed = db.check_pay(logins)
 
-    if len(tracks) > config.MAX_TRACKS:
+    if len(tracks) > config.MAX_TRACKS and payed is False:
         info = kassa.rest(logins)
         url_to_pay = info.confirmation.confirmation_url
         return json.dumps({'url_to_pay': url_to_pay})
@@ -138,7 +150,8 @@ def check():
     logins = request.args.get("login")
     id = db.get_id(logins)
     payed = kassa.check(id)
-    print(payed)
+    if payed is True:
+        db.user_pay(logins)
     return redirect('/')
 
 

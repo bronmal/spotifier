@@ -6,6 +6,8 @@ con = pymysql.connect(user='u1420413_default', host='31.31.198.4',
 
 
 def in_db(logins):
+    global find
+    find = False
     cursor = con.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
@@ -14,9 +16,10 @@ def in_db(logins):
         return False
     for i in rows:
         if i['login'] == logins:
+            find = True
             return True
-        if i['login'] != logins:
-            return False
+    if find is False:
+        return False
 
 
 def create_user(logins):
@@ -105,6 +108,41 @@ def get_id(logins):
 
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
+    cursor.close()
     for i in rows:
         if i['login'] == logins:
             return i['pay_id']
+
+
+def user_pay(logins):
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM spotifier")
+    rows = cursor.fetchall()
+    for i in rows:
+        if i['login'] == logins:
+            query = """ UPDATE spotifier
+                                SET payed = %s
+                                WHERE login = %s """
+            data = (True, logins)
+            cursor.execute(query, data)
+            cursor.close()
+            con.commit()
+        else:
+            cursor.close()
+            con.commit()
+
+
+def check_pay(logins):
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM spotifier")
+    rows = cursor.fetchall()
+    cursor.close()
+
+    for i in rows:
+        if i['login'] == logins:
+            if i['payed'] == 1:
+                return True
+            if i['payed'] == 0:
+                return False
