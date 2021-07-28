@@ -4,18 +4,25 @@ let intervalId2;
 
 async function a() {
     let m = document.getElementById("transfer"),
-        s = m.innerHTML,
         i = 0;
+    let width = m.style.width;
+    console.log(width)
+    m.style.width = width;
+    console.log(m.style.width)
+    m.innerHTML = 'перенос'
     intervalId = setInterval(function () {
+        
         let space = '&nbsp;'
-        s.replace(space, '.')
-        m.innerHTML = m.innerHTML.replace(space, '.')
+        m.innerHTML = m.innerHTML + '.'
+        
         i++;
-        if(i === 5){
+        if(i === 4){
             i = 0
-            m.innerHTML = 'перенос&nbsp&nbsp&nbsp&nbsp&nbsp'
+            m.innerHTML = 'перенос'
+
         }
     }, 500);
+    m.style.width = '100%';
 }
 
 async function d(){
