@@ -6,9 +6,10 @@
 
 .logo {
   font-size: 24px;
-  height: 30px;
 }
 
+
+/*Что это?*/
 .logo span {
   padding-top: 7px;
   height: 45px;
@@ -43,6 +44,10 @@
 
 #btn {
   width: 100%;
+}
+
+#transfer {
+  padding: 0 10px;
 }
 
 #errors_transfer {

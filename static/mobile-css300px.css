@@ -29,7 +29,6 @@ body * {
 
 .logo {
   display: inline-block;
-  height: 14px;
   padding: 5px 6px;
   border: 2px solid black;
   font-weight: bold;
@@ -39,7 +38,6 @@ body * {
 
 .vk_auth {
   display: inline-block;
-  height: 15px;
   padding: 5px 6px;
   border-radius: 9px;
   border: 2px solid #707070;
