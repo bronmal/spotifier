@@ -5,11 +5,6 @@ let intervalId2;
 async function a() {
     let m = document.getElementById("transfer"),
         i = 0;
-    let width = m.style.width;
-    console.log(width)
-    m.style.width = width;
-    console.log(m.style.width)
-    m.innerHTML = 'перенос'
     intervalId = setInterval(function () {
         
         let space = '&nbsp;'
@@ -22,7 +17,6 @@ async function a() {
 
         }
     }, 500);
-    m.style.width = '100%';
 }
 
 async function d(){
