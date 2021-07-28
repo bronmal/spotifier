@@ -1,13 +1,14 @@
 import os
+import time
 import uuid
 import config
 import spotipy
 import db
-from flask import Flask, session, request, redirect, render_template, json, flash
+import kassa
+from flask import Flask, session, request, redirect, render_template, json, flash, url_for
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
-
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -100,34 +101,58 @@ def transfer():
     login_sp = session['login_sp']['external_urls']['spotify']
     logins = f'{login_vk}, {login_sp}'
     tracks = get_tracks(login_vk, password_vk)
+    session['tracks'] = tracks
+    payed = db.check_pay(logins)
 
-    if len(tracks) <= config.MAX_TRACKS:
+    if db.in_db(logins) is False:
+        db.create_user(logins)
+
+    if len(tracks) <= config.MAX_TRACKS and payed is False:
         transferred_tracks = db.check_not_transferred(tracks, logins)
+        db.fill_tracks(transferred_tracks, logins)
         errors_transfer = search_add(session['spotify'], transferred_tracks)
-        database_work(logins, tracks)
         return json.dumps({'errors': errors_transfer})
 
-    if len(tracks) > config.MAX_TRACKS:
-        sorted_tracks = tracks
-        while len(tracks) != config.MAX_TRACKS:
+    if len(tracks) > config.MAX_TRACKS and payed is False:
+        sorted_tracks = tracks.copy()
+        while len(sorted_tracks) != config.MAX_TRACKS:
             sorted_tracks.pop()
         transferred_tracks = db.check_not_transferred(sorted_tracks, logins)
+        db.fill_tracks(transferred_tracks, logins)
         errors_transfer = search_add(session['spotify'], transferred_tracks)
-        database_work(logins, sorted_tracks)
+        return json.dumps({'errors': errors_transfer})
+
+    if payed:
+        transferred_tracks = db.check_not_transferred(tracks, logins)
+        db.fill_tracks(transferred_tracks, logins)
+        errors_transfer = search_add(session['spotify'], transferred_tracks)
         return json.dumps({'errors': errors_transfer})
 
 
 @application.route('/pay')
 def pay():
-    login = session['login_vk']
-    password = session['password_vk']
-    tracks = get_tracks(login, password)
+    login_vk = session['login_vk']
+    login_sp = session['login_sp']['external_urls']['spotify']
+    logins = f'{login_vk}, {login_sp}'
+    tracks = session['tracks']
+    payed = db.check_pay(logins)
 
-    if len(tracks) > config.MAX_TRACKS:
-        url_to_pay = '/'
+    if len(tracks) > config.MAX_TRACKS and payed is False:
+        info = kassa.rest(logins)
+        url_to_pay = info.confirmation.confirmation_url
         return json.dumps({'url_to_pay': url_to_pay})
     else:
         return json.dumps({'url_to_pay': None})
+
+
+@application.route('/check')
+def check():
+    logins = request.args.get("login")
+    id = db.get_id(logins)
+    payed = kassa.check(id)
+    if payed is True:
+        db.user_pay(logins)
+    return redirect('/')
 
 
 if __name__ == '__main__':
