@@ -214,6 +214,21 @@ a {
   text-transform: uppercase;
   color: #505050;
   border: 3px solid #777879;
+  background-color: #e9e9e9;
+  transition-property: background-color, border-color;
+  transition-duration: 0.3s;
+  transition-timing-function: linear;
+}
+
+.btn-start button:hover {
+  cursor: pointer;
+
+  z-index: 11;
+  background-color: white;
+  border-color: #909090;
+  transition-property: background-color, border-color;
+  transition-duration: 0.3s;
+  transition-timing-function: linear;
 }
 
 .btn-start button:focus {
@@ -237,6 +252,15 @@ a {
 #btn {
   width: 75%;
 }
+.no-transition{
+  transition: none !important;
+  pointer-events: none;
+}
+
+
+#transfer:hover {
+  cursor: unset;
+}
 
 #transfer {
   width: 75%;
@@ -247,9 +271,9 @@ a {
   white-space: nowrap;
 }
 
-.btn-start button:hover {
-  cursor: pointer;
-}
+
+
+
 
 #errors {
   display: none;

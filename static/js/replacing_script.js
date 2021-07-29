@@ -1,10 +1,16 @@
 let success = false
 let intervalId;
 let intervalId2;
+let elem;
 
 async function a() {
+
+
     let m = document.getElementById("transfer"),
         i = 0;
+    elem = document.querySelector(".btn-start button")
+    elem.classList.add("no-transition")
+    var triggerLayout = elem.offsetHeight;
     intervalId = setInterval(function () {
         
         m.innerHTML = m.innerHTML + '.'
@@ -35,6 +41,7 @@ async function b(){
             url: '/transfer',
             type: 'GET',
             success: function (response) {
+                elem.classList.remove("no-transition")
                 document.getElementById("transfer").innerHTML = "завершено"
                 const json = jQuery.parseJSON(response);
                 if (isNaN(json.errors)) {
@@ -43,6 +50,7 @@ async function b(){
                     }
                     $("#errors").css("display", "block");
                 }
+
                 clearInterval(intervalId)
                 clearInterval(intervalId2)
                 c()
