@@ -210,7 +210,6 @@ a {
   bottom: 25px;
   width: 50%;
   padding: 0;
-  height: 36px;
   font-size: 18px;
   text-transform: uppercase;
   color: #505050;
@@ -240,7 +239,8 @@ a {
 }
 
 #transfer {
-  width: 100%;
+  width: 75%;
+  max-width: 150px;
 }
 
 #removable div {

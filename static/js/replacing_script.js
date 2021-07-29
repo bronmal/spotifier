@@ -7,7 +7,6 @@ async function a() {
         i = 0;
     intervalId = setInterval(function () {
         
-        let space = '&nbsp;'
         m.innerHTML = m.innerHTML + '.'
         
         i++;

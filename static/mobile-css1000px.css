@@ -48,6 +48,8 @@
 
 #transfer {
   padding: 0 10px;
+  width: 100%;
+  max-width: none;
 }
 
 #errors_transfer {
@@ -65,8 +67,8 @@
 .btn-start button {
   margin: 0 auto;
   width: 100%;
-  height: 77px;
   font-size: 34px;
+  min-height: 80px;
 }
 
 #auth_spotify {
