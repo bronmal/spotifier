@@ -3,6 +3,4 @@ sp: login: ldz.key@yandex.ru password: 9mqPYwM5jyqbzLp
 sp: login: l.dzkey@yandex.ru password: 9mqPYwM5jyqbzLp
 
 
-vk: login: 12705000438 password: qdsdfnOMAP
-vk: login: 12286660139 password: y9ngl9MDAR
 vk: login: +48518410398 password: hES9jUsjj9gf4xm

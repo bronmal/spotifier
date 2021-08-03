@@ -48,4 +48,11 @@ def parse_accounts(Path:PathLike = None):
     
     
 
-    
+def delete_account(account:Account, PATH:PathLike = "mt_tester\\accounts.txt"):
+    with open(PATH, 'r+') as file:
+        new_file = file.readlines()
+        file.seek(0)
+        for line in new_file:
+            if account.login not in line:
+                file.write(line)
+        file.truncate()

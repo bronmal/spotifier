@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from os import PathLike
 from time import sleep
-from parser import parse_accounts
+from txt_parser import parse_accounts, delete_account
 from utils import Account, Browser
 from os.path import isfile
 from typing import Union
@@ -49,18 +49,27 @@ class mt_test(object):
         driver.find_element_by_id('btn').click()
 
 
-        self.wait_for_element_precense_by_xPath('/html/body/div/div/div[1]/div[3]/div/form/div[1]/input', driver)
+        if not self.wait_for_element_precense_by_xPath('/html/body/div/div/div[1]/div[3]/div/form/div[1]/input', driver):
+            driver.close()
 
         driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[1]/input').send_keys(self.accounts_vk[i].login)
         driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[2]/input').send_keys(self.accounts_vk[i].password)
         driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[3]/p/input').click()
 
-        self.wait_for_element_precense_by_xPath('//*[@id="auth_spotify"]', driver)
+        if self.wait_for_element_precense_by_xPath('/html/body/div/div/div[1]/div[3]/div/ul', driver, 2):
+            self.accounts_vk[i].valid = False
+            delete_account(self.accounts_vk[i])
+            driver.close()
+            return
+
+        if not self.wait_for_element_precense_by_xPath('//*[@id="auth_spotify"]', driver):
+            driver.close()
 
 
         driver.find_element_by_xpath('//*[@id="auth_spotify"]').click()
 
-        self.wait_for_element_precense_by_xPath('//*[@id="login-username"]', driver)
+        if not self.wait_for_element_precense_by_xPath('//*[@id="login-username"]', driver):
+            driver.close()
 
         
         driver.find_element_by_xpath('//*[@id="login-username"]').send_keys(self.accounts_sp[i].login)
@@ -68,7 +77,8 @@ class mt_test(object):
         driver.find_element_by_xpath('/html/body/div[1]/div[2]/div/form/div[4]/div[1]/div/label').click()
         driver.find_element_by_xpath('//*[@id="login-button"]').click()
 
-        self.wait_for_element_precense_by_xPath('//*[@id="auth-accept"]', driver)
+        if not self.wait_for_element_precense_by_xPath('//*[@id="auth-accept"]', driver):
+            driver.close()
 
         driver.find_element_by_xpath('//*[@id="auth-accept"]').click()
         
@@ -76,22 +86,23 @@ class mt_test(object):
 
     def run(self):
         with Pool(processes=self.proccesses) as pool:
-            pool.map(self.run_driver, range(self.proccesses))
+            pool.map(self.run_driver, range(self.accounts_vk.__len__()))
 
 
 
-    def wait_for_element_precense_by_xPath(self,xPath:str, driver):
+    def wait_for_element_precense_by_xPath(self,xPath:str, driver, delay:int = 20):
         try:
-            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, xPath)))
+            WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH, xPath)))
+            return True
         except TimeoutException:
             print("Loading took too much time!")
-            driver.close()
-            return
+            return False
         
 
 if __name__ == '__main__':
     proccesses = 4
     mt_test(
-     proccesses=procceses,
+     url = 'http://192.168.0.102:8080',
+     proccesses=proccesses,
      browser=Browser.Firefox
     ).run()
