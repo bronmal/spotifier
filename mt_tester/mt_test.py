@@ -71,7 +71,7 @@ class mt_test(object):
             driver.close()
 
 
-        if self.wait_for_element_precense_by_xPath('/html/body/div[1]/div[2]/div/div[2]/div/p', driver):
+        if self.wait_for_element_precense_by_xPath('/html/body/div[1]/div[2]/div/div[2]/div/p', driver, 3):
             delete_account(self.accounts_sp[i])
             driver.close()
             return
