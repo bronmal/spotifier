@@ -263,8 +263,9 @@ a {
 }
 
 #transfer {
-  width: 75%;
-  max-width: 150px;
+    padding: 0 10px;
+    width: 1000%;
+    max-width: max-content;
 }
 
 #removable div {

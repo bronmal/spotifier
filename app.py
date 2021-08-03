@@ -102,10 +102,11 @@ def transfer():
     logins = f'{login_vk}, {login_sp}'
     tracks = get_tracks(login_vk, password_vk)
     session['tracks'] = tracks
-    payed = db.check_pay(logins)
 
     if db.in_db(logins) is False:
         db.create_user(logins)
+
+    payed = db.check_pay(logins)
 
     if len(tracks) <= config.MAX_TRACKS and payed is False:
         transferred_tracks = db.check_not_transferred(tracks, logins)

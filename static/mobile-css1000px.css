@@ -47,9 +47,7 @@
 }
 
 #transfer {
-  padding: 0 10px;
-  width: 100%;
-  max-width: none;
+
 }
 
 #errors_transfer {
@@ -60,7 +58,7 @@
 
 .btn-start {
   margin: 60px auto 60px;
-  width: 241px;
+  width: 100%;
   max-width: 241px;
 }
 

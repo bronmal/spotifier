@@ -4,15 +4,12 @@ let intervalId2;
 let elem;
 
 async function a() {
-
-
     let m = document.getElementById("transfer"),
         i = 0;
     elem = document.querySelector(".btn-start button")
     elem.classList.add("no-transition")
-    var triggerLayout = elem.offsetHeight;
+    let triggerLayout = elem.offsetHeight;
     intervalId = setInterval(function () {
-        
         m.innerHTML = m.innerHTML + '.'
         
         i++;
@@ -22,7 +19,6 @@ async function a() {
 
         }
     }, 500);
-    //fnkasdfhkdshfsjdhfs
 }
 
 async function d(){
