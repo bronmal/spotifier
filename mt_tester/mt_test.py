@@ -16,38 +16,37 @@ from typing import Union
 
 
 class mt_test(object):
-    def __init__(self,url:str = 'http://www.spotifier.ru',proccesses=1,accounts_vk:list = None,accounts_sp:list = None,WebDriverPath:PathLike = None,browser:Browser = Browser.Chrome):
+    def __init__(self,url:str = 'http://www.spotifier.ru',proccesses=1,accounts_vk:list = None,accounts_sp:list = None,browser:Browser = Browser.Chrome):
         self.proccesses = proccesses
         self.url = url
-        self.WebDriverPath = WebDriverPath
+        self.WebDriverPath = ""
         self.browser = browser
         self.accounts_vk = accounts_vk
         self.accounts_sp = accounts_sp
 
     def get_driver(self):
         if self.browser == Browser.Firefox:
-            if not isfile("mt_tester\WebDriver\geckodriver.exe"):
+            self.WebDriverPath = "mt_tester\WebDriver\geckodriver.exe"
+            if not isfile(self.WebDriverPath):
                 raise Exception("Cant find Firefox WebDriver, you can download it here https://github.com/mozilla/geckodriver/releases")
-                return None
             driver = webdriver.Firefox(executable_path = self.WebDriverPath)
         elif self.browser == Browser.Chrome:
-            if not isfile("mt_tester\WebDriver\chromedriver.exe"):
+            self.WebDriverPath = "mt_tester\WebDriver\chromedriver.exe"
+            if not isfile(self.WebDriverPath):
                 raise Exception("Cant find Chromium WebDriver, you can download it here https://chromedriver.chromium.org/downloads")
-                return None
             driver = webdriver.Chrome(executable_path = self.WebDriverPath)
         elif self.browser == Browser.Edge:
-            if not isfile("mt_tester\WebDriver\msedgedriver.exe"):
+            self.WebDriverPath = "mt_tester\WebDriver\msedgedriver.exe"
+            if not isfile(self.WebDriverPath):
                 raise Exception("Cant find Edge WebDriver, you can download it here https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/")
-                return None
             driver = webdriver.Edge(executable_path = self.WebDriverPath) 
         if driver:
             return driver
-        return None
 
 
     def run_driver(self, i):
         driver = self.get_driver()
-        driver.get(f'{self.WebDriverPath}')
+        driver.get(self.url)
         element = driver.find_element_by_id('btn')
         ActionChains(driver=driver).click(on_element=element).perform()
 
@@ -74,7 +73,7 @@ class mt_test(object):
         self.wait_for_element_precense_by_xPath('//*[@id="auth-accept"]', driver)
 
         driver.find_element_by_xpath('//*[@id="auth-accept"]').click()
-
+        
         sleep(30)
         driver.close()
 
@@ -103,6 +102,5 @@ if __name__ == '__main__':
      accounts_vk=vk_accounts,
      accounts_sp=sp_accounts,
      proccesses=procceses,
-     WebDriverPath="mt_tester\WebDriver\geckodriver.exe",
      browser=Browser.Firefox
     ).run()
