@@ -14,7 +14,7 @@ from typing import Union
 
 
 
-
+#
 class mt_test(object):
     def __init__(self,url:str = 'http://www.spotifier.ru',accounts_path:PathLike = "mt_tester\\accounts.txt",proccesses=1,browser:Browser = Browser.Chrome):
         self.proccesses = proccesses
