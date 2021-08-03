@@ -74,7 +74,6 @@ class mt_test(object):
 
         driver.find_element_by_xpath('//*[@id="auth-accept"]').click()
         
-        sleep(30)
         driver.close()
 
     def run(self):
