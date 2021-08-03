@@ -90,7 +90,7 @@ class mt_test(object):
 
     def run(self):
         with Pool(processes=self.proccesses) as pool:
-            i = self.accounts_vk if self.accounts_vk < self.accounts_sp else self.accounts_sp
+            i = self.accounts_vk.__len__() if self.accounts_vk.__len__() < self.accounts_sp.__len__() else self.accounts_sp.__len__()
             pool.map(self.run_driver, range(i))
 
 
@@ -100,7 +100,7 @@ class mt_test(object):
             WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH, xPath)))
             return True
         except TimeoutException:
-            print("Loading took too much time!")
+            print("Element not found")
             return False
         
 
