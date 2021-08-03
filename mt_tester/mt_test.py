@@ -90,7 +90,8 @@ class mt_test(object):
 
     def run(self):
         with Pool(processes=self.proccesses) as pool:
-            pool.map(self.run_driver, range(self.accounts_vk.__len__()))
+            i = self.accounts_vk if self.accounts_vk < self.accounts_sp else self.accounts_sp
+            pool.map(self.run_driver, range(i))
 
 
 
