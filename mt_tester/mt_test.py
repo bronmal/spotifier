@@ -57,7 +57,6 @@ class mt_test(object):
         driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[3]/p/input').click()
 
         if self.wait_for_element_precense_by_xPath('/html/body/div/div/div[1]/div[3]/div/ul', driver, 2):
-            self.accounts_vk[i].valid = False
             delete_account(self.accounts_vk[i])
             driver.close()
             return
@@ -71,6 +70,11 @@ class mt_test(object):
         if not self.wait_for_element_precense_by_xPath('//*[@id="login-username"]', driver):
             driver.close()
 
+
+        if self.wait_for_element_precense_by_xPath('/html/body/div[1]/div[2]/div/div[2]/div/p', driver):
+            delete_account(self.accounts_sp[i])
+            driver.close()
+            return
         
         driver.find_element_by_xpath('//*[@id="login-username"]').send_keys(self.accounts_sp[i].login)
         driver.find_element_by_xpath('//*[@id="login-password"]').send_keys(self.accounts_sp[i].password)
