@@ -46,14 +46,13 @@ class mt_test(object):
     def run_driver(self, i):
         driver = self.get_driver()
         driver.get(self.url)
-        element = driver.find_element_by_id('btn')
-        ActionChains(driver=driver).click(on_element=element).perform()
+        driver.find_element_by_id('btn').click()
+
 
         self.wait_for_element_precense_by_xPath('/html/body/div/div/div[1]/div[3]/div/form/div[1]/input', driver)
 
-        element = driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[1]/input').send_keys(self.accounts_vk[i].login)
-        
-        element = driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[2]/input').send_keys(self.accounts_vk[i].password)
+        driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[1]/input').send_keys(self.accounts_vk[i].login)
+        driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[2]/input').send_keys(self.accounts_vk[i].password)
         driver.find_element_by_xpath('/html/body/div/div/div[1]/div[3]/div/form/div[3]/p/input').click()
 
         self.wait_for_element_precense_by_xPath('//*[@id="auth_spotify"]', driver)
