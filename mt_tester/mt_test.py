@@ -16,13 +16,12 @@ from typing import Union
 
 
 class mt_test(object):
-    def __init__(self,url:str = 'http://www.spotifier.ru',proccesses=1,accounts_vk:list = None,accounts_sp:list = None,browser:Browser = Browser.Chrome):
+    def __init__(self,url:str = 'http://www.spotifier.ru',accounts_path:PathLike = "mt_tester\\accounts.txt",proccesses=1,accounts_vk:list = None,accounts_sp:list = None,browser:Browser = Browser.Chrome):
         self.proccesses = proccesses
         self.url = url
         self.WebDriverPath = ""
         self.browser = browser
-        self.accounts_vk = accounts_vk
-        self.accounts_sp = accounts_sp
+        self.accounts_vk,self.accounts_sp = parse_accounts(accounts_path)
 
     def get_driver(self):
         if self.browser == Browser.Firefox:
@@ -92,14 +91,8 @@ class mt_test(object):
         
 
 if __name__ == '__main__':
-    vk_accounts, sp_accounts = parse_accounts("mt_tester/accounts.txt")
-    procceses = list(zip(vk_accounts,sp_accounts)).__len__()
-    print(procceses)
-    if procceses > 4:
-        procceses = 4
+    proccesses = 4
     mt_test(
-     accounts_vk=vk_accounts,
-     accounts_sp=sp_accounts,
      proccesses=procceses,
      browser=Browser.Firefox
     ).run()
