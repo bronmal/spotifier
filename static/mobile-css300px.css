@@ -4,6 +4,10 @@ body,html {
   height: 100%;
 }
 
+br {
+  display: block;
+}
+
 .wrapper {
   display: flex;
 	flex-direction: column;
