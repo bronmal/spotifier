@@ -91,7 +91,13 @@ def waiting_page():
     if not session.get('uuid'):
         return redirect('/')
     else:
-        return render_template('replacing.html')
+        try:
+            vk = session['vk_account']
+            print(vk)
+            spotify = session['login_sp']
+            return render_template('replacing.html')
+        except:
+            return redirect('/')
 
 
 @application.route('/transfer')
@@ -137,6 +143,8 @@ def pay():
     login_sp = session['login_sp']
     logins = f'{login_vk}, {login_sp}'
     tracks = session['tracks']
+    session.pop('vk_account')
+    session.pop('login_sp')
     payed = db.check_pay(logins)
 
     if len(tracks) > config.MAX_TRACKS and payed is False:
