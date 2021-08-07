@@ -8,6 +8,8 @@ from flask import Flask, session, request, redirect, render_template, json, flas
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
+from mt_tester.utils import Account
+
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -47,10 +49,10 @@ def vk():
     if request.method == 'POST':
         login = request.form.get('login')
         password = request.form.get('password')
-        is_valid = valid(login, password)
+        vk_account = Account(login, password)
+        is_valid = valid(vk_account)
         if is_valid is True:
-            session['login_vk'] = login
-            session['password_vk'] = password
+            session['vk_account'] = vk_account
             return redirect('/auth_spotify')
         if is_valid is False:
             flash('Пароль не верный, попробуйте еще раз', 'error')
@@ -90,11 +92,10 @@ def waiting_page():
 
 @application.route('/transfer')
 def transfer():
-    login_vk = session['login_vk']
-    password_vk = session['password_vk']
+    account_vk = session['vk_account']
     login_sp = session['login_sp']
-    logins = f'{login_vk}, {login_sp}'
-    tracks = get_tracks(login_vk, password_vk)
+    logins = f'{account_vk.login}, {login_sp}'
+    tracks = get_tracks(account_vk)
     session['tracks'] = tracks
 
     if db.in_db(logins) is False:
@@ -126,7 +127,7 @@ def transfer():
 
 @application.route('/pay')
 def pay():
-    login_vk = session['login_vk']
+    login_vk = session['vk_account'].login
     login_sp = session['login_sp']
     logins = f'{login_vk}, {login_sp}'
     tracks = session['tracks']
