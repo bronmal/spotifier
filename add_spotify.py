@@ -1,6 +1,8 @@
 import base64
+from logger import log
 
 
+@log
 def search_add(spot, q):
     user_id = spot.me()['id']
     try:

@@ -8,6 +8,7 @@ from flask import Flask, session, request, redirect, render_template, json, flas
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
+from logger import log
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -29,14 +30,15 @@ def session_cache_path():
 
 
 @application.route('/')
+@log
 def main_page():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
 
     return render_template('index.html')
 
-
 @application.route('/auth_vk', methods=['get', 'post'])
+@log
 def vk():
     if not session.get('uuid'):
         return redirect('/')
@@ -58,6 +60,7 @@ def vk():
 
 
 @application.route('/auth_spotify')
+@log
 def spotify():
     if not session.get('uuid'):
         return redirect('/')
@@ -81,6 +84,7 @@ def spotify():
 
 
 @application.route('/result')
+@log
 def waiting_page():
     if not session.get('uuid'):
         return redirect('/')
@@ -89,6 +93,7 @@ def waiting_page():
 
 
 @application.route('/transfer')
+@log
 def transfer():
     login_vk = session['login_vk']
     password_vk = session['password_vk']
@@ -125,6 +130,7 @@ def transfer():
 
 
 @application.route('/pay')
+@log
 def pay():
     login_vk = session['login_vk']
     login_sp = session['login_sp']
@@ -141,6 +147,7 @@ def pay():
 
 
 @application.route('/check')
+@log
 def check():
     logins = request.args.get("login")
     id = db.get_id(logins)

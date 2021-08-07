@@ -8,3 +8,4 @@
 /.vscode/
 /mt_tester/__pycache__/
 geckodriver.log
+spotifier.log
