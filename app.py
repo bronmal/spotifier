@@ -10,6 +10,7 @@ from get_tracks import get_tracks, valid
 from add_spotify import search_add
 from mt_tester.utils import Account
 
+from logger import log
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -31,14 +32,15 @@ def session_cache_path():
 
 
 @application.route('/')
+@log
 def main_page():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
 
     return render_template('index.html')
 
-
 @application.route('/auth_vk', methods=['get', 'post'])
+@log
 def vk():
     if not session.get('uuid'):
         return redirect('/')
@@ -60,6 +62,7 @@ def vk():
 
 
 @application.route('/auth_spotify')
+@log
 def spotify():
     if not session.get('uuid'):
         return redirect('/')
@@ -83,6 +86,7 @@ def spotify():
 
 
 @application.route('/result')
+@log
 def waiting_page():
     if not session.get('uuid'):
         return redirect('/')
@@ -91,6 +95,7 @@ def waiting_page():
 
 
 @application.route('/transfer')
+@log
 def transfer():
     account_vk = session['vk_account']
     login_sp = session['login_sp']
@@ -126,6 +131,7 @@ def transfer():
 
 
 @application.route('/pay')
+@log
 def pay():
     login_vk = session['vk_account'].login
     login_sp = session['login_sp']
@@ -142,6 +148,7 @@ def pay():
 
 
 @application.route('/check')
+@log
 def check():
     logins = request.args.get("login")
     id = db.get_id(logins)

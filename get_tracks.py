@@ -1,6 +1,9 @@
 import vk_api
 from vk_api import audio
 from mt_tester.utils import Account
+from logger import log
+
+
 
 dic = {'Ь': '', 'ь': '', 'Ъ': '', 'ъ': '', 'А': 'A', 'а': 'a', 'Б': 'B', 'б': 'b', 'В': 'V', 'в': 'v',
        'Г': 'G', 'г': 'g', 'Д': 'D', 'д': 'd', 'Е': 'E', 'е': 'e', 'Ё': 'E', 'ё': 'e', 'Ж': 'Zh', 'ж': 'zh',
@@ -16,6 +19,8 @@ alphabet = ['Ь', 'ь', 'Ъ', 'ъ', 'А', 'а', 'Б', 'б', 'В', 'в', 'Г', '�
             'Ш', 'ш', 'Щ', 'щ', 'Ы', 'ы', 'Э', 'э', 'Ю', 'ю', 'Я', 'я']
 
 
+
+@log
 def valid(vk_account: Account):
     user = vk_api.VkApi(vk_account.login, vk_account.password)
     try:
@@ -25,6 +30,8 @@ def valid(vk_account: Account):
         return False
 
 
+
+@log
 def get_tracks(vk_account: Account):
     user = vk_api.VkApi(vk_account.login, vk_account.password)
     user.auth()

@@ -6,10 +6,12 @@ from yookassa import Payment
 from yookassa.domain.models.currency import Currency
 from yookassa.domain.common.confirmation_type import ConfirmationType
 from yookassa.domain.request.payment_request_builder import PaymentRequestBuilder
+from logger import log
+
 
 Configuration.configure(822381, 'test_Z0bQfQgOZa2d_KbHJmo4j65IfoiG7OPfdCLvfrz5VtE')
 
-
+@log
 def rest(logins):
     url = config.URL + url_for('check', login=logins)
     builder = PaymentRequestBuilder()
@@ -23,7 +25,7 @@ def rest(logins):
     db.fill_id(logins, res.id)
     return res
 
-
+@log
 def check(id):
     res = Payment.find_one(id)
     return res.paid

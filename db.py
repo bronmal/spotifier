@@ -1,13 +1,14 @@
 import pymysql
 import json
+from logger import log
 
-
+@log
 def create_con():
     con = pymysql.connect(user='bronmal', host='bronmal.mysql.eu.pythonanywhere-services.com',
                           password='andrey5550100', database='bronmal$pay')
     return con
 
-
+@log
 def in_db(logins):
     con = create_con()
     global find
@@ -26,7 +27,7 @@ def in_db(logins):
     if find is False:
         return False
 
-
+@log
 def create_user(logins):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -35,7 +36,7 @@ def create_user(logins):
     con.commit()
     con.close()
 
-
+@log
 def fill_tracks(tracks, logins):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -70,7 +71,7 @@ def fill_tracks(tracks, logins):
     con.commit()
     con.close()
 
-
+@log
 def check_not_transferred(tracks, logins):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -97,7 +98,7 @@ def check_not_transferred(tracks, logins):
                 sort_tracks.remove(i)
         return sort_tracks
 
-
+@log
 def fill_id(logins, id):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -115,7 +116,7 @@ def fill_id(logins, id):
             con.commit()
             con.close()
 
-
+@log
 def get_id(logins):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -128,7 +129,7 @@ def get_id(logins):
         if i['login'] == logins:
             return i['pay_id']
 
-
+@log
 def user_pay(logins):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -150,7 +151,7 @@ def user_pay(logins):
             con.commit()
             con.close()
 
-
+@log
 def check_pay(logins):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
