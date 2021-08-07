@@ -82,7 +82,10 @@ def spotify():
 
 @application.route('/result')
 def waiting_page():
-    return render_template('replacing.html')
+    if not session.get('uuid'):
+        return redirect('/')
+    else:
+        return render_template('replacing.html')
 
 
 @application.route('/transfer')
