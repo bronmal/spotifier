@@ -76,7 +76,7 @@ def spotify():
 
     spot = spotipy.Spotify(auth_manager=auth_manager)
     session['spotify'] = spot
-    session['login_sp'] = spot.me()
+    session['login_sp'] = spot.me()['id']
     return redirect('/result')
 
 
@@ -92,7 +92,7 @@ def waiting_page():
 def transfer():
     login_vk = session['login_vk']
     password_vk = session['password_vk']
-    login_sp = session['login_sp']['external_urls']['spotify']
+    login_sp = session['login_sp']
     logins = f'{login_vk}, {login_sp}'
     tracks = get_tracks(login_vk, password_vk)
     session['tracks'] = tracks
@@ -127,7 +127,7 @@ def transfer():
 @application.route('/pay')
 def pay():
     login_vk = session['login_vk']
-    login_sp = session['login_sp']['external_urls']['spotify']
+    login_sp = session['login_sp']
     logins = f'{login_vk}, {login_sp}'
     tracks = session['tracks']
     payed = db.check_pay(logins)
