@@ -9,7 +9,6 @@ from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
 from mt_tester.utils import Account
-
 from logger import log
 
 application = Flask(__name__)
@@ -38,6 +37,7 @@ def main_page():
         session['uuid'] = str(uuid.uuid4())
 
     return render_template('index.html')
+
 
 @application.route('/auth_vk', methods=['get', 'post'])
 @log
