@@ -147,7 +147,7 @@ def pay():
     session.pop('login_sp')
     payed = db.check_pay(logins)
 
-    if len(tracks) > config.MAX_TRACKS and payed is False:
+    if len(tracks) >= config.MAX_TRACKS and payed is False:
         info = kassa.rest(logins)
         url_to_pay = info.confirmation.confirmation_url
         return json.dumps({'url_to_pay': url_to_pay})
