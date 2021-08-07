@@ -1,17 +1,22 @@
 import pymysql
 import json
 
-con = pymysql.connect(user='u1420413_default', host='31.31.198.4',
-                      password='8jPn8m4hUX27uPYY', database='u1420413_pay')
+
+def create_con():
+    con = pymysql.connect(user='bronmal', host='bronmal.mysql.eu.pythonanywhere-services.com',
+                          password='andrey5550100', database='bronmal$pay')
+    return con
 
 
 def in_db(logins):
+    con = create_con()
     global find
     find = False
     cursor = con.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
+    con.close()
     if rows == ():
         return False
     for i in rows:
@@ -23,13 +28,16 @@ def in_db(logins):
 
 
 def create_user(logins):
+    con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
     cursor.execute("INSERT INTO spotifier (login, payed, transfered) VALUES (%s, %s, %s)", (logins, False, None))
     cursor.close()
     con.commit()
+    con.close()
 
 
 def fill_tracks(tracks, logins):
+    con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
     cursor.execute("SELECT * FROM spotifier")
@@ -60,9 +68,11 @@ def fill_tracks(tracks, logins):
     cursor.execute(query, data)
     cursor.close()
     con.commit()
+    con.close()
 
 
 def check_not_transferred(tracks, logins):
+    con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
@@ -76,6 +86,7 @@ def check_not_transferred(tracks, logins):
 
     cursor.close()
     con.commit()
+    con.close()
 
     if db_tracks is None:
         return tracks
@@ -88,6 +99,7 @@ def check_not_transferred(tracks, logins):
 
 
 def fill_id(logins, id):
+    con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
     cursor.execute("SELECT * FROM spotifier")
@@ -101,20 +113,24 @@ def fill_id(logins, id):
             cursor.execute(query, data)
             cursor.close()
             con.commit()
+            con.close()
 
 
 def get_id(logins):
+    con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
+    con.close()
     for i in rows:
         if i['login'] == logins:
             return i['pay_id']
 
 
 def user_pay(logins):
+    con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
     cursor.execute("SELECT * FROM spotifier")
@@ -128,17 +144,21 @@ def user_pay(logins):
             cursor.execute(query, data)
             cursor.close()
             con.commit()
+            con.close()
         else:
             cursor.close()
             con.commit()
+            con.close()
 
 
 def check_pay(logins):
+    con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
+    con.close()
 
     for i in rows:
         if i['login'] == logins:

@@ -1,11 +1,10 @@
 import os
-import time
 import uuid
 import config
 import spotipy
 import db
 import kassa
-from flask import Flask, session, request, redirect, render_template, json, flash, url_for
+from flask import Flask, session, request, redirect, render_template, json, flash
 from flask_session import Session
 from get_tracks import get_tracks, valid
 from add_spotify import search_add
@@ -27,14 +26,6 @@ if not os.path.exists(caches_folder):
 
 def session_cache_path():
     return caches_folder + session.get('uuid')
-
-
-def database_work(logins, tracks):
-    if db.in_db(logins) is False:
-        db.create_user(logins)
-        db.fill_tracks(tracks, logins)
-    elif db.in_db(logins) is True:
-        db.fill_tracks(tracks, logins)
 
 
 @application.route('/')
