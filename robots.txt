@@ -1,0 +1,6 @@
+User-agent: Yandex
+User-agent: Google
+Disallow: /auth_vk
+Disallow: /auth_spotify
+Disallow: /result
+Sitemap: https://spotifier.ru/sitemap.xml
