@@ -1,0 +1,9 @@
+User-agent: *
+Crawl-delay: 5
+Host: https://spotifier.ru
+Disallow: /check
+Disallow: /pay
+Disallow: /transfer
+Disallow: /result
+Disallow: /auth_spotify
+Disallow: /auth_vk
