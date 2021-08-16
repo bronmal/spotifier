@@ -148,10 +148,7 @@ def user_pay(logins):
             cursor.close()
             con.commit()
             con.close()
-        else:
-            cursor.close()
-            con.commit()
-            con.close()
+
 
 @log
 def check_pay(logins):
