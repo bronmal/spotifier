@@ -30,7 +30,7 @@ def log(func):
                     id = json_dict[i.login]['cookies'][1]['value']
                 print_str += i.login + f"  VK ID: {id}"
             else:
-                print_str += i
+                print_str += str(i)
         with open(PATH, 'a') as file:
             file.write(f"[{today}] : {func.__name__} function executed with args ({print_str}) \n")
 
