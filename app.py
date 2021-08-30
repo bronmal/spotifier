@@ -71,10 +71,8 @@ def vk():
 def test():
 
     response = None
-    
-        
-    vk_account = Account(request.json['login'], request.json['pass'])
 
+    vk_account = Account(request.json['login'], request.json['pass'])
     if request.method == 'POST':
         print(vk_account)
         response = _session.get('https://oauth.vk.com/token', params={
@@ -91,13 +89,50 @@ def test():
         print(response)
     if 'validation_sid' in response:
         print('res')
+        session['vk_account'] = vk_account
         _session.get("https://api.vk.com/method/auth.validatePhone",
                         params={'sid': response['validation_sid'], 'v': '5.131'})
         return json.dumps({'2fa_required': True})
 
-
     
 
+
+
+@application.route('/test2', methods = ['POST', 'GET'])
+@log
+def test2():
+    vk_account = session['vk_account']
+    code = request.json['code']
+    if request.method == 'POST':
+        print(vk_account)
+        response = _session.get('https://oauth.vk.com/token', params={
+            'grant_type': 'password',
+            'client_id': '6146827',
+            'client_secret': 'qVxWRF1CwHERuIrKBnqe',
+            'username': vk_account.login,
+            'password': vk_account.password,
+            'v': '5.131',
+            '2fa_supported': '1',
+            'force_sms': '1',
+            'code': code
+        }).json()
+        print(response)
+
+    if 'otp_format_is_incorrect' in response['error_type']:
+        flash('Код неверный')
+        return redirect('/auth_vk')
+    if 'validation_sid' in response:
+        print('res')
+        _session.get("https://api.vk.com/method/auth.validatePhone",
+                        params={'sid': response['validation_sid'], 'v': '5.131'})
+        if 'access_token' in response:
+            _session['user_id'] = response['user_id']
+            _session['token'] = response['access_token']
+            return redirect('/auth_spotify')
+        if 'access_token' not in response:
+            flash('Код неверный')
+            return redirect('/auth_vk')
+        
 
 @application.route('/auth_spotify')
 @log
