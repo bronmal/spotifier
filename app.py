@@ -93,7 +93,6 @@ def waiting_page():
     else:
         try:
             vk = session['vk_account']
-            print(vk)
             spotify = session['login_sp']
             return render_template('replacing.html')
         except:
