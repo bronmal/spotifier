@@ -66,7 +66,7 @@ def vk():
 
 
 def auth(vk_account, two_fa=False, code=None):
-    return _session.get('https://oauth.vk.com/token', params={
+    return _session.get(f'https://oauth.vk.com/token', params={
         'grant_type': 'password',
         'client_id': '6146827',
         'client_secret': 'qVxWRF1CwHERuIrKBnqe',
@@ -79,7 +79,7 @@ def auth(vk_account, two_fa=False, code=None):
     }).json()
 
 
-@application.route('/test', methods = ['POST', 'GET'])
+@application.route('/test', methods=['POST', 'GET'])
 @log
 def test():
 
@@ -98,8 +98,7 @@ def test():
         return json.dumps({'2fa_required': True})
 
 
-
-@application.route('/test2', methods = ['POST', 'GET'])
+@application.route('/test2', methods=['POST', 'GET'])
 @log
 def test2():
     response = None
