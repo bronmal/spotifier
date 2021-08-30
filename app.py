@@ -52,7 +52,7 @@ def vk():
         login = request.form.get('login')
         password = request.form.get('password')
         vk_account = Account(login, password)
-        is_valid = valid(vk_account)
+        is_valid = valid(vk_account, session)
         if is_valid is True:
             session['vk_account'] = vk_account
             return redirect('/auth_spotify')
@@ -106,7 +106,7 @@ def transfer():
     account_vk = session['vk_account']
     login_sp = session['login_sp']
     logins = f'{account_vk.login}, {login_sp}'
-    tracks = get_tracks(account_vk)
+    tracks = get_tracks(session['token'], session['user_id'])
     session['tracks'] = tracks
 
     if db.in_db(logins) is False:
