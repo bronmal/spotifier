@@ -82,20 +82,17 @@ def auth(vk_account, two_fa=False, code=None):
 @application.route('/test', methods=['POST', 'GET'])
 @log
 def test():
-
-    response = None
-
     vk_account = Account(request.json['login'], request.json['pass'])
     if request.method == 'POST':
         print(vk_account)
         response = auth(vk_account)
         print(100000, response)
-    if 'validation_sid' in response:
-        session['vk_account'] = vk_account
-        _session.get("https://api.vk.com/method/auth.validatePhone",
-                     params={'sid': response['validation_sid'], 'v': '5.131'})
-        response = auth(vk_account)
-        return json.dumps({'2fa_required': True})
+        if 'validation_sid' in response:
+            session['vk_account'] = vk_account
+            _session.get("https://api.vk.com/method/auth.validatePhone",
+                         params={'sid': response['validation_sid'], 'v': '5.131'})
+            response = auth(vk_account)
+            return json.dumps({'2fa_required': True})
 
 
 @application.route('/test2', methods=['POST', 'GET'])

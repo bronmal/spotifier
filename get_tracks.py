@@ -37,10 +37,13 @@ def auth(vk_account, two_fa=False, code=None):
 @log
 def valid(vk_account: Account, _session):
     response = auth(vk_account)
+    print(1, response)
 
     if 'validation_sid' in response:
         session.get("https://api.vk.com/method/auth.validatePhone",
                     params={'sid': response['validation_sid'], 'v': '5.131'})
+        response = auth(vk_account)
+        print(2, response)
         code = input('Введите код из смс:  ')
         response = auth(vk_account, two_fa=True, code=code)
         print(response)
