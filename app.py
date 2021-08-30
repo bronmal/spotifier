@@ -10,6 +10,8 @@ from get_tracks import get_tracks, valid
 from add_spotify import search_add
 from mt_tester.utils import Account
 from logger import log
+import requests
+import json
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -20,6 +22,8 @@ Session(application)
 os.environ['SPOTIPY_CLIENT_ID'] = config.ID
 os.environ['SPOTIPY_CLIENT_SECRET'] = config.SECRET
 os.environ['SPOTIPY_REDIRECT_URI'] = config.REDIRECT
+
+_session = requests.Session()
 
 caches_folder = './.spotify_caches/'
 if not os.path.exists(caches_folder):
@@ -48,17 +52,51 @@ def vk():
     if request.method == 'GET':
         return render_template('vk_form.html')
 
+    # if request.method == 'POST':
+    #     login = request.form.get('login')
+    #     password = request.form.get('password')
+    #     vk_account = Account(login, password)
+    #     is_valid = valid(vk_account, session)
+    #     if is_valid is True:
+    #         session['vk_account'] = vk_account
+    #         return redirect('/auth_spotify')
+    #     if is_valid is False:
+    #         flash('Пароль не верный, попробуйте еще раз', 'error')
+    #         return redirect('/auth_vk')
+
+
+
+@application.route('/test', methods = ['POST', 'GET'])
+@log
+def test():
+
+    response = None
+    
+        
+    vk_account = Account(request.json['login'], request.json['pass'])
+
     if request.method == 'POST':
-        login = request.form.get('login')
-        password = request.form.get('password')
-        vk_account = Account(login, password)
-        is_valid = valid(vk_account, session)
-        if is_valid is True:
-            session['vk_account'] = vk_account
-            return redirect('/auth_spotify')
-        if is_valid is False:
-            flash('Пароль не верный, попробуйте еще раз', 'error')
-            return redirect('/auth_vk')
+        print(vk_account)
+        response = _session.get('https://oauth.vk.com/token', params={
+            'grant_type': 'password',
+            'client_id': '6146827',
+            'client_secret': 'qVxWRF1CwHERuIrKBnqe',
+            'username': vk_account.login,
+            'password': vk_account.password,
+            'v': '5.131',
+            '2fa_supported': '1',
+            'force_sms': '0',
+            'code': None
+        }).json()
+        print(response)
+    if 'validation_sid' in response:
+        print('res')
+        _session.get("https://api.vk.com/method/auth.validatePhone",
+                        params={'sid': response['validation_sid'], 'v': '5.131'})
+        return json.dumps({'2fa_required': True})
+
+
+    
 
 
 @application.route('/auth_spotify')
