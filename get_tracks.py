@@ -21,7 +21,7 @@ session = requests.Session()
 
 
 def auth(vk_account, two_fa=False, code=None):
-    return session.get(f'https://oauth.vk.com/token', params={
+    return requests.get(f'https://oauth.vk.com/token', params={
         'grant_type': 'password',
         'client_id': '6146827',
         'client_secret': 'qVxWRF1CwHERuIrKBnqe',
@@ -45,12 +45,12 @@ def valid(vk_account: Account, _session):
         response = auth(vk_account, two_fa=True, code=code)
         print(response)
 
-        if 'access_token' in response:
-            _session['user_id'] = response['user_id']
-            _session['token'] = response['access_token']
-            return True
-        if 'access_token' not in response:
-            return False
+    if 'access_token' in response:
+        _session['user_id'] = response['user_id']
+        _session['token'] = response['access_token']
+        return True
+    if 'access_token' not in response:
+        return False
 
 
 @log

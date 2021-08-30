@@ -1,13 +1,3 @@
-class Account {
-    login = new String()
-    password = new String()
-    Account(login, password){
-        this.login = login
-        this.password = password
-    }
-}
-
-
 function a(VkAccount, two_fa = null, code = null){
     session = new XMLHttpRequest()
     session.open('GET', "https://oauth.vk.com/token", false)

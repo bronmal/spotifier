@@ -65,6 +65,19 @@ def vk():
     #         return redirect('/auth_vk')
 
 
+def auth(vk_account, two_fa=False, code=None):
+    return _session.get('https://oauth.vk.com/token', params={
+        'grant_type': 'password',
+        'client_id': '6146827',
+        'client_secret': 'qVxWRF1CwHERuIrKBnqe',
+        'username': vk_account.login,
+        'password': vk_account.password,
+        'v': '5.131',
+        '2fa_supported': '1',
+        'force_sms': '1' if two_fa else '0',
+        'code': code if two_fa else None
+    }).json()
+
 
 @application.route('/test', methods = ['POST', 'GET'])
 @log
@@ -75,47 +88,26 @@ def test():
     vk_account = Account(request.json['login'], request.json['pass'])
     if request.method == 'POST':
         print(vk_account)
-        response = _session.get('https://oauth.vk.com/token', params={
-            'grant_type': 'password',
-            'client_id': '6146827',
-            'client_secret': 'qVxWRF1CwHERuIrKBnqe',
-            'username': vk_account.login,
-            'password': vk_account.password,
-            'v': '5.131',
-            '2fa_supported': '1',
-            'force_sms': '0',
-            'code': None
-        }).json()
-        print(response)
+        response = auth(vk_account)
+        print(100000, response)
     if 'validation_sid' in response:
-        print('res')
         session['vk_account'] = vk_account
         _session.get("https://api.vk.com/method/auth.validatePhone",
-                        params={'sid': response['validation_sid'], 'v': '5.131'})
+                     params={'sid': response['validation_sid'], 'v': '5.131'})
+        response = auth(vk_account)
         return json.dumps({'2fa_required': True})
-
-    
 
 
 
 @application.route('/test2', methods = ['POST', 'GET'])
 @log
 def test2():
+    response = None
     vk_account = session['vk_account']
     code = request.json['code']
     if request.method == 'POST':
         print(vk_account)
-        response = _session.get('https://oauth.vk.com/token', params={
-            'grant_type': 'password',
-            'client_id': '6146827',
-            'client_secret': 'qVxWRF1CwHERuIrKBnqe',
-            'username': vk_account.login,
-            'password': vk_account.password,
-            'v': '5.131',
-            '2fa_supported': '1',
-            'force_sms': '1',
-            'code': code
-        }).json()
+        response = auth(vk_account, True, code)
         print(response)
 
     if 'otp_format_is_incorrect' in response['error_type']:
