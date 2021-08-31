@@ -6,11 +6,10 @@ import db
 import kassa
 from flask import Flask, session, request, redirect, render_template, json, flash
 from flask_session import Session
-from get_tracks import get_tracks, valid, Auth
+from get_tracks import get_tracks, Auth
 from add_spotify import search_add
 from mt_tester.utils import Account
 from logger import log
-import requests
 import json
 
 application = Flask(__name__)
@@ -51,44 +50,33 @@ def vk():
     if request.method == 'GET':
         return render_template('vk_form.html')
 
-    # if request.method == 'POST':
-    #     login = request.form.get('login')
-    #     password = request.form.get('password')
-    #     vk_account = Account(login, password)
-    #     is_valid = valid(vk_account, session)
-    #     if is_valid is True:
-    #         session['vk_account'] = vk_account
-    #         return redirect('/auth_spotify')
-    #     if is_valid is False:
-    #         flash('Пароль не верный, попробуйте еще раз', 'error')
-    #         return redirect('/auth_vk')
 
-
-@application.route('/test', methods=['POST', 'GET'])
+@application.route('/get_auth_data', methods=['POST'])
 @log
-def test():
+def get_auth_data():
     vk_login = Auth(request.json['login'], request.json['pass'])
+    session['vk_account'] = vk_login
     response = vk_login.auth()
+    print(response)
     if 'validation_sid' in response:
         vk_login.validate_phone(response)
         return json.dumps({'2fa_required': True})
 
 
-@application.route('/test2', methods=['POST', 'GET'])
+@application.route('/get_code', methods=['POST', 'GET'])
 @log
-def test2():
-    vk_account = session['vk_account']
+def get_code():
+    vk_login = session['vk_account']
     code = request.json['code']
     if request.method == 'POST':
-        print(vk_account)
-        response = auth(vk_account, True, code)
+        response = vk_login.auth(True, code)
         print(response)
         if 'access_token' in response:
             session['user_id'] = response['user_id']
             session['token'] = response['access_token']
-            return redirect('/auth_spotify')
+            return json.dumps({'success': True})
         if 'access_token' not in response:
-            return 'error'
+            return json.dumps({'success': False})
         
 
 @application.route('/auth_spotify')

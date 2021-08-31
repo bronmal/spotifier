@@ -1,33 +1,11 @@
-function a(VkAccount, two_fa = null, code = null){
-    session = new XMLHttpRequest()
-    session.open('GET', "https://oauth.vk.com/token", false)
-    session.setRequestHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-    session.setRequestHeader('Access-Control-Allow-Origin', '*')
-    session.setRequestHeader('Access-Control-Allow-Method', 'GET')
-    session.send({
-        'grant_type': 'password',
-        'client_id': '6146827',
-        'client_secret': 'qVxWRF1CwHERuIrKBnqe',
-        'username': VkAccount.login,
-        'password': VkAccount.password,
-        'v': '5.131',
-        '2fa_supported': '1',
-        'force_sms': two_fa !== null ? '1' : '0',
-        'code': two_fa !== null ? code : '0'
-    })
-    session.onload = () => {console.log(session.status);}
-}
-
-
 function auth(){
     try {
         login = document.getElementById('login').value
         pass = document.getElementById('pass').value
-        console.log(login);
         this.resp = null
         $(function () {
             $.ajax({
-                url: '/test',
+                url: '/get_auth_data',
                 type: 'POST',
                 contentType: 'application/json;charset=UTF-8',
                 dataType: 'json',
@@ -38,19 +16,17 @@ function auth(){
                 success: function (response) {
                     console.log(response);
                     if (response['2fa_required']) {
-                        b()
+                        hide_auth_data()
                     }
-                    console.log('dsfgdsfgdfsgdfgdsfgdfsgdfgdfgdfsgdfsgdsgdfsgdsgsdfgdfsgdfsg');
                 },
                 error: function (error) {}
             });
         })
     } catch (error) {
-        console.log('12312312');
-        code = document.getElementById('2fa').value
+        code = document.getElementById('2fa_code').value
         $(function () {
             $.ajax({
-                url: '/test2',
+                url: '/get_code',
                 type: 'POST',
                 contentType: 'application/json;charset=UTF-8',
                 dataType: 'json',
@@ -58,41 +34,22 @@ function auth(){
                     'code': String(code)
                 }),
                 success: function (response) {
+                    if (response.success === true){
+                        console.log('2141385')
+                        window.location.href = '/auth_spotify';
+                    }
                 },
                 error: function (error) {}
             });
         })
     }
-    
-    
-    
-    
 }
 
 
-function b() {
-    console.log('asjdhnflkajshflkasdhfklasdhfkadshfjkasdhjf');
+function hide_auth_data() {
     document.getElementById('vk_auth_login').remove()
     document.getElementById('vk_auth_pass').remove()
     document.getElementById('hidden_2fa').style.display = 'block'
     value = document.getElementById('hidden_2fa')
 
-}
-
-
-function valid(VkAccount){
-    response = auth(VkAccount)
-    session = new Request()
-
-    if ('validation_sid' in response) {
-        session.get("https://api.vk.com/method/auth.validatePhone",
-                    params={'sid': response['validation_sid'], 'v': '5.131'})
-        code = input('Введите код из смс:  ')
-        response = auth(vk_account, two_fa=True, code=code)
-        print(response)
-
-        if ('access_token' in response){
-            return response['access_token'].json()
-        }
-    }
 }
