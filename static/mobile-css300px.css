@@ -72,17 +72,7 @@ body * {
 
 
 
-#vk_button {
-  appearance:none;
-  padding:10px;
-  border:none;
-  background-color:#709BCB;
-  color:#505050;
-  font-weight:bold;
-  border-radius:5px;
-  width:100%;
-  min-width: 195px;
-}
+
 
 input[type="text"] {
   border-radius: 5px;
@@ -208,7 +198,7 @@ a {
   width: 100%;
 }
 
-#btn.btn-start {
+.btn-start button {
   margin: 0 auto;
   position: relative;
   bottom: 25px;
@@ -237,6 +227,30 @@ a {
 
 .btn-start button:focus {
   outline: none;
+}
+
+
+#vk_button {
+  width: 100%;
+  font-size: 18px;
+  text-transform: uppercase;  
+  transition: none;
+  position: unset;
+  appearance:none;
+  padding:10px;
+  border:none;
+  background-color:#709BCB;
+  color:#505050;
+  font-weight:bold;
+  border-radius:5px;
+  min-width: 195px;
+  min-height: auto;
+}
+
+
+#wrong_code_hidden {
+  display: none;
+  color: red;
 }
 
 #hidden_2fa{

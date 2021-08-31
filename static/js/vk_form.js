@@ -38,6 +38,10 @@ function auth(){
                         console.log('2141385')
                         window.location.href = '/auth_spotify';
                     }
+                    if (response.success === false){
+                        let button = document.getElementById('2fa_code').value = ''
+                        document.getElementById('wrong_code_hidden').style.display = 'block'
+                    }
                 },
                 error: function (error) {}
             });

