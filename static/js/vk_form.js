@@ -18,6 +18,9 @@ function auth(){
                     if (response['2fa_required']) {
                         hide_auth_data()
                     }
+                    if (response['2fa_required'] === false) {
+                        window.location.href = '/auth_spotify';
+                    }
                 },
                 error: function (error) {}
             });
@@ -35,7 +38,6 @@ function auth(){
                 }),
                 success: function (response) {
                     if (response.success === true){
-                        console.log('2141385')
                         window.location.href = '/auth_spotify';
                     }
                     if (response.success === false){

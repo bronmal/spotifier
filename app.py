@@ -61,6 +61,10 @@ def get_auth_data():
     if 'validation_sid' in response:
         vk_login.validate_phone(response)
         return json.dumps({'2fa_required': True})
+    if 'access_token' in response:
+        session['user_id'] = response['user_id']
+        session['token'] = response['access_token']
+        return json.dumps({'2fa_required': False})
 
 
 @application.route('/get_code', methods=['POST', 'GET'])
