@@ -42,7 +42,7 @@ async function b(){
                 const json = jQuery.parseJSON(response);
                 if (isNaN(json.errors)) {
                     for (let key in json.errors) {
-                        $("#errors_transfer").append("<option>" + json.errors[key] + "</option>")
+                        $("#errors_transfer").append('<div class="not-found-track">' + json.errors[key] + "</div>")
                     }
                     $("#errors").css("display", "block");
                 }
