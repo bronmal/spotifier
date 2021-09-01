@@ -6,12 +6,14 @@ import db
 import kassa
 from flask import Flask, session, request, redirect, render_template, json
 from flask_session import Session
+from yandex_music import yandex
 from get_tracks import get_tracks, Auth
 from add_spotify import search_add
 from logger import log
 import json
 
 application = Flask(__name__)
+application.register_blueprint(yandex, url_prefix='/yandex-music')
 application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = './flask_session/'
