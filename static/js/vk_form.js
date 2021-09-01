@@ -2,7 +2,7 @@ function auth(){
     try {
         login = document.getElementById('login').value
         pass = document.getElementById('pass').value
-        this.resp = null
+        document.getElementById('vk_button').onclick = auth
         $(function () {
             $.ajax({
                 url: '/get_auth_data',
@@ -26,6 +26,7 @@ function auth(){
             });
         })
     } catch (error) {
+        console.log(error);
         code = document.getElementById('2fa_code').value
         $(function () {
             $.ajax({
@@ -50,6 +51,31 @@ function auth(){
         })
     }
 }
+
+$(document).ready(function(){
+    //Скрыть PopUp при загрузке страницы    
+    PopUpHide();
+});
+//Функция отображения PopUp
+function PopUpShow(){
+    $("#popup1").show();
+}
+
+function PopUpHide(){
+    $("#popup1").hide();
+}
+
+
+//Функция скрытия PopUp
+function PopUpHideAndAccept(){
+    $("#popup1").hide();
+    auth()
+}
+function PopUpHideAndCancel(){
+    $("#popup1").hide();
+    window.location.href = '/'
+}
+
 
 
 function hide_auth_data() {
