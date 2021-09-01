@@ -4,11 +4,10 @@ import config
 import spotipy
 import db
 import kassa
-from flask import Flask, session, request, redirect, render_template, json, flash
+from flask import Flask, session, request, redirect, render_template, json
 from flask_session import Session
 from get_tracks import get_tracks, Auth
 from add_spotify import search_add
-from mt_tester.utils import Account
 from logger import log
 import json
 
