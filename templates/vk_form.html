@@ -83,8 +83,28 @@
             </div>
             <div class="vk_auth_submit">
                 <p>
-                    <button onclick="auth()" id="vk_button" type="submit" value="Войти">Войти в вк</button>
+                    <button onclick="PopUpShow()" id="vk_button" type="submit" value="Войти">Войти в вк</button>
                 </p>
+            </div>
+            <div class="b-popup" id="popup1">
+                <div class="b-popup-content">
+                    <div class="text-title">
+                        <strong class="text-spotifier">Spotifier</strong> 
+                        требуется доступ к вашему аккаунту 
+                        <strong class="text-vk">VKontakte</strong>
+                    </div>
+                    <div class="text-desc">
+                        <strong>Внимательно ознакомьтесь:</strong>
+                    </div>
+                    <ul class="auth-list">
+                        <li>Для этого мы используем неофициальный API&nbsp;— доступ может исчезнуть в любой момент.</li>
+                        <li>Вы получите <b>уведомление о подключении к вашей учетной записи из Германии</b>. Не волнуйтесь, это мы.</li>
+                    </ul>
+                <div class="buttons">
+                    <a href="javascript:PopUpHideAndCancel()" id="cancel">Отказаться</a>
+                    <a href="javascript:PopUpHideAndAccept()" id="accept">Принять</a>
+                </div>
+                </div>
             </div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
