@@ -6,14 +6,14 @@ import db
 import kassa
 from flask import Flask, session, request, redirect, render_template, json
 from flask_session import Session
-from yandex_music import yandex
+from yandex_music import yandex_music
 from get_tracks import get_tracks, Auth
 from add_spotify import search_add
 from logger import log
 import json
 
 application = Flask(__name__)
-application.register_blueprint(yandex, url_prefix='/yandex-music')
+application.register_blueprint(yandex_music, url_prefix='/yandex-music')
 application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = './flask_session/'
@@ -39,7 +39,7 @@ def main_page():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
 
-    return render_template('index.html')
+    return render_template('vk/index.html')
 
 
 @application.route('/auth_vk', methods=['get', 'post'])
@@ -49,7 +49,7 @@ def vk():
         return redirect('/')
 
     if request.method == 'GET':
-        return render_template('vk_form.html')
+        return render_template('vk/vk_form.html')
 
 
 @application.route('/get_auth_data', methods=['POST'])
@@ -100,7 +100,7 @@ def spotify():
 
     if not auth_manager.get_cached_token():
         auth_url = auth_manager.get_authorize_url()
-        return render_template('spotify_form.html', auth_url=auth_url)
+        return render_template('vk/spotify_form.html', auth_url=auth_url)
 
     spot = spotipy.Spotify(auth_manager=auth_manager)
     session['spotify'] = spot
@@ -117,7 +117,7 @@ def waiting_page():
         try:
             vk = session['vk_account']
             spotify = session['login_sp']
-            return render_template('replacing.html')
+            return render_template('vk/replacing.html')
         except:
             return redirect('/')
 
