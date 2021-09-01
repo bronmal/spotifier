@@ -40,7 +40,6 @@ class Auth:
     def validate_phone(self, response):
         response = self.session.get("https://api.vk.com/method/auth.validatePhone",
                          params={'sid': response['validation_sid'], 'v': '5.131'})
-        print(response.text)
 
 
 @log
@@ -48,9 +47,7 @@ def get_tracks(token, user_id):
     user = vk_api.VkApi(token=token)
     count = user.method('audio.getCount', values={'owner_id': user_id})
     result = user.method('audio.get', values={'count': count})
-    print(result)
     title_author = []
-
     for i in result['items']:
         q = i['title'] + ' ' + i['artist']
         title_author.append(q)

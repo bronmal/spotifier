@@ -56,7 +56,6 @@ def get_auth_data():
     vk_login = Auth(request.json['login'], request.json['pass'])
     session['vk_account'] = vk_login
     response = vk_login.auth()
-    print(response)
     if 'validation_sid' in response:
         vk_login.validate_phone(response)
         return json.dumps({'2fa_required': True})
@@ -73,7 +72,6 @@ def get_code():
     code = request.json['code']
     if request.method == 'POST':
         response = vk_login.auth(True, code)
-        print(response)
         if 'access_token' in response:
             session['user_id'] = response['user_id']
             session['token'] = response['access_token']
