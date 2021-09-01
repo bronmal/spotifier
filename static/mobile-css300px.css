@@ -297,11 +297,17 @@ a {
   padding: 5px;
   color: black;
   font-size: 18px;
+  display: inline-block;
 }
 
 .buttons #cancel {
   margin-right: 50px;
   background-color: red;
+  width: 95px;
+}
+
+.buttons #accept {
+  width: 95px;
 }
 
 .text-desc {

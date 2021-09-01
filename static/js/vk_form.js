@@ -52,10 +52,7 @@ function auth(){
     }
 }
 
-$(document).ready(function(){
-    //Скрыть PopUp при загрузке страницы    
-    PopUpHide();
-});
+
 //Функция отображения PopUp
 function PopUpShow(){
     $("#popup1").show();
