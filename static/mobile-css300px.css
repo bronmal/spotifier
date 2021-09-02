@@ -402,6 +402,10 @@ a {
   border-radius: 5px;
 }
 
+#user_agreement {
+  font-size: inherit;
+  text-decoration-line:underline ;
+}
 
 .not-found-track {
   color: #1c1c1c;
@@ -483,10 +487,3 @@ a {
   vertical-align: middle;
 }
 
-#user_agreement, #user_agreement a{
-  font-size: 12px;
-}
-
-#user_agreement a{
-  color: navy;
-}
