@@ -137,6 +137,7 @@ a {
 #container {
   width: 100%;
   height: 19px;
+  background: #e9e9e9;
 }
 
 .line {
@@ -298,17 +299,16 @@ a {
   color: black;
   font-size: 18px;
   display: inline-block;
+  width: 105px;
+
 }
 
 .buttons #cancel {
   margin-right: 50px;
   background-color: red;
-  width: 95px;
 }
 
-.buttons #accept {
-  width: 95px;
-}
+
 
 .text-desc {
   text-align: left;
