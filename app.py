@@ -56,6 +56,7 @@ def get_auth_data():
     vk_login = Auth(request.json['login'], request.json['pass'])
     session['vk_account'] = vk_login
     response = vk_login.auth()
+    print(response)
     if 'validation_sid' in response:
         vk_login.validate_phone(response)
         return json.dumps({'2fa_required': True})
@@ -63,6 +64,10 @@ def get_auth_data():
         session['user_id'] = response['user_id']
         session['token'] = response['access_token']
         return json.dumps({'2fa_required': False})
+    if 'captcha_sid' in response:
+        return json.dumps({'wrong_password': True})
+    if response['error_type'] == 'username_or_password_is_incorrect':
+        return json.dumps({'wrong_password': True})
 
 
 @application.route('/get_code', methods=['POST', 'GET'])

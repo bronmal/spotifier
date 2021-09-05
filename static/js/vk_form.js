@@ -2,7 +2,6 @@ function auth(){
     try {
         login = document.getElementById('login').value
         pass = document.getElementById('pass').value
-        document.getElementById('vk_button').onclick = auth
         $(function () {
             $.ajax({
                 url: '/get_auth_data',
@@ -20,6 +19,9 @@ function auth(){
                     }
                     if (response['2fa_required'] === false) {
                         window.location.href = '/auth_spotify';
+                    }
+                    if (response['wrong_password']) {
+                        document.getElementById('wrong-pass').style.display = 'block'
                     }
                 },
                 error: function (error) {}
@@ -76,6 +78,8 @@ function PopUpHideAndCancel(){
 
 
 function hide_auth_data() {
+    document.getElementById('vk_button').onclick = auth
+    document.getElementById('wrong-pass').style.display = 'none'
     document.getElementById('vk_auth_login').remove()
     document.getElementById('vk_auth_pass').remove()
     document.getElementById('hidden_2fa').style.display = 'block'
