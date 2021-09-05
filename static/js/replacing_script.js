@@ -67,7 +67,7 @@ async function c() {
                 {
                     document.getElementById("transfer").setAttribute("onclick", 'window.location.href = ' + "'" + json.url_to_pay + "'")
                     document.getElementById("transfer").innerHTML = "Оплатить <br/>149 руб*<br/>"
-                    document.getElementById("user_agreement").style.display = "block"
+                    document.getElementById("user_agreement_popup").style.display = "block"
                     document.getElementById("hidden").innerHTML = "Вы перенесли 100 треков, чтобы переносить без ограничений заплатите 69 рублей"
                     document.getElementsByClassName("btn-start")[0].style.marginTop = 10 + "px";
                 }
