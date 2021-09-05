@@ -9,7 +9,8 @@ from yookassa.domain.request.payment_request_builder import PaymentRequestBuilde
 from logger import log
 
 
-Configuration.configure(822381, 'test_Z0bQfQgOZa2d_KbHJmo4j65IfoiG7OPfdCLvfrz5VtE')
+Configuration.configure(820855, 'live_BUlhDRNtimTbVzgmKXC7G7DYv7lC1jBaeiijRk0GWPw')
+
 
 @log
 def rest(logins):
@@ -18,7 +19,7 @@ def rest(logins):
     builder.set_amount({"value": 69, "currency": Currency.RUB}) \
         .set_confirmation({"type": ConfirmationType.REDIRECT, "return_url": url}) \
         .set_capture(True) \
-        .set_description("Заказ №72") \
+        .set_description(logins) \
 
     request = builder.build()
     res = Payment.create(request)
