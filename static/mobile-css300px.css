@@ -87,6 +87,11 @@ a {
   text-decoration: none;
 }
 
+#user_agreeement a {
+  font-size: 20px;
+  text-decoration: underline;
+}
+
 #auth_spotify {
   border-radius: 4px;
   background-color: #B2D88E;
@@ -403,7 +408,7 @@ a {
 }
 
 #user_agreement {
-  font-size: inherit;
+  font-size: 20px;
   text-decoration-line:underline ;
 }
 
