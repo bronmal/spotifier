@@ -16,7 +16,7 @@ Configuration.configure(820855, 'live_BUlhDRNtimTbVzgmKXC7G7DYv7lC1jBaeiijRk0GWP
 def rest(logins):
     url = config.URL + url_for('check', login=logins)
     builder = PaymentRequestBuilder()
-    builder.set_amount({"value": 99, "currency": Currency.RUB}) \
+    builder.set_amount({"value": 149, "currency": Currency.RUB}) \
         .set_confirmation({"type": ConfirmationType.REDIRECT, "return_url": url}) \
         .set_capture(True) \
         .set_description(logins) \
