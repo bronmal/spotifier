@@ -40,6 +40,12 @@ body * {
   text-transform: uppercase;
 }
 
+#letter-o {
+  font-size: 17px;
+  font-weight: bold;
+  color: #b3d98f;
+}
+
 .vk_auth {
   display: inline-block;
   padding: 5px 6px;

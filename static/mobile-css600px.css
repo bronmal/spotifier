@@ -2,6 +2,12 @@
   font-size: 14px;
 }
 
+#letter-o {
+  font-size: 18px;
+  font-weight: bold;
+  color: #b3d98f;
+}
+
 .logo span {
   height: 15px;
   vertical-align: middle;
