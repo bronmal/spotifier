@@ -9,6 +9,7 @@ from flask_session import Session
 from get_tracks import get_tracks, Auth
 from add_spotify import search_add
 from logger import log
+from promo import create_promo
 import json
 
 application = Flask(__name__)
@@ -187,6 +188,12 @@ def check():
     if payed is True:
         db.user_pay(logins)
     return redirect('/')
+
+
+@application.route('/check')
+def promo():
+    promo = create_promo(6)
+    return json.dumps({'promo': promo})
 
 
 if __name__ == '__main__':
