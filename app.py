@@ -3,13 +3,14 @@ import uuid
 import config
 import spotipy
 import db
+import db_promo
 import kassa
 from flask import Flask, session, request, redirect, render_template, json
 from flask_session import Session
 from get_tracks import get_tracks, Auth
 from add_spotify import search_add
 from logger import log
-from promo import create_promo
+from promo import create_promo, unique_promo
 import json
 
 application = Flask(__name__)
@@ -190,10 +191,17 @@ def check():
     return redirect('/')
 
 
-@application.route('/check')
+@application.route('/promo')
 def promo():
-    promo = create_promo(6)
-    return json.dumps({'promo': promo})
+    login = request.json['login']
+    if db_promo.check_availability(login) is None:
+        promo = create_promo(6)
+        while not unique_promo(promo):
+            promo = create_promo(6)
+        db_promo.save_promo(login, promo)
+        return json.dumps({'promo': promo})
+    if db_promo.check_availability(login) is not None:
+        return json.dumps({'promo': db_promo.check_availability(login)})
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import random
+import db_promo
 
 
 def create_promo(count):
@@ -10,4 +11,10 @@ def create_promo(count):
     return code
 
 
+def unique_promo(promo):
+    promos = db_promo.get_all_promo()
+    for i in promos:
+        if i == promo:
+            return False
+    return True
 

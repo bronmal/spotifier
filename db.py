@@ -166,8 +166,3 @@ def check_pay(logins):
                 return True
             if i['payed'] == 0:
                 return False
-
-
-def save_promo(logins):
-    con = create_con()
-    cursor = con.cursor(pymysql.cursors.DictCursor)
