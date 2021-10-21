@@ -35,7 +35,7 @@
         <div class="top-part">
     <div class="header">
         <div class="logo">
-            <a href="/">sp<strong style="font-size: 28px;color: #b3d98f;font-weight: bold;">o</strong>tifier</a>
+            <a href="/">sp<strong id="letter-o">o</strong>tifier</a>
         </div>
 
         <div class="menu">
@@ -55,6 +55,10 @@
         <div class="btn-start">
             <div id="hidden"></div>
             <button id="transfer">перенос</button>
+            <div id="promo_hidden" style="display: flex; justify-content: center; margin-bottom: 20px;">
+                <input type="text" id="promo" placeholder="Промокод" style="font-size: 12px;">
+                <button id="submit_promo" onclick="checkPromo()">Применить</button>
+            </div>
             <div id="user_agreement_popup" style="display: none;">
                 *Нажимая на кнопку оплатить вы соглашаеетесь с 
                 <a href="/static/Spotifier Пользовательское Соглашение.pdf" target="_blank">пользовательским соглашением</a>

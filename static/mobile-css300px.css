@@ -259,6 +259,25 @@ a {
   min-height: auto;
 }
 
+#submit_promo {
+  width: 50%;
+  font-size: 12px;
+  text-transform: none;  
+  transition: none;
+  position: unset;
+  appearance:none;
+  padding:5px;
+  border:none;
+  background-color:#709BCB;
+  color:#505050;
+  font-weight:bold;
+  border-radius:5px;
+  margin-left: 5px;
+  min-width: 20px;
+  min-height: auto;
+}
+
+
 .b-container{
   width:200px;
   height:150px;

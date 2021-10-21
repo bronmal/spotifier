@@ -51,7 +51,9 @@ async function b(){
                 clearInterval(intervalId2)
                 c()
             },
-            error: function (error) {}
+            error: function (error) {
+                c_offline()
+            }
         });
     })
 }
@@ -81,3 +83,14 @@ async function c() {
 a()
 d()
 b()
+
+
+async function c_offline() {
+    document.getElementById("transfer").setAttribute("onclick", 'window.location.href = ' + "'" + "'")
+    document.getElementById("transfer").innerHTML = "Оплатить <br/>149 руб*<br/>"
+    document.getElementById("user_agreement_popup").style.display = "block"
+    document.getElementById("hidden").innerHTML = "Вы перенесли 100 треков, чтобы переносить без ограничений заплатите 149 рублей"
+    document.getElementsByClassName("btn-start")[0].style.marginTop = 10 + "px";
+    clearInterval(intervalId)
+    clearInterval(intervalId2)
+}
