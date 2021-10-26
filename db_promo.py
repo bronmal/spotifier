@@ -42,5 +42,3 @@ def get_all_promo():
     cursor.close()
     con.close()
     return promos
-
-

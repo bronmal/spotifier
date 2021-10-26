@@ -1,6 +1,22 @@
 import pymysql
 import json
+import sshtunnel
+from functools import wraps
 from logger import log
+
+sshtunnel.SSH_TIMEOUT = 5.0
+sshtunnel.TUNNEL_TIMEOUT = 5.0
+
+
+def ssh(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        with sshtunnel.SSHTunnelForwarder(
+            ('ssh.eu.pythonanywhere.com'),
+            ssh_username='bronmal', ssh_password='Andrey2004',
+            remote_bind_address=('bronmal.mysql.eu.pythonanywhere-services.com', 3306)
+        ) as tunnel:
+            func(*args, **kwargs)
 
 
 @log
@@ -10,6 +26,7 @@ def create_con():
     return con
 
 
+@ssh
 @log
 def in_db(logins):
     con = create_con()
@@ -29,6 +46,8 @@ def in_db(logins):
     if find is False:
         return False
 
+
+@ssh
 @log
 def create_user(logins):
     con = create_con()
@@ -38,6 +57,8 @@ def create_user(logins):
     con.commit()
     con.close()
 
+
+@ssh
 @log
 def fill_tracks(tracks, logins):
     con = create_con()
@@ -73,6 +94,8 @@ def fill_tracks(tracks, logins):
     con.commit()
     con.close()
 
+
+@ssh
 @log
 def check_not_transferred(tracks, logins):
     con = create_con()
@@ -100,6 +123,8 @@ def check_not_transferred(tracks, logins):
                 sort_tracks.remove(i)
         return sort_tracks
 
+
+@ssh
 @log
 def fill_id(logins, id):
     con = create_con()
@@ -118,6 +143,8 @@ def fill_id(logins, id):
             con.commit()
             con.close()
 
+
+@ssh
 @log
 def get_id(logins):
     con = create_con()
@@ -131,6 +158,8 @@ def get_id(logins):
         if i['login'] == logins:
             return i['pay_id']
 
+
+@ssh
 @log
 def user_pay(logins):
     con = create_con()
@@ -150,6 +179,7 @@ def user_pay(logins):
             con.close()
 
 
+@ssh
 @log
 def check_pay(logins):
     con = create_con()

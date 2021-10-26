@@ -5,7 +5,7 @@ import spotipy
 import db
 import db_promo
 import kassa
-from flask import Flask, session, request, redirect, render_template, json
+from flask import Flask, session, request, redirect, render_template, json, send_from_directory
 from flask_session import Session
 from get_tracks import get_tracks, Auth
 from add_spotify import search_add
@@ -31,6 +31,11 @@ if not os.path.exists(caches_folder):
 
 def session_cache_path():
     return caches_folder + session.get('uuid')
+
+
+@application.route('/.well-known')
+def apple_pay():
+    return send_from_directory('static', 'apple-developer-merchantid-domain-association')
 
 
 @application.route('/')
