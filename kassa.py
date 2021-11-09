@@ -29,4 +29,4 @@ def rest(logins):
 @log
 def check(id):
     res = Payment.find_one(id)
-    return res.paid
+    return res

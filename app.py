@@ -23,7 +23,6 @@ os.environ['SPOTIPY_CLIENT_ID'] = config.ID
 os.environ['SPOTIPY_CLIENT_SECRET'] = config.SECRET
 os.environ['SPOTIPY_REDIRECT_URI'] = config.REDIRECT
 
-
 caches_folder = './.spotify_caches/'
 if not os.path.exists(caches_folder):
     os.makedirs(caches_folder)
@@ -90,7 +89,7 @@ def get_code():
             return json.dumps({'success': True})
         if 'access_token' not in response:
             return json.dumps({'success': False})
-        
+
 
 @application.route('/auth_spotify')
 @log
@@ -190,9 +189,9 @@ def pay():
 def check():
     logins = request.args.get("login")
     id = db.get_id(logins)
-    payed = kassa.check(id)
-    if payed is True:
-        db.user_pay(logins)
+    pay_info = kassa.check(id)
+    if pay_info.paid is True:  # and pay_info.payment_method['saved'] is True
+        db.user_pay(logins)  # сохранить payment_method.id в бд
     return redirect('/')
 
 
