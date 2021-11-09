@@ -20,6 +20,8 @@ def rest(logins):
         .set_confirmation({"type": ConfirmationType.REDIRECT, "return_url": url}) \
         .set_capture(True) \
         .set_description(logins) \
+        # .set_payment_method_id() оплата с помощью автоплатежа, добавить обраточик при отключении автоплатежа,
+    # чтобы отлючалась подписка
 
     request = builder.build()
     res = Payment.create(request)
