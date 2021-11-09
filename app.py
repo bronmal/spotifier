@@ -5,6 +5,7 @@ import spotipy
 import db
 import db_promo
 import kassa
+from auth import vk_create_link, vk_get_token
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory
 from flask_session import Session
 from get_tracks import get_tracks, Auth
@@ -206,6 +207,14 @@ def promo():
         return json.dumps({'promo': promo})
     if db_promo.check_availability(login) is not None:
         return json.dumps({'promo': db_promo.check_availability(login)})
+
+
+@application.route('/auth')
+def auth():
+    if request.args.get('code'):
+        vk_get_token(request.args.get('code'))
+    url = vk_create_link()
+    return render_template('auth.html', vk_auth=url)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,8 @@
 import pymysql
+from db import ssh
 
 
+@ssh
 def create_con():
     con = pymysql.connect(user='bronmal', host='bronmal.mysql.eu.pythonanywhere-services.com',
                           password='andrey5550100', database='bronmal$pay')
