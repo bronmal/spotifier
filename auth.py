@@ -1,7 +1,7 @@
 import json
 import urllib.parse
-import requests
 import config
+import vk_api
 
 
 def vk_create_link():
@@ -10,17 +10,12 @@ def vk_create_link():
         'redirect_uri': config.URL + '/auth',
         'display': 'popup',
         'scope': 'email',
-        'response_type': 'code'
+        'response_type': 'token'
     })
     return 'https://oauth.vk.com/authorize' + '?' + params
 
 
-def vk_get_token(code):
-    session = requests.session()
-    response = session.get('https://oauth.vk.com/access_token', params={
-        'client_id': 7938876,
-        'client_secret': '7kjFGKtvWD2f2aKBRq13',
-        'redirect_uri': config.URL + '/auth',
-        'code': code
-    }).json()
-    print(response.get('email'))
+def vk_auth(token):
+    vk = vk_api.VkApi(token=token)
+    name = vk.method('users.get')
+    print(name)

@@ -5,7 +5,7 @@ import spotipy
 import db
 import db_promo
 import kassa
-from auth import vk_create_link, vk_get_token
+from auth import vk_create_link, vk_auth
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory
 from flask_session import Session
 from get_tracks import get_tracks, Auth
@@ -13,6 +13,9 @@ from add_spotify import search_add
 from logger import log
 from promo import create_promo, unique_promo
 import json
+import liked_tracks
+import liked_artists
+import liked_playlists
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = os.urandom(64)
@@ -99,7 +102,10 @@ def spotify():
         return redirect('/')
 
     auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-modify-private '
-                                                     'playlist-modify-public ugc-image-upload',
+                                                     'playlist-modify-public ugc-image-upload '
+                                                     'user-library-read '
+                                                     'playlist-read-private '
+                                                     'user-top-read',
                                                cache_path=session_cache_path(), show_dialog=True)
 
     if request.args.get("code"):
@@ -133,6 +139,9 @@ def waiting_page():
 @application.route('/transfer')
 @log
 def transfer():
+    # liked_tracks.sp_liked_tracks(session['spotify'])
+    # liked_playlists.sp_liked_artists(session['spotify'])
+    # liked_artists.sp_liked_artists(session['spotify'])
     account_vk = session['vk_account']
     login_sp = session['login_sp']
     logins = f'{account_vk.login}, {login_sp}'
@@ -211,10 +220,12 @@ def promo():
 
 @application.route('/auth')
 def auth():
-    if request.args.get('code'):
-        vk_get_token(request.args.get('code'))
+    print(request.args.get("user_id"))
+    if request.args.get('access_token'):
+        print(1)
+        vk_auth(request.args.get('access_token'))
     url = vk_create_link()
-    return render_template('auth.html', vk_auth=url)
+    return f'<a href={url}>auth</a>'
 
 
 if __name__ == '__main__':
