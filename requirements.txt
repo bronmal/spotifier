@@ -1,0 +1,11 @@
+Flask
+flask_session
+spotipy
+requests
+vk_api
+pymysql
+yookassa
+authlib==0.11
+google-api-python-client
+google-auth
+virtualenv
