@@ -1,6 +1,0 @@
-sp: login: l.dzkeymylp@gmail.com password: 9mqPYwM5jyqbzLp
-sp: login: ldz.key@yandex.ru password: 9mqPYwM5jyqbzLp 
-sp: login: l.dzkey@yandex.ru password: 9mqPYwM5jyqbzLp
-
-
-vk: login: +48518410398 password: hES9jUsjj9gf4xm
