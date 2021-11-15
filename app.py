@@ -33,28 +33,32 @@ def authorization():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
 
+    vkont = auth.VkAuth()
     spot = auth.SpotAuth()
     gle = auth.GoogleAuth()
+    mail = auth.MailAuth()
 
     url_google = gle.create_link()
     session['google_state'] = url_google[1]
 
     urls = dict
-    urls.update({'vk': auth.vk_create_link()})
+    urls.update({'vk': vkont.create_link()})
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
+    urls.update({'mail': mail.create_link()})
 
-    return render_template('auth.html', url=url_google[0])
+    return render_template('auth.html', url=mail.create_link())
 
 
 @application.route('/auth_vk')
 def vk():
     if request.args.get('code'):
-        info = auth.vk_info(request.args.get('code'))
+        vkont = auth.VkAuth()
+        info = vkont.info(request.args.get('code'))
         try:
             email = info['email']
             token = info['access_token']
-            user_get = auth.vk_name(token)
+            user_get = vkont.name(token)
             name = user_get[0]['first_name'] + ' ' + user_get[0]['last_name']
             print(email, name)
             # сохранить в бд имя и email
@@ -85,9 +89,25 @@ def google():
         return redirect('/auth')
 
 
+@application.route('/auth_google')
+def mailru():
+    try:
+        mail = auth.MailAuth()
+
+        return email
+    except Exception as err:
+        print(err)
+        return redirect('/auth')
+
+
 @application.route('/.well-known')
 def apple_pay():
     return send_from_directory('static', 'apple-developer-merchantid-domain-association')
+
+
+@application.route('/receiver.html')
+def mailru_():
+    return render_template('_receiver.html')
 
 
 if __name__ == '__main__':
