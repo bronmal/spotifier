@@ -36,7 +36,6 @@ def authorization():
     vkont = auth.VkAuth()
     spot = auth.SpotAuth()
     gle = auth.GoogleAuth()
-    mail = auth.MailAuth()
 
     url_google = gle.create_link()
     session['google_state'] = url_google[1]
@@ -45,9 +44,8 @@ def authorization():
     urls.update({'vk': vkont.create_link()})
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
-    urls.update({'mail': mail.create_link()})
 
-    return render_template('auth.html', url=mail.create_link())
+    return render_template('auth.html', url=url_google[0])
 
 
 @application.route('/auth_vk')
@@ -83,17 +81,6 @@ def google():
     try:
         gle = auth.GoogleAuth()
         name, email = gle.name(session['google_state'], request.url)
-        return email
-    except Exception as err:
-        print(err)
-        return redirect('/auth')
-
-
-@application.route('/auth_google')
-def mailru():
-    try:
-        mail = auth.MailAuth()
-
         return email
     except Exception as err:
         print(err)

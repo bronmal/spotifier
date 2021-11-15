@@ -88,24 +88,3 @@ class GoogleAuth:
             'oauth2', 'v2',
             credentials=credentials)
         return oauth2_client.userinfo().get().execute()['name'], oauth2_client.userinfo().get().execute()['email']
-
-
-class MailAuth:
-    @staticmethod
-    def create_link():
-        params = urllib.parse.urlencode({
-            'client_id': 784935,
-            'redirect_uri': config.URL + '/auth_mail',
-            'response_type': 'code'
-        })
-        return 'https://connect.mail.ru/oauth/authorize' + '?' + params
-
-    @staticmethod
-    def info(code):
-        return requests.get('https://connect.mail.ru/oauth/token', params={
-            'client_id': 784935,
-            'client_secret': '	6b109c16a4aa6f1f74736614735d4097',
-            'redirect_uri': config.URL + '/auth_mail',
-            'code': code,
-            'grant_type': 'authorization_code'
-        }).json()
