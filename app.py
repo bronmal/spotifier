@@ -5,7 +5,6 @@ import auth
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
-
 import db
 from users import login, User
 
@@ -35,6 +34,16 @@ def main_page():
     return render_template('index.html')
 
 
+def auth_in(email, name):
+    if db.in_db(email):
+        user = User(db.get_user_by_email(email))
+        login_user(user)
+    if db.in_db(email) is None:
+        db.create_user(email, name)
+        user = User(db.get_user_by_email(email))
+        login_user(user)
+
+
 @application.route('/auth')
 def authorization():
     if not session.get('uuid'):
@@ -54,7 +63,7 @@ def authorization():
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
 
-    return render_template('auth.html', url=vkont.create_link())
+    return render_template('auth.html', url=url_google[0])
 
 
 @application.route('/auth_vk')
@@ -67,15 +76,7 @@ def vk():
             token = info['access_token']
             user_get = vkont.name(token)
             name = user_get[0]['first_name'] + ' ' + user_get[0]['last_name']
-            if db.in_db(email):
-                user = User(db.get_user_by_email(email))
-                login_user(user)
-                return redirect('/dashboard')
-            if db.in_db(email) is None:
-                db.create_user(email, name)
-                user = User(db.get_user_by_email(email))
-                login_user(user)
-                return redirect('/dashboard')
+            auth_in(email, name)
         except Exception as err:
             print(err)
             return redirect('/auth')
@@ -87,7 +88,8 @@ def spotify():
         try:
             spot = auth.SpotAuth()
             name, email = spot.name(request.args.get('code'))
-            return name
+            auth_in(email, name)
+            return redirect('/dashboard')
         except:
             return redirect('/auth')
 
@@ -97,7 +99,8 @@ def google():
     try:
         gle = auth.GoogleAuth()
         name, email = gle.name(session['google_state'], request.url)
-        return email
+        auth_in(email, name)
+        return redirect('/dashboard')
     except Exception as err:
         print(err)
         return redirect('/auth')
@@ -107,6 +110,11 @@ def google():
 def logout():
     logout_user()
     return redirect('/auth')
+
+
+@application.errorhandler(401)
+def err_401(e):
+    return 'ervrev'
 
 
 @application.route('/.well-known')
