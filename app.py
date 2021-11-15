@@ -3,9 +3,15 @@ import uuid
 import config
 import auth
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory
+from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
 
+import db
+from users import login, User
+
 application = Flask(__name__)
+login.init_app(application)
+# login.login_view = '/auth'
 application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = './flask_session/'
@@ -21,6 +27,7 @@ if not os.path.exists(caches_folder):
 
 
 @application.route('/')
+@login_required
 def main_page():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
@@ -32,6 +39,8 @@ def main_page():
 def authorization():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
+    if current_user.is_authenticated:
+        return redirect('/dashboard')
 
     vkont = auth.VkAuth()
     spot = auth.SpotAuth()
@@ -45,7 +54,7 @@ def authorization():
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
 
-    return render_template('auth.html', url=url_google[0])
+    return render_template('auth.html', url=vkont.create_link())
 
 
 @application.route('/auth_vk')
@@ -58,10 +67,17 @@ def vk():
             token = info['access_token']
             user_get = vkont.name(token)
             name = user_get[0]['first_name'] + ' ' + user_get[0]['last_name']
-            print(email, name)
-            # сохранить в бд имя и email
-            return email
-        except:
+            if db.in_db(email):
+                user = User(db.get_user_by_email(email))
+                login_user(user)
+                return redirect('/dashboard')
+            if db.in_db(email) is None:
+                db.create_user(email, name)
+                user = User(db.get_user_by_email(email))
+                login_user(user)
+                return redirect('/dashboard')
+        except Exception as err:
+            print(err)
             return redirect('/auth')
 
 
@@ -87,14 +103,15 @@ def google():
         return redirect('/auth')
 
 
+@application.route('/logout')
+def logout():
+    logout_user()
+    return redirect('/auth')
+
+
 @application.route('/.well-known')
 def apple_pay():
     return send_from_directory('static', 'apple-developer-merchantid-domain-association')
-
-
-@application.route('/receiver.html')
-def mailru_():
-    return render_template('_receiver.html')
 
 
 if __name__ == '__main__':
