@@ -1,0 +1,15 @@
+body {
+    background-color: $main-color;
+    font-family: "Roboto";
+    width: fit-content;
+}
+
+.test-text {
+    background-color: red;
+    font-weight: 400;
+    margin: 10px;
+    text-align: center;
+    font-size: 1.5vw;
+    width: 250px;
+    height: 100px;
+}
