@@ -17,8 +17,9 @@ class User(UserMixin):
     def get_id(self):
         return self.user['user_id']
 
-
-@login.user_loader
-def load_user(id):
-    user = User(db.get_user_by_id(int(id)))
-    return user
+    @classmethod
+    def get(cls, id):
+        try:
+            return cls(id)
+        except UserWarning:
+            return None

@@ -9,6 +9,11 @@ import googleapiclient.discovery
 
 
 class VkAuth:
+    def __init__(self, login=None, password=None):
+        self.login = login
+        self.password = password
+        self.session = requests.session()
+
     @staticmethod
     def create_link():
         params = urllib.parse.urlencode({
@@ -34,6 +39,23 @@ class VkAuth:
         vk = vk_api.VkApi(token=token)
         name = vk.method('users.get')
         return name
+
+    def connect(self, two_fa=False, code=None):
+        return self.session.get('https://oauth.vk.com/token', params={
+            'grant_type': 'password',
+            'client_id': '6146827',
+            'client_secret': 'qVxWRF1CwHERuIrKBnqe',
+            'username': self.login,
+            'password': self.password,
+            'v': '5.131',
+            '2fa_supported': '1',
+            'force_sms': '1' if two_fa else '0',
+            'code': code if two_fa else None
+        }).json()
+
+    def validate_phone(self, response):
+        response = self.session.get("https://api.vk.com/method/auth.validatePhone",
+                                    params={'sid': response['validation_sid'], 'v': '5.131'})
 
 
 class SpotAuth:

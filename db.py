@@ -62,3 +62,46 @@ def in_db(email):
         if i['email'] == email:
             return email
     return None
+
+
+def add_service(user_id, token):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    connected_services = None
+    for i in rows:
+        if i['user_id'] == user_id:
+            if i['connected_services'] is not None:
+                connected_services = json.loads(i['connected_services'])
+            if i['connected_services'] is None:
+                connected_services = None
+
+    query = """ UPDATE users
+                        SET connected_services = %s
+                        WHERE user_id = %s """
+    data = ()
+    if connected_services is None:
+        data = (json.dumps({'vk': token}), user_id)
+    if connected_services is not None:
+        data = (json.dumps({'tracks': token}), user_id)
+
+    cursor.execute(query, data)
+    cursor.close()
+    con.commit()
+    con.close()
+
+
+def get_token(user_id, service):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    cursor.close()
+    con.close()
+
+    for i in rows:
+        if i['user_id'] == user_id:
+            tokens = json.loads(i['connected_services'])
+            return tokens[service]

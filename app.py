@@ -2,15 +2,19 @@ import os
 import uuid
 import config
 import auth
+import db
+import services
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
-import db
 from users import login, User
+
 
 application = Flask(__name__)
 login.init_app(application)
+
 # login.login_view = '/auth'
+
 application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = './flask_session/'
@@ -32,6 +36,12 @@ def main_page():
         session['uuid'] = str(uuid.uuid4())
 
     return render_template('index.html')
+
+
+@login.user_loader
+def load_user(id):
+    user = User(db.get_user_by_id(int(id)))
+    return user
 
 
 def auth_in(email, name):
@@ -110,6 +120,57 @@ def google():
 def logout():
     logout_user()
     return redirect('/auth')
+
+
+@application.route('/dashboard')
+def dashboard():
+    token = db.get_token(current_user.get_id(), 'vk')
+    api_vk = services.Vk(token)
+    return api_vk.tracks()
+
+
+@login_required
+@application.route('/add_vk', methods=['get', 'post'])
+def add_vk():
+    if not session.get('uuid'):
+        return redirect('/')
+
+    if request.method == 'GET':
+        return render_template('vk_form.html')
+
+
+@login_required
+@application.route('/get_auth_data', methods=['POST'])
+def get_auth_data():
+    vk_login = auth.VkAuth(request.json['login'], request.json['pass'])
+    session['vk_account'] = vk_login
+    response = vk_login.connect()
+    if 'validation_sid' in response:
+        vk_login.validate_phone(response)
+        return json.dumps({'2fa_required': True})
+    if 'access_token' in response:
+        session['user_id'] = response['user_id']
+        session['token'] = response['access_token']
+        return json.dumps({'2fa_required': False})
+    if 'captcha_sid' in response:
+        return json.dumps({'wrong_password': True})
+    if response['error_type'] == 'username_or_password_is_incorrect':
+        return json.dumps({'wrong_password': True})
+
+
+@login_required
+@application.route('/get_code', methods=['POST', 'GET'])
+def get_code():
+    vk_login = session['vk_account']
+    code = request.json['code']
+    if request.method == 'POST':
+        response = vk_login.connect(True, code)
+        if 'access_token' in response:
+            session['user_id'] = response['user_id']
+            db.add_service(current_user.get_id(), response['access_token'])
+            return json.dumps({'success': True})
+        if 'access_token' not in response:
+            return json.dumps({'success': False})
 
 
 @application.errorhandler(401)
