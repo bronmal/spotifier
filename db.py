@@ -105,3 +105,54 @@ def get_token(user_id, service):
         if i['user_id'] == user_id:
             tokens = json.loads(i['connected_services'])
             return tokens[service]
+
+
+def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    db_tracks = None
+    db_albums = None
+    db_playlists = None
+    db_artists = None
+    for i in rows:
+        if i['user_id'] == user_id:
+            if tracks:
+                if i['tracks'] is not None:
+                    db_tracks = json.loads(i['tracks'])
+                if i['tracks'] is None:
+                    pass
+
+            if albums:
+                if i['albums'] is not None:
+                    db_albums = json.loads(i['albums'])
+                if i['albums'] is None:
+                    pass
+
+            if playlists:
+                if i['playlists'] is not None:
+                    db_playlists = json.loads(i['playlists'])
+                if i['playlists'] is None:
+                    pass
+
+            if artists:
+                if i['artists'] is not None:
+                    db_artists = json.loads(i['artists'])
+                if i['artists'] is None:
+                    pass
+
+    query = """ UPDATE users
+                        SET connected_services = %s
+                        WHERE user_id = %s """
+    data = ()
+    if connected_services is None:
+        data = (json.dumps({'vk': token}), user_id)
+    if connected_services is not None:
+        data = (json.dumps({'tracks': token}), user_id)
+
+    cursor.execute(query, data)
+    cursor.close()
+    con.commit()
+    con.close()

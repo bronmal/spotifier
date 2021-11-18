@@ -42,6 +42,7 @@ def main_page():
 def load_user(id):
     user = User(db.get_user_by_id(int(id)))
     return user
+    # попробовать опять реализовать добавление сервисов через blueprint
 
 
 def auth_in(email, name):
@@ -123,14 +124,40 @@ def logout():
 
 
 @application.route('/dashboard')
+@login_required
 def dashboard():
     token = db.get_token(current_user.get_id(), 'vk')
     api_vk = services.Vk(token)
-    return api_vk.tracks()
+    music_tracks = api_vk.tracks()['items']
+    tracks = []
+    for i in music_tracks:
+        try:
+            tracks.append({'title': i['title'], 'artist': i['artist'], 'photo': i['album']['thumb']['photo_1200']})
+        except:
+            tracks.append({'title': i['title'], 'artist': i['artist']})
+    db.save_music()
+
+    music_albums = api_vk.playlists_albums()['items']
+    playlists = []
+    albums = []
+    for i in music_albums:
+        if i['album_type'] == 'playlist':
+            try:
+                playlists.append({'title': i['title'], 'access_key': i['access_key'],
+                                  'photo': i['thumbs'][0]['photo_1200']})
+            except:
+                playlists.append({'title': i['title'], 'access_key': i['access_key']})
+        if i['album_type'] == 'main_only':
+            try:
+                albums.append({'title': i['title'], 'access_key': i['original'], 'photo': i['photo']['photo_1200']})
+            except:
+                albums.append({'title': i['title'], 'access_key': i['original']})
+    return str(albums)
+    # добавить обработчик создания нового токена, во избежании устаревания токена
 
 
-@login_required
 @application.route('/add_vk', methods=['get', 'post'])
+@login_required
 def add_vk():
     if not session.get('uuid'):
         return redirect('/')
@@ -139,8 +166,8 @@ def add_vk():
         return render_template('vk_form.html')
 
 
-@login_required
 @application.route('/get_auth_data', methods=['POST'])
+@login_required
 def get_auth_data():
     vk_login = auth.VkAuth(request.json['login'], request.json['pass'])
     session['vk_account'] = vk_login
@@ -158,8 +185,8 @@ def get_auth_data():
         return json.dumps({'wrong_password': True})
 
 
-@login_required
 @application.route('/get_code', methods=['POST', 'GET'])
+@login_required
 def get_code():
     vk_login = session['vk_account']
     code = request.json['code']
