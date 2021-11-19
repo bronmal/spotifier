@@ -1,0 +1,74 @@
+.auth {
+    &.logo {
+        width: 256px;
+        height: 256px;
+        margin: 0 592px;
+    }
+    &.container {
+        background-color: #434080;
+        width: 360px;
+        height: 420px;
+        margin: 0 540px;
+        border-radius: 16px;
+    }
+    &.login-text {
+        margin: 0 140px 0 140px;
+        padding-top: 24px;
+        height: 36px;
+        width: 80px;
+        color: white;
+        font-size: 28px;
+        font-weight: 500;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    &.login-container {
+        width: 312px;
+        height: 40px;
+        border-radius: 99px;
+        &.google {
+            margin: 64px 24px 22px 24px;
+            background-color: white;
+            color: black;
+        }
+        &.vk {
+            margin: 0px 24px 22px 24px;
+            background-color: #4680C2;
+            color: white;
+        }
+        &.spotify {
+            margin: 0px 24px 22px 24px;
+            background-color: #00D95F;
+            color: black;
+        }
+    }
+    &.company-logo {
+        float: left;
+        width: 24px;
+        height: 24px;
+        margin: 8px 0 8px 16px;
+    }
+    &.login-url {
+        float: right;
+        width: fit-content;
+        height: 14px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        &.google-url {
+            margin-top: 13px;
+            margin-right: 71px;
+        }
+        &.vk-url {
+            margin-top: 13px;
+            margin-right: 59px;
+        }
+        &.spotify-url {
+            margin-top: 13px;
+            margin-right: 71px;
+        }
+    }
+}

@@ -1,33 +1,33 @@
-defaultWidth = 1920;
-defaultHeight = 1080;
+defaultWidth = 1440;
+defaultHeight = 900;
 resizableObjects = {}
 
 
 
 function resizeAllElements() {
     let resizableElements = document.querySelectorAll('.resizable');
-
     for (i = 0; i < resizableElements.length; i++) {
         if (resizableElements[i].offsetWidth !== document.body.offsetWidth & resizableElements[i].offsetHeight !== document.body.offsetHeight) {
             className = resizableElements[i].className;
+            // console.log(className);
+            if (className.baseVal !== undefined) {
+                className = className.baseVal
+            }
             if (resizableObjects[className] === undefined) {
                 style = window.getComputedStyle(resizableElements[i], null);
                 styles = {}
-                for (i in style) {
-                    styles[i] = style[i]
+                for (k in style) {
+                    styles[k] = style[k]
                 }
                 resizableObjects[className] = styles;
-
             }
-
         }
-
-
-
     }
+    console.log(resizableObjects);
     for (i in resizableObjects) {
         deltaW = getResolution().Width / defaultWidth;
-        deltaH = getResolution().Height / defaultHeight;
+        deltaH = deltaW;
+        // deltaH = getResolution().Height / defaultHeight;
 
         originWidth = String(resizableObjects[i].width.substring(0, resizableObjects[i].width.length - 2));
         originHeight = String(resizableObjects[i].height.substring(0, resizableObjects[i].height.length - 2));
@@ -41,6 +41,8 @@ function resizeAllElements() {
         originPaddingRight = String(resizableObjects[i].paddingRight.substring(0, resizableObjects[i].paddingRight.length - 2));
         originPaddingTop = String(resizableObjects[i].paddingTop.substring(0, resizableObjects[i].paddingTop.length - 2));
         originPaddingBottom = String(resizableObjects[i].paddingBottom.substring(0, resizableObjects[i].paddingBottom.length - 2));
+
+        originFontSize = String(resizableObjects[i].fontSize.substring(0, resizableObjects[i].fontSize.length - 2))
 
 
         needToBeResized = document.querySelectorAll(stringToHTMLClass(i))
@@ -59,6 +61,7 @@ function resizeAllElements() {
             needToBeResized[j].style.paddingRight = (originPaddingRight * deltaW) + "px";
             needToBeResized[j].style.paddingLeft = (originPaddingLeft * deltaW) + "px";
 
+            needToBeResized[j].style.fontSize = (originFontSize * deltaW) + "px";
 
         }
 
@@ -69,8 +72,8 @@ function resizeAllElements() {
 
 function getResolution() {
     Resolution = {
-        "Width": Math.max(document.documentElement.clientWidth),
-        "Height": Math.max(document.documentElement.clientHeight)
+        "Width": Math.max(window.innerWidth),
+        "Height": Math.max(window.innerHeight)
     }
 
     return Resolution;

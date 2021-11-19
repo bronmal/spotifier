@@ -69,12 +69,12 @@ def authorization():
     url_google = gle.create_link()
     session['google_state'] = url_google[1]
 
-    urls = dict
+    urls = dict()
     urls.update({'vk': vkont.create_link()})
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
 
-    return render_template('auth.html', url=url_google[0])
+    return render_template('auth.html', google=urls['google'],vk=urls['vk'],spotify=urls['spotify'])
 
 
 @application.route('/auth_vk')
