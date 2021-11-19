@@ -1,5 +1,6 @@
 Flask
 flask_session
+flask_login
 spotipy
 requests
 vk_api
