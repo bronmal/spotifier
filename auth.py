@@ -40,6 +40,13 @@ class VkAuth:
         name = vk.method('users.get')
         return name
 
+    @staticmethod
+    def avatar(token):
+        vk = vk_api.VkApi(token=token)
+        photo_url = vk.method('users.get', values={'fields': 'photo_400_orig'})[0]['photo_400_orig']
+        photo = requests.get(photo_url).content
+        return photo
+
     def connect(self, two_fa=False, code=None):
         return self.session.get('https://oauth.vk.com/token', params={
             'grant_type': 'password',

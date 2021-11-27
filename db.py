@@ -2,7 +2,7 @@ import pymysql
 import json
 from datetime import datetime, timedelta
 import calendar
-import sshtunnel
+import inspect
 
 
 def create_con():
@@ -37,14 +37,14 @@ def get_user_by_email(email):
             return i
 
 
-def create_user(email, name):
+def create_user(email, name, photo):
     date = datetime.now()
     days_in_month = calendar.monthrange(date.year, date.month)[1]
     date += timedelta(days=days_in_month)
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("INSERT INTO users (email, name, subscription, date_end) VALUES (%s, %s, %s, %s)",
-                   (email, name, False, date))
+    cursor.execute("INSERT INTO users (email, name, avatar, subscription, date_end) VALUES (%s, %s, %s, %s, %s)",
+                   (email, name, photo, False, date))
     cursor.close()
     con.commit()
     con.close()
@@ -103,8 +103,11 @@ def get_token(user_id, service):
 
     for i in rows:
         if i['user_id'] == user_id:
-            tokens = json.loads(i['connected_services'])
-            return tokens[service]
+            try:
+                tokens = json.loads(i['connected_services'])
+                return tokens[service]
+            except:
+                return None
 
 
 def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
@@ -113,46 +116,48 @@ def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
 
     cursor.execute("SELECT * FROM users")
     rows = cursor.fetchall()
-    db_tracks = None
-    db_albums = None
-    db_playlists = None
-    db_artists = None
+    db_tracks = [tracks, 'tracks']
+    db_albums = [albums, 'albums']
+    db_playlists = [playlists, 'playlists']
+    db_artists = [artists, 'artists']
+    music = [db_artists, db_playlists, db_albums, db_tracks]
     for i in rows:
         if i['user_id'] == user_id:
             if tracks:
                 if i['tracks'] is not None:
-                    db_tracks = json.loads(i['tracks'])
+                    music[3].append(json.loads(i['tracks']))
                 if i['tracks'] is None:
-                    pass
+                    music[3].append([None])
 
             if albums:
                 if i['albums'] is not None:
-                    db_albums = json.loads(i['albums'])
+                    music[2].append(json.loads(i['tracks']))
                 if i['albums'] is None:
-                    pass
+                    music[2].append([None])
 
             if playlists:
                 if i['playlists'] is not None:
-                    db_playlists = json.loads(i['playlists'])
+                    music[1].append(json.loads(i['tracks']))
                 if i['playlists'] is None:
-                    pass
+                    music[1].append([None])
 
             if artists:
                 if i['artists'] is not None:
-                    db_artists = json.loads(i['artists'])
+                    music[0].append(json.loads(i['tracks']))
                 if i['artists'] is None:
-                    pass
+                    music[0].append([None])
+            break
 
-    query = """ UPDATE users
-                        SET connected_services = %s
-                        WHERE user_id = %s """
-    data = ()
-    if connected_services is None:
-        data = (json.dumps({'vk': token}), user_id)
-    if connected_services is not None:
-        data = (json.dumps({'tracks': token}), user_id)
+    for i in music:
+        query = f""" UPDATE users
+                                SET {i[1]} = %s
+                                WHERE user_id = %s """
+        try:
+            data = (json.dumps(i[0]), user_id)
+            cursor.execute(query, data)
+        except Exception as err:
+            print(err)
 
-    cursor.execute(query, data)
     cursor.close()
     con.commit()
     con.close()
