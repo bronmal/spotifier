@@ -43,7 +43,7 @@ class VkAuth:
     @staticmethod
     def avatar(token):
         vk = vk_api.VkApi(token=token)
-        photo_url = vk.method('users.get', values={'fields': 'photo_400_orig'})[0]['photo_400_orig']
+        photo_url = vk.method('users.get', values={'fields': 'photo_100'})[0]['photo_100']
         photo = requests.get(photo_url).content
         return photo
 
@@ -82,7 +82,9 @@ class SpotAuth:
     def name(self, code):
         self.auth_manager.get_access_token(code, as_dict=False)
         self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
-        return self.spot.me()['display_name'], self.spot.me()['email']
+        photo_url = self.spot.me()['images'][0]['url']
+        photo = requests.get(photo_url).content
+        return self.spot.me()['display_name'], self.spot.me()['email'], photo
 
 
 class GoogleAuth:
@@ -116,4 +118,6 @@ class GoogleAuth:
         oauth2_client = googleapiclient.discovery.build(
             'oauth2', 'v2',
             credentials=credentials)
-        return oauth2_client.userinfo().get().execute()['name'], oauth2_client.userinfo().get().execute()['email']
+        photo = requests.get(oauth2_client.userinfo().get().execute()['picture']).content
+        return oauth2_client.userinfo().get().execute()['name'], oauth2_client.userinfo().get().execute()['email'], \
+               photo

@@ -99,8 +99,8 @@ def spotify():
     if request.args.get('code'):
         try:
             spot = auth.SpotAuth()
-            name, email = spot.name(request.args.get('code'))
-            auth_in(email, name)
+            name, email, photo = spot.name(request.args.get('code'))
+            auth_in(email, name, photo)
             return redirect('/dashboard')
         except:
             return redirect('/auth')
@@ -110,8 +110,8 @@ def spotify():
 def google():
     try:
         gle = auth.GoogleAuth()
-        name, email = gle.name(session['google_state'], request.url)
-        auth_in(email, name)
+        name, email, photo = gle.name(session['google_state'], request.url)
+        auth_in(email, name, photo)
         return redirect('/dashboard')
     except Exception as err:
         print(err)
@@ -165,6 +165,7 @@ def get_auth_data():
     if 'access_token' in response:
         session['user_id'] = response['user_id']
         session['token'] = response['access_token']
+        db.add_service(current_user.get_id(), response['access_token'])
         return json.dumps({'2fa_required': False})
     if 'captcha_sid' in response:
         return json.dumps({'wrong_password': True})
@@ -189,7 +190,7 @@ def get_code():
 
 @application.errorhandler(401)
 def err_401(e):
-    return 'ervrev'
+    return 'не авторизован'
 
 
 @application.route('/.well-known')
