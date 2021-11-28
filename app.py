@@ -42,15 +42,14 @@ def main_page():
 def load_user(id):
     user = User(db.get_user_by_id(int(id)))
     return user
-    # попробовать опять реализовать добавление сервисов через blueprint
 
 
-def auth_in(email, name):
+def auth_in(email, name, photo):
     if db.in_db(email):
         user = User(db.get_user_by_email(email))
         login_user(user)
-    if db.in_db(email) is None:
-        db.create_user(email, name)
+    else:
+        db.create_user(email, name, photo)
         user = User(db.get_user_by_email(email))
         login_user(user)
 
@@ -74,7 +73,7 @@ def authorization():
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
 
-    return render_template('auth.html', google=urls['google'],vk=urls['vk'],spotify=urls['spotify'])
+    return render_template('auth.html', google=urls['google'], vk=urls['vk'], spotify=urls['spotify'])
 
 
 @application.route('/auth_vk')
@@ -87,7 +86,9 @@ def vk():
             token = info['access_token']
             user_get = vkont.name(token)
             name = user_get[0]['first_name'] + ' ' + user_get[0]['last_name']
-            auth_in(email, name)
+            photo = vkont.avatar(token)
+            auth_in(email, name, photo)
+            return redirect('/dashboard')
         except Exception as err:
             print(err)
             return redirect('/auth')
@@ -98,8 +99,8 @@ def spotify():
     if request.args.get('code'):
         try:
             spot = auth.SpotAuth()
-            name, email = spot.name(request.args.get('code'))
-            auth_in(email, name)
+            name, email, photo = spot.name(request.args.get('code'))
+            auth_in(email, name, photo)
             return redirect('/dashboard')
         except:
             return redirect('/auth')
@@ -109,8 +110,8 @@ def spotify():
 def google():
     try:
         gle = auth.GoogleAuth()
-        name, email = gle.name(session['google_state'], request.url)
-        auth_in(email, name)
+        name, email, photo = gle.name(session['google_state'], request.url)
+        auth_in(email, name, photo)
         return redirect('/dashboard')
     except Exception as err:
         print(err)
@@ -126,33 +127,19 @@ def logout():
 @application.route('/dashboard')
 @login_required
 def dashboard():
-    token = db.get_token(current_user.get_id(), 'vk')
-    api_vk = services.Vk(token)
-    music_tracks = api_vk.tracks()['items']
     tracks = []
-    for i in music_tracks:
-        try:
-            tracks.append({'title': i['title'], 'artist': i['artist'], 'photo': i['album']['thumb']['photo_1200']})
-        except:
-            tracks.append({'title': i['title'], 'artist': i['artist']})
-    db.save_music()
-
-    music_albums = api_vk.playlists_albums()['items']
     playlists = []
     albums = []
-    for i in music_albums:
-        if i['album_type'] == 'playlist':
-            try:
-                playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                  'photo': i['thumbs'][0]['photo_1200']})
-            except:
-                playlists.append({'title': i['title'], 'access_key': i['access_key']})
-        if i['album_type'] == 'main_only':
-            try:
-                albums.append({'title': i['title'], 'access_key': i['original'], 'photo': i['photo']['photo_1200']})
-            except:
-                albums.append({'title': i['title'], 'access_key': i['original']})
-    return str(albums)
+
+    vk_token = db.get_token(current_user.get_id(), 'vk')
+    if vk_token:
+        api_vk = services.Vk(vk_token)
+        api_vk.get_music(tracks, playlists, albums)
+    else:
+        return 'нету действительных токенов'
+
+    db.save_music(current_user.get_id(), tracks=tracks, albums=albums, playlists=playlists)
+    return str(tracks)
     # добавить обработчик создания нового токена, во избежании устаревания токена
 
 
@@ -178,6 +165,7 @@ def get_auth_data():
     if 'access_token' in response:
         session['user_id'] = response['user_id']
         session['token'] = response['access_token']
+        db.add_service(current_user.get_id(), response['access_token'])
         return json.dumps({'2fa_required': False})
     if 'captcha_sid' in response:
         return json.dumps({'wrong_password': True})
@@ -202,7 +190,7 @@ def get_code():
 
 @application.errorhandler(401)
 def err_401(e):
-    return 'ervrev'
+    return 'не авторизован'
 
 
 @application.route('/.well-known')
