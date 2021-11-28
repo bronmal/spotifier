@@ -1,0 +1,79 @@
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8" />
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m, e, t, r, i, k, a) {
+            m[i] = m[i] || function() {
+                (m[i].a = m[i].a || []).push(arguments)
+            };
+            m[i].l = 1 * new Date();
+            k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+        })
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(83155189, "init", {
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true
+        });
+    </script>
+    <!-- /Yandex.Metrika counter -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/index.css" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Перенос музыки из vk в spotify всего за пару кликов. Ваши данные будут в полной безопасности" />
+
+    <title>Spotifier</title>
+</head>
+
+
+<body class="body app" onload="resizeAllElements()" onresize="resizeAllElements()">
+    <div class="resizable app slider">
+        <img src="/static/images/menu-opened.svg" class="resizable app menu-button">
+        <div class="resizable app personal-info">
+            <img src="/static/images/default-no-avatar.svg" alt="no avatar" class="resizable app personal-info profile-picture">
+            <div class="resizable app personal-info name-lastname">asdas asdasd</div>
+            <img src="/static/images/logout.svg" class="resizable app personal-info logout">
+            <div class="resizable app personal-info subscription-box">
+                <div class="resizable app personal-info subscription-box text">Оформить подписку</div>
+                <div class="resizable app personal-info subscription-box line"></div>
+                <div class="resizable app personal-info subscription-box question-mark">?</div>
+            </div>
+            <div class="resizable app personal-info next-payment">asdasdasdasdasds</div>
+        </div>
+        <div class="resizable app added-services">
+            Подключенные сервисы:
+            <img src="/static/images/add-service.svg" class="resizable app added-services add-service-button">
+        </div>
+        <div class="resizable app transfer-music">
+            Перенести музыку
+        </div>
+        <div class="resizable app music-container">
+            <div class="resizable app music-container my-box playlists">
+                <img src="/static/images/playlists.svg" class="resizable app music-container my-box image playlists">
+                <div class="resizable app music-container my-box text playlists">Мои плейлисты</div>
+            </div>
+            <div class="resizable app music-container my-box tracks">
+                <img src="/static/images/tracks.svg" class="resizable app music-container my-box image tracks">
+                <div class="resizable app music-container my-box text tracks">Мои треки</div>
+
+            </div>
+            <div class="resizable app music-container my-box artists">
+                <img src="/static/images/artists.svg" class="resizable app music-container my-box image artists">
+                <div class="resizable app music-container my-box text artists">Мои артисты</div>
+            </div>
+            <div class="resizable app music-container my-box albums">
+                <img src="/static/images/albums.svg" class="resizable app music-container my-box image albums">
+                <div class="resizable app music-container my-box text albums">Мои альбомы</div>
+            </div>
+
+        </div>
+        <img src="/static/images/spotifier-logo.svg" class="resizable app spotifier-logo">
+    </div>
+</body>
+<script src="/static/js/adaptive-design.js"></script>

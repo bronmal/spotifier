@@ -6,6 +6,7 @@ resizableObjects = {}
 
 function resizeAllElements() {
     let resizableElements = document.querySelectorAll('.resizable');
+    console.log(resizableElements);
     for (i = 0; i < resizableElements.length; i++) {
         if (resizableElements[i].offsetWidth !== document.body.offsetWidth & resizableElements[i].offsetHeight !== document.body.offsetHeight) {
             className = resizableElements[i].className;
@@ -25,9 +26,9 @@ function resizeAllElements() {
     }
     console.log(resizableObjects);
     for (i in resizableObjects) {
-        deltaW = getResolution().Width / defaultWidth;
-        deltaH = deltaW;
-        // deltaH = getResolution().Height / defaultHeight;
+        Resolution = getResolution();
+        deltaW = Resolution.Width / defaultWidth;
+        deltaH = Resolution.Height / defaultHeight;
 
         originWidth = String(resizableObjects[i].width.substring(0, resizableObjects[i].width.length - 2));
         originHeight = String(resizableObjects[i].height.substring(0, resizableObjects[i].height.length - 2));
@@ -57,7 +58,7 @@ function resizeAllElements() {
             needToBeResized[j].style.marginLeft = (originMarginLeft * deltaW) + "px";
 
             needToBeResized[j].style.paddingTop = (originPaddingTop * deltaH) + "px";
-            needToBeResized[j].style.paddingBottom = (originPaddingBottom * deltaH) + "px";
+            needToBeResized[j].style.paddingBottom = (originPaddingBottom * deltaW) + "px";
             needToBeResized[j].style.paddingRight = (originPaddingRight * deltaW) + "px";
             needToBeResized[j].style.paddingLeft = (originPaddingLeft * deltaW) + "px";
 

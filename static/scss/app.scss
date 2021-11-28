@@ -1,0 +1,158 @@
+.app {
+    overflow-y: hidden;
+    &.slider {
+        box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
+        background-color: #494781;
+        width: 256px;
+        height: 900px;
+    }
+    &.menu-button {
+        width: 24px;
+        height: 24px;
+        margin: 0 16px 0 216px;
+        padding: 16px 0 0 0;
+        background-color: #494781;
+        cursor: pointer;
+    }
+    &.personal-info {
+        height: 128px;
+        width: 224px;
+        border-radius: 16px;
+        background-color: #605E9A;
+        margin: 40px 16px 0 16px;
+        display: inline-block;
+        &.logout {
+            width: 16px;
+            height: 16px;
+            float: right;
+            margin: 0 16px 0 0;
+            padding: 18px 0 0 0;
+            cursor: pointer;
+        }
+        &.name-lastname {
+            width: 120px;
+            height: 20px;
+            text-align: left;
+            vertical-align: bottom;
+            font-size: 12px;
+            color: white;
+            margin: 20px 8px 0 0;
+        }
+        &.profile-picture {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            float: left;
+            margin: 22px 8px 0 16px;
+        }
+        &.subscription-box {
+            background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
+            width: 140px;
+            height: 24px;
+            margin: 12px 0 0 0;
+            cursor: pointer;
+            &.text {
+                margin: 0 0 0 9px;
+                float: left;
+                padding: 6px 0 0 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                width: 100px;
+                height: 12px;
+                font-size: 10px;
+                background: none;
+            }
+            &.line {
+                float: left;
+                margin: 4px 0 0 7px;
+                width: 0;
+                height: 16px;
+                background: none;
+                border: 1px solid rgba(250, 238, 239, 0.5);
+                border-radius: 99px;
+            }
+            &.question-mark {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 4px 0 0 0;
+                cursor: pointer;
+                width: 16px;
+                height: 16px;
+                margin: 0;
+                background: none;
+                color: white;
+            }
+        }
+        &.next-payment {
+            color: #CFC4C5;
+            width: 101px;
+            height: 32px;
+            font-size: 11px;
+            margin: 8px 59px 0 64px;
+        }
+    }
+    &.added-services {
+        width: 194px;
+        height: 72px;
+        margin: 32px 0 0 16px;
+        color: #EBE0E1;
+        &.add-service-button {
+            width: 32px;
+            height: 32px;
+            margin: 16px 0 0 0;
+            cursor: pointer;
+        }
+    }
+    &.transfer-music {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 224px;
+        height: 40px;
+        background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
+        color: white;
+        border-radius: 99px;
+        text-align: center;
+        margin: 64px 0 0 16px;
+        cursor: pointer;
+    }
+    &.music-container {
+        width: 225px;
+        height: 184px;
+        margin: 48px 0 0 16px;
+        &.my-box {
+            width: 224px;
+            height: 40px;
+            background: rgba(65, 64, 120, 0.5);
+            border-radius: 99px;
+            margin: 8px 0 0 0;
+            cursor: pointer;
+            &.image {
+                width: 24px;
+                height: 24px;
+                margin: 8px 0 0 15px;
+                float: left;
+            }
+            &.text {
+                display: flex;
+                justify-content: left;
+                align-items: center;
+                width: 107px;
+                height: 20px;
+                font-size: 14px;
+                padding: 10px;
+                background: none;
+                margin: 0;
+                float: left;
+                color: #CFC4C5;
+            }
+        }
+    }
+    &.spotifier-logo {
+        width: 256px;
+        height: 232px;
+    }
+}
