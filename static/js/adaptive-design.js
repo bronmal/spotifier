@@ -6,11 +6,9 @@ resizableObjects = {}
 
 function resizeAllElements() {
     let resizableElements = document.querySelectorAll('.resizable');
-    console.log(resizableElements);
     for (i = 0; i < resizableElements.length; i++) {
         if (resizableElements[i].offsetWidth !== document.body.offsetWidth & resizableElements[i].offsetHeight !== document.body.offsetHeight) {
             className = resizableElements[i].className;
-            // console.log(className);
             if (className.baseVal !== undefined) {
                 className = className.baseVal
             }
@@ -24,7 +22,6 @@ function resizeAllElements() {
             }
         }
     }
-    console.log(resizableObjects);
     for (i in resizableObjects) {
         Resolution = getResolution();
         deltaW = Resolution.Width / defaultWidth;
@@ -48,7 +45,6 @@ function resizeAllElements() {
 
         needToBeResized = document.querySelectorAll(stringToHTMLClass(i))
         for (j = 0; j < needToBeResized.length; j++) {
-            console.log();
             needToBeResized[j].style.width = (originWidth * deltaW) + "px";
             needToBeResized[j].style.height = (originHeight * deltaH) + "px";
 
