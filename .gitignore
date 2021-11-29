@@ -7,5 +7,5 @@
 /.vscode/
 /mt_tester/__pycache__/
 geckodriver.log
-/templates/vk_form.html
-/static/js/vk_form.js
+/templates/vk_form_test.html
+/static/js/vk_form_test.js

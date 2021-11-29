@@ -2,12 +2,11 @@ import pymysql
 import json
 from datetime import datetime, timedelta
 import calendar
-import inspect
 
 
 def create_con():
-        con = pymysql.connect(user='mysql', host='127.0.0.1',
-                              password='', database='spotifier')
+        con = pymysql.connect(user='bronmal', host='127.0.0.1',
+                              password='1q2w3e4r5', database='spotifier')
         return con
 
 
@@ -41,6 +40,7 @@ def create_user(email, name, photo):
     date = datetime.now()
     days_in_month = calendar.monthrange(date.year, date.month)[1]
     date += timedelta(days=days_in_month)
+    date = str(date.day) + '.' + str(date.month)
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
     cursor.execute("INSERT INTO users (email, name, avatar, subscription, date_end) VALUES (%s, %s, %s, %s, %s)",
@@ -161,3 +161,19 @@ def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
     cursor.close()
     con.commit()
     con.close()
+
+
+def get_user_info_dashboard(user_id, only_photo=False):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    cursor.close()
+    con.close()
+
+    for i in rows:
+        if i['user_id'] == user_id:
+            if not only_photo:
+                return i['name'], i['date_end'], i['subscription'], i['connected_services'], i['avatar']
+            if only_photo:
+                return i['avatar']

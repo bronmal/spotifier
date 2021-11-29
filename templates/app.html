@@ -36,15 +36,15 @@
     <div class="resizable app slider">
         <img src="/static/images/menu-opened.svg" class="resizable app menu-button">
         <div class="resizable app personal-info">
-            <img src="/static/images/default-no-avatar.svg" alt="no avatar" class="resizable app personal-info profile-picture">
-            <div class="resizable app personal-info name-lastname">asdas asdasd</div>
+            <img src="{{ url_for('serve_img') }}" alt="no avatar" class="resizable app personal-info profile-picture">
+            <div class="resizable app personal-info name-lastname">{{ name }}</div>
             <img src="/static/images/logout.svg" class="resizable app personal-info logout">
             <div class="resizable app personal-info subscription-box">
                 <div class="resizable app personal-info subscription-box text">Оформить подписку</div>
                 <div class="resizable app personal-info subscription-box line"></div>
                 <div class="resizable app personal-info subscription-box question-mark">?</div>
             </div>
-            <div class="resizable app personal-info next-payment">asdasdasdasdasds</div>
+            <div class="resizable app personal-info next-payment">Дата следующего списания {{ data_end }}</div>
         </div>
         <div class="resizable app added-services">
             Подключенные сервисы:

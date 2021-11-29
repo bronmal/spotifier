@@ -4,11 +4,10 @@ import config
 import auth
 import db
 import services
-from flask import Flask, session, request, redirect, render_template, json, send_from_directory
+from flask import Flask, session, request, redirect, render_template, json, send_from_directory, Response
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
 from users import login, User
-
 
 application = Flask(__name__)
 login.init_app(application)
@@ -17,14 +16,14 @@ login.init_app(application)
 
 application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
-application.config['SESSION_FILE_DIR'] = './flask_session/'
+application.config['SESSION_FILE_DIR'] = '.flask_session/'
 Session(application)
 
 os.environ['SPOTIPY_CLIENT_ID'] = config.ID
 os.environ['SPOTIPY_CLIENT_SECRET'] = config.SECRET
 os.environ['SPOTIPY_REDIRECT_URI'] = config.REDIRECT
 
-caches_folder = './.spotify_caches/'
+caches_folder = '.spotify_caches/'
 if not os.path.exists(caches_folder):
     os.makedirs(caches_folder)
 
@@ -42,6 +41,11 @@ def main_page():
 def load_user(id):
     user = User(db.get_user_by_id(int(id)))
     return user
+
+
+@application.route('/img')
+def serve_img():
+    return Response(db.get_user_info_dashboard(current_user.get_id(), True))
 
 
 def auth_in(email, name, photo):
@@ -139,7 +143,13 @@ def dashboard():
         return 'нету действительных токенов'
 
     db.save_music(current_user.get_id(), tracks=tracks, albums=albums, playlists=playlists)
-    return str(tracks)
+
+    name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
+        current_user.get_id())
+    print(avatar)
+    return render_template('app.html', name=name, data_end=date_end, avatar=avatar), json.dumps(
+        {'subscription': subscription,
+         'services': services_connected})
     # добавить обработчик создания нового токена, во избежании устаревания токена
 
 
@@ -150,7 +160,7 @@ def add_vk():
         return redirect('/')
 
     if request.method == 'GET':
-        return render_template('vk_form.html')
+        return render_template('vk_form_test.html')
 
 
 @application.route('/get_auth_data', methods=['POST'])
@@ -199,4 +209,4 @@ def apple_pay():
 
 
 if __name__ == '__main__':
-    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 8080)), host='0.0.0.0')
+    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='127.0.0.1')
