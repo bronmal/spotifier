@@ -129,7 +129,6 @@ def logout():
 
 
 @application.route('/dashboard')
-@login_required
 def dashboard():
     tracks = []
     playlists = []
