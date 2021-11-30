@@ -100,14 +100,22 @@ def vk():
 
 @application.route('/auth_spotify')
 def spotify():
+    if current_user.get_id() is None:
+        if request.args.get('code'):
+            try:
+                spot = auth.SpotAuth()
+                name, email, photo = spot.name(request.args.get('code'))
+                auth_in(email, name, photo)
+                return redirect('/dashboard')
+            except:
+                return redirect('/auth')
     if request.args.get('code'):
         try:
             spot = auth.SpotAuth()
-            name, email, photo = spot.name(request.args.get('code'))
-            auth_in(email, name, photo)
+            spot.save_token(request.args.get('code'), current_user.get_id())
             return redirect('/dashboard')
         except:
-            return redirect('/auth')
+            return redirect('/dashboard')
 
 
 @application.route('/auth_google')
@@ -145,7 +153,6 @@ def dashboard():
 
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
-    print(avatar)
     return render_template('app.html', name=name, data_end=date_end, avatar=avatar), json.dumps(
         {'subscription': subscription,
          'services': services_connected})
@@ -174,7 +181,7 @@ def get_auth_data():
     if 'access_token' in response:
         session['user_id'] = response['user_id']
         session['token'] = response['access_token']
-        db.add_service(current_user.get_id(), response['access_token'])
+        db.add_service(current_user.get_id(), response['access_token'], 'vk')
         return json.dumps({'2fa_required': False})
     if 'captcha_sid' in response:
         return json.dumps({'wrong_password': True})
@@ -191,7 +198,7 @@ def get_code():
         response = vk_login.connect(True, code)
         if 'access_token' in response:
             session['user_id'] = response['user_id']
-            db.add_service(current_user.get_id(), response['access_token'])
+            db.add_service(current_user.get_id(), response['access_token'], 'vk')
             return json.dumps({'success': True})
         if 'access_token' not in response:
             return json.dumps({'success': False})

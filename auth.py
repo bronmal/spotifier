@@ -7,6 +7,8 @@ from authlib.client import OAuth2Session
 import google.oauth2.credentials
 import googleapiclient.discovery
 
+import db
+
 
 class VkAuth:
     def __init__(self, login=None, password=None):
@@ -85,6 +87,10 @@ class SpotAuth:
         photo_url = self.spot.me()['images'][0]['url']
         photo = requests.get(photo_url).content
         return self.spot.me()['display_name'], self.spot.me()['email'], photo
+
+    def save_token(self, code, user_id):
+        token = self.auth_manager.get_access_token(code, as_dict=False)
+        db.add_service(user_id, token, 'spotify')
 
 
 class GoogleAuth:
