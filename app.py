@@ -125,7 +125,7 @@ def google():
 @application.route('/logout')
 def logout():
     logout_user()
-    return redirect('/auth')
+    return redirect('/')
 
 
 @application.route('/dashboard')

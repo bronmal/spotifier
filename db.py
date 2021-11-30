@@ -5,15 +5,15 @@ import calendar
 
 
 def create_con():
-        con = pymysql.connect(user='bronmal', host='127.0.0.1',
-                              password='1q2w3e4r5', database='spotifier')
+        con = pymysql.connect(user='mysql', host='127.0.0.1',
+                              password='', database='spotifier')
         return con
 
 
 def get_user_by_id(id):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
     con.close()
@@ -26,7 +26,7 @@ def get_user_by_id(id):
 def get_user_by_email(email):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
     con.close()
@@ -43,7 +43,7 @@ def create_user(email, name, photo):
     date = str(date.day) + '.' + str(date.month)
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("INSERT INTO users (email, name, avatar, subscription, date_end) VALUES (%s, %s, %s, %s, %s)",
+    cursor.execute("INSERT INTO spotifier (email, name, avatar, subscription, date_end) VALUES (%s, %s, %s, %s, %s)",
                    (email, name, photo, False, date))
     cursor.close()
     con.commit()
@@ -53,7 +53,7 @@ def create_user(email, name, photo):
 def in_db(email):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
     con.close()
@@ -68,7 +68,7 @@ def add_service(user_id, token):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     connected_services = None
     for i in rows:
@@ -78,7 +78,7 @@ def add_service(user_id, token):
             if i['connected_services'] is None:
                 connected_services = None
 
-    query = """ UPDATE users
+    query = """ UPDATE spotifier
                         SET connected_services = %s
                         WHERE user_id = %s """
     data = ()
@@ -96,7 +96,7 @@ def add_service(user_id, token):
 def get_token(user_id, service):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
     con.close()
@@ -114,7 +114,7 @@ def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     db_tracks = [tracks, 'tracks']
     db_albums = [albums, 'albums']
@@ -149,7 +149,7 @@ def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
             break
 
     for i in music:
-        query = f""" UPDATE users
+        query = f""" UPDATE spotifier
                                 SET {i[1]} = %s
                                 WHERE user_id = %s """
         try:
@@ -166,7 +166,7 @@ def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
 def get_user_info_dashboard(user_id, only_photo=False):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users")
+    cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     cursor.close()
     con.close()
