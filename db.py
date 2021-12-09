@@ -64,18 +64,18 @@ def in_db(email):
     return None
 
 
+
 def add_service(user_id, token, service):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-
     cursor.execute("SELECT * FROM spotifier")
     rows = cursor.fetchall()
     connected_services = None
+
     for i in rows:
         if i['user_id'] == user_id:
             if i['connected_services'] is not None:
                 connected_services = json.loads(i['connected_services'])
-                yield connected_services
 
     query = """ UPDATE spotifier
                         SET connected_services = %s
@@ -84,8 +84,8 @@ def add_service(user_id, token, service):
     if connected_services is None:
         data = (json.dumps({service: token}), user_id)
     if connected_services is not None:
-        a = connected_services.update({service: token})
-        data = (json.dumps(connected_services.update({service: token})), user_id)
+        connected_services.update({service: token})
+        data = (json.dumps(connected_services), user_id)
 
     cursor.execute(query, data)
     cursor.close()
