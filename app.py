@@ -138,18 +138,20 @@ def logout():
 
 @application.route('/dashboard')
 def dashboard():
-    tracks = []
-    playlists = []
-    albums = []
+    tracks_vk, playlists_vk, albums_vk = [], [], []
+    tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
 
     vk_token = db.get_token(current_user.get_id(), 'vk')
+    spotify_token = db.get_token(current_user.get_id(), 'spotify')
     if vk_token:
         api_vk = services.Vk(vk_token)
-        api_vk.get_music(tracks, playlists, albums)
-    else:
-        return 'нету действительных токенов'
+        tracks_vk, playlists_vk, albums_vk = api_vk.get_music()
+    if spotify_token:
+        api_spotify = services.Spotify(spotify_token)
+        tracks_spot, playlists_spot, artists_spot, albums_spot = api_spotify.get_music()
 
-    db.save_music(current_user.get_id(), tracks=tracks, albums=albums, playlists=playlists)
+    db.save_music(current_user.get_id(), tracks=tracks_vk+tracks_spot, albums=albums_vk+albums_spot,
+                  playlists=playlists_vk+playlists_spot, artists=artists_spot)
 
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
