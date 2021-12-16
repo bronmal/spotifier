@@ -150,14 +150,15 @@ def dashboard():
         api_spotify = services.Spotify(spotify_token)
         tracks_spot, playlists_spot, artists_spot, albums_spot = api_spotify.get_music()
 
-    db.save_music(current_user.get_id(), tracks=tracks_vk+tracks_spot, albums=albums_vk+albums_spot,
-                  playlists=playlists_vk+playlists_spot, artists=artists_spot)
+    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot, albums=albums_vk + albums_spot,
+                  playlists=playlists_vk + playlists_spot, artists=artists_spot)
 
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
     return render_template('app.html', name=name, data_end=date_end, avatar=avatar), json.dumps(
         {'subscription': subscription,
-         'services': services_connected})
+         'services': services_connected, 'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
+         'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
     # добавить обработчик создания нового токена, во избежании устаревания токена
 
 
