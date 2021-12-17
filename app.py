@@ -68,6 +68,7 @@ def authorization():
     vkont = auth.VkAuth()
     spot = auth.SpotAuth()
     gle = auth.GoogleAuth()
+    yandex = auth.YandexAuth()
 
     url_google = gle.create_link()
     session['google_state'] = url_google[1]
@@ -76,6 +77,8 @@ def authorization():
     urls.update({'vk': vkont.create_link()})
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
+    urls.update({'yandex': yandex.create_link()})
+    print(urls.get('yandex'))
 
     return render_template('auth.html', google=urls['google'], vk=urls['vk'], spotify=urls['spotify'])
 
@@ -125,6 +128,19 @@ def google():
         name, email, photo = gle.name(session['google_state'], request.url)
         auth_in(email, name, photo)
         return redirect('/dashboard')
+    except Exception as err:
+        print(err)
+        return redirect('/auth')
+
+
+@application.route('/auth_yandex')
+def yandex():
+    try:
+        if request.args.get('code'):
+            yad = auth.YandexAuth()
+            name, email, photo = yad.get_info(request.args.get('code'))
+            auth_in(email, name, photo)
+            return redirect('/dashboard')
     except Exception as err:
         print(err)
         return redirect('/auth')

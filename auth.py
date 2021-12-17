@@ -127,3 +127,29 @@ class GoogleAuth:
         photo = requests.get(oauth2_client.userinfo().get().execute()['picture']).content
         return oauth2_client.userinfo().get().execute()['name'], oauth2_client.userinfo().get().execute()['email'], \
                photo
+
+
+class YandexAuth:
+    @staticmethod
+    def create_link():
+        return f'https://oauth.yandex.ru/authorize?response_type=code&client_id={config.YANDEX_ID}'
+
+    @staticmethod
+    def get_info(code):
+        response = requests.post('https://oauth.yandex.ru/token', data={
+            'grant_type': 'authorization_code',
+            'code': code,
+            'client_id': config.YANDEX_ID,
+            'client_secret': config.YANDEX_PASSWORD
+        })
+
+        info = requests.get('https://login.yandex.ru/info', params={
+            'format': 'json',
+            'with_openid_identity': 'yes',
+            'oauth_token': response.json()['access_token']
+        }).json()
+
+        photo_url = f"https://avatars.yandex.net/get-yapic/{info['default_avatar_id']}/islands-200"
+        photo = requests.get(photo_url).content
+
+        return info['last_name']+info['first_name'], info['default_email'], photo
