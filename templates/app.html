@@ -16,9 +16,9 @@
     <div class="resizable app slider">
         <img src="/static/images/menu-opened.svg" class="resizable app menu-button">
         <div class="resizable app personal-info">
-            <img src="{{ url_for('serve_img') }}" alt="no avatar" class="resizable app personal-info profile-picture">
+            <img src="{{ url_for('serve_img') }}" alt="avatar" class="resizable app personal-info profile-picture">
             <div class="resizable app personal-info name-lastname">{{ name }}</div>
-            <img src="/static/images/logout.svg" class="resizable app personal-info logout">
+            <img src="/static/images/logout.svg" onclick="logout()" class="resizable app personal-info logout">
             <div class="resizable app personal-info subscription-box">
                 <div class="resizable app personal-info subscription-box text">Оформить подписку</div>
                 <div class="resizable app personal-info subscription-box line"></div>
@@ -57,3 +57,4 @@
     </div>
 </body>
 <script src="/static/js/adaptive-design.js"></script>
+<script src="/static/js/test.js"></script>
