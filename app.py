@@ -68,7 +68,7 @@ def authorization():
     vkont = auth.VkAuth()
     spot = auth.SpotAuth()
     gle = auth.GoogleAuth()
-    yandex = auth.YandexAuth()
+    yad = auth.YandexAuth()
 
     url_google = gle.create_link()
     session['google_state'] = url_google[1]
@@ -77,10 +77,10 @@ def authorization():
     urls.update({'vk': vkont.create_link()})
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
-    urls.update({'yandex': yandex.create_link()})
-    print(urls.get('yandex'))
+    urls.update({'yandex': yad.create_link()})
 
-    return render_template('auth.html', google=urls['google'], vk=urls['vk'], spotify=urls['spotify'])
+    return render_template('auth.html', google=urls['google'], vk=urls['vk'], spotify=urls['spotify'],
+                           yandex=urls['yandex'])
 
 
 @application.route('/auth_vk')
@@ -112,13 +112,6 @@ def spotify():
                 return redirect('/dashboard')
             except:
                 return redirect('/auth')
-    if request.args.get('code'):
-        try:
-            spot = auth.SpotAuth()
-            spot.save_token(request.args.get('code'), current_user.get_id())
-            return redirect('/dashboard')
-        except:
-            return redirect('/dashboard')
 
 
 @application.route('/auth_google')
@@ -221,6 +214,20 @@ def get_code():
             return json.dumps({'success': True})
         if 'access_token' not in response:
             return json.dumps({'success': False})
+
+
+@application.route('/add_spotify', methods=['POST'])
+@login_required
+def add_spotify():
+    if request.method == 'POST':
+        if request.args.get('code'):
+            try:
+                spot = auth.SpotAuth()
+                spot.save_token(request.args.get('code'), current_user.get_id())
+                return redirect('/dashboard')
+            except:
+                return redirect('/auth')
+
 
 
 @application.errorhandler(401)
