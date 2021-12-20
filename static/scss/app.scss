@@ -1,15 +1,20 @@
 .app {
+    & * {
+        transition-duration: .2s;
+    }
     &.slider {
+        transition-duration: 0.25s;
         box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
         background-color: #494781;
         width: 256px;
         height: 900px;
+        float: left;
+        margin: 0;
     }
     &.menu-button {
         width: 24px;
         height: 24px;
-        margin: 0 16px 0 216px;
-        padding: 16px 0 0 0;
+        margin: 16px 16px 0 216px;
         background-color: #494781;
         cursor: pointer;
     }
@@ -129,11 +134,15 @@
             border-radius: 99px;
             margin: 8px 0 0 0;
             cursor: pointer;
+            transition-duration: 0.5s;
             &.image {
                 width: 24px;
                 height: 24px;
                 margin: 8px 0 0 15px;
+                border-radius: 0;
+                opacity: 0.6;
                 float: left;
+                transition-duration: 0.5s;
             }
             &.text {
                 display: flex;
@@ -147,11 +156,63 @@
                 margin: 0;
                 float: left;
                 color: #CFC4C5;
+                transition-duration: 0.5s;
+            }
+            &.right-arrow {
+                display: none;
+                width: 24px;
+                height: 24px;
+                background: none;
+                border-radius: 0;
+                float: right;
+                margin: 8px 16px 0 0;
+            }
+        }
+        &.my-box:hover {
+            background: rgba(65, 64, 120, 1);
+            transition-duration: 0.5s;
+            & .image {
+                opacity: 1;
+            }
+            & .text {
+                transition-duration: 0.5s;
+                color: white;
+            }
+            & .right-arrow {
+                display: block;
             }
         }
     }
     &.spotifier-logo {
         width: 256px;
         height: 232px;
+    }
+    &.menu-options {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 24px;
+        height: 264px;
+        margin: 278px 24px 0 24px;
+        &.image {
+            transition-duration: 0.2s;
+            padding: 24px 0 0 0;
+            opacity: 0.6;
+            margin: 0px;
+            display: inherit;
+            width: 24px;
+            height: 24px;
+        }
+        &.image:hover {
+            cursor: pointer;
+            opacity: 1;
+        }
+    }
+    &.main-container {
+        float: right;
+        overflow-y: hidden;
+        width: 1100px;
+        height: 900px;
+        background: url(/static/images/big-blurried-spotifer-logo.svg) no-repeat center;
     }
 }

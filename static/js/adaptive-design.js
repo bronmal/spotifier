@@ -1,10 +1,11 @@
 defaultWidth = 1440;
 defaultHeight = 900;
 resizableObjects = {}
+Resolution = getResolution();
+deltaW = Resolution.Width / defaultWidth;
+deltaH = Resolution.Height / defaultHeight;
 
-
-
-function resizeAllElements() {
+function recalcuteStyles() {
     let resizableElements = document.querySelectorAll('.resizable');
     for (i = 0; i < resizableElements.length; i++) {
         if (resizableElements[i].offsetWidth !== document.body.offsetWidth & resizableElements[i].offsetHeight !== document.body.offsetHeight) {
@@ -22,48 +23,89 @@ function resizeAllElements() {
             }
         }
     }
+}
+
+function updateStyles() {
+    let resizableElements = document.querySelectorAll('.resizable');
+    for (i = 0; i < resizableElements.length; i++) {
+        if (resizableElements[i].offsetWidth !== document.body.offsetWidth & resizableElements[i].offsetHeight !== document.body.offsetHeight) {
+            className = resizableElements[i].className;
+            if (resizableObjects[className] !== undefined) {
+                style = window.getComputedStyle(resizableElements[i], null);
+                styles = {}
+                for (k in style) {
+                    styles[k] = style[k]
+                }
+                resizableObjects[className] = styles;
+            }
+        }
+    }
+}
+
+function recomputeStyle(element) {
+    className = element.className;
+    if (resizableObjects[className] !== undefined) {
+        style = window.getComputedStyle(element, null);
+        styles = {}
+        for (k in style) {
+            styles[k] = style[k]
+        }
+        resizableObjects[className] = styles;
+    }
+    console.log(element);
+}
+
+
+function resizeAllElements() {
+    recalcuteStyles();
     for (i in resizableObjects) {
-        Resolution = getResolution();
-        deltaW = Resolution.Width / defaultWidth;
-        deltaH = Resolution.Height / defaultHeight;
 
-        originWidth = String(resizableObjects[i].width.substring(0, resizableObjects[i].width.length - 2));
-        originHeight = String(resizableObjects[i].height.substring(0, resizableObjects[i].height.length - 2));
+        originWidth = getAttribute("width", resizableObjects[i]);
+        originHeight = getAttribute("height", resizableObjects[i]);
 
-        originMarginLeft = String(resizableObjects[i].marginLeft.substring(0, resizableObjects[i].marginLeft.length - 2));
-        originMarginRight = String(resizableObjects[i].marginRight.substring(0, resizableObjects[i].marginRight.length - 2));
-        originMarginTop = String(resizableObjects[i].marginTop.substring(0, resizableObjects[i].marginTop.length - 2));
-        originMarginBottom = String(resizableObjects[i].marginBottom.substring(0, resizableObjects[i].marginBottom.length - 2));
+        originMarginLeft = getAttribute("marginLeft", resizableObjects[i]);
+        originMarginRight = getAttribute("marginRight", resizableObjects[i]);
+        originMarginTop = getAttribute("marginTop", resizableObjects[i]);
+        originMarginBottom = getAttribute("marginBottom", resizableObjects[i]);
 
-        originPaddingLeft = String(resizableObjects[i].paddingLeft.substring(0, resizableObjects[i].paddingLeft.length - 2));
-        originPaddingRight = String(resizableObjects[i].paddingRight.substring(0, resizableObjects[i].paddingRight.length - 2));
-        originPaddingTop = String(resizableObjects[i].paddingTop.substring(0, resizableObjects[i].paddingTop.length - 2));
-        originPaddingBottom = String(resizableObjects[i].paddingBottom.substring(0, resizableObjects[i].paddingBottom.length - 2));
+        originPaddingLeft = getAttribute("paddingLeft", resizableObjects[i]);
+        originPaddingRight = getAttribute("paddingRight", resizableObjects[i]);
+        originPaddingTop = getAttribute("paddingTop", resizableObjects[i]);
+        originPaddingBottom = getAttribute("paddingBottom", resizableObjects[i]);
 
-        originFontSize = String(resizableObjects[i].fontSize.substring(0, resizableObjects[i].fontSize.length - 2))
+        originFontSize = getAttribute("fontSize", resizableObjects[i]);
 
 
         needToBeResized = document.querySelectorAll(stringToHTMLClass(i))
         for (j = 0; j < needToBeResized.length; j++) {
-            needToBeResized[j].style.width = (originWidth * deltaW) + "px";
-            needToBeResized[j].style.height = (originHeight * deltaH) + "px";
+            needToBeResized[j].style.width = recomputeAttribute(originWidth, deltaW) + "px";
+            needToBeResized[j].style.height = recomputeAttribute(originHeight, deltaH) + "px";
 
-            needToBeResized[j].style.marginTop = (originMarginTop * deltaH) + "px";
-            needToBeResized[j].style.marginBottom = (originMarginBottom * deltaH) + "px";
-            needToBeResized[j].style.marginRight = (originMarginRight * deltaW) + "px";
-            needToBeResized[j].style.marginLeft = (originMarginLeft * deltaW) + "px";
+            needToBeResized[j].style.marginTop = recomputeAttribute(originMarginTop, deltaH) + "px";
+            needToBeResized[j].style.marginBottom = recomputeAttribute(originMarginBottom, deltaH) + "px";
+            needToBeResized[j].style.marginRight = recomputeAttribute(originMarginRight, deltaW) + "px";
+            needToBeResized[j].style.marginLeft = recomputeAttribute(originMarginLeft, deltaW) + "px";
 
-            needToBeResized[j].style.paddingTop = (originPaddingTop * deltaH) + "px";
-            needToBeResized[j].style.paddingBottom = (originPaddingBottom * deltaW) + "px";
-            needToBeResized[j].style.paddingRight = (originPaddingRight * deltaW) + "px";
-            needToBeResized[j].style.paddingLeft = (originPaddingLeft * deltaW) + "px";
+            needToBeResized[j].style.paddingTop = recomputeAttribute(originPaddingTop, deltaH) + "px";
+            needToBeResized[j].style.paddingBottom = recomputeAttribute(originPaddingBottom, deltaH) + "px";
+            needToBeResized[j].style.paddingRight = recomputeAttribute(originPaddingRight, deltaW) + "px";
+            needToBeResized[j].style.paddingLeft = recomputeAttribute(originPaddingLeft, deltaW) + "px";
 
-            needToBeResized[j].style.fontSize = (originFontSize * deltaW) + "px";
+            needToBeResized[j].style.fontSize = recomputeAttribute(originFontSize, deltaW) + "px";
 
         }
 
     }
 
+}
+
+function getAttribute(p_attribute, p_element) {
+    attribute = String(p_element[p_attribute].substring(0, p_element[p_attribute].length - 2));
+    return attribute;
+}
+
+function recomputeAttribute(attribute, delta) {
+    return attribute < delta * defaultHeight ? attribute * delta : attribute;
 }
 
 
