@@ -68,6 +68,7 @@ def authorization():
     vkont = auth.VkAuth()
     spot = auth.SpotAuth()
     gle = auth.GoogleAuth()
+    yad = auth.YandexAuth()
 
     url_google = gle.create_link()
     session['google_state'] = url_google[1]
@@ -76,8 +77,10 @@ def authorization():
     urls.update({'vk': vkont.create_link()})
     urls.update({'spotify': spot.create_link()})
     urls.update({'google': url_google[0]})
+    urls.update({'yandex': yad.create_link()})
 
-    return render_template('auth.html', google=urls['google'], vk=urls['vk'], spotify=urls['spotify'])
+    return render_template('auth.html', google=urls['google'], vk=urls['vk'], spotify=urls['spotify'],
+                           yandex=urls['yandex'])
 
 
 @application.route('/auth_vk')
@@ -109,13 +112,6 @@ def spotify():
                 return redirect('/dashboard')
             except:
                 return redirect('/auth')
-    if request.args.get('code'):
-        try:
-            spot = auth.SpotAuth()
-            spot.save_token(request.args.get('code'), current_user.get_id())
-            return redirect('/dashboard')
-        except:
-            return redirect('/dashboard')
 
 
 @application.route('/auth_google')
@@ -125,6 +121,19 @@ def google():
         name, email, photo = gle.name(session['google_state'], request.url)
         auth_in(email, name, photo)
         return redirect('/dashboard')
+    except Exception as err:
+        print(err)
+        return redirect('/auth')
+
+
+@application.route('/auth_yandex')
+def yandex():
+    try:
+        if request.args.get('code'):
+            yad = auth.YandexAuth()
+            name, email, photo = yad.get_info(request.args.get('code'))
+            auth_in(email, name, photo)
+            return redirect('/dashboard')
     except Exception as err:
         print(err)
         return redirect('/auth')
@@ -150,14 +159,15 @@ def dashboard():
         api_spotify = services.Spotify(spotify_token)
         tracks_spot, playlists_spot, artists_spot, albums_spot = api_spotify.get_music()
 
-    db.save_music(current_user.get_id(), tracks=tracks_vk+tracks_spot, albums=albums_vk+albums_spot,
-                  playlists=playlists_vk+playlists_spot, artists=artists_spot)
+    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot, albums=albums_vk + albums_spot,
+                  playlists=playlists_vk + playlists_spot, artists=artists_spot)
 
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
     return render_template('app.html', name=name, data_end=date_end, avatar=avatar), json.dumps(
         {'subscription': subscription,
-         'services': services_connected})
+         'services': services_connected, 'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
+         'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
     # добавить обработчик создания нового токена, во избежании устаревания токена
 
 
@@ -204,6 +214,20 @@ def get_code():
             return json.dumps({'success': True})
         if 'access_token' not in response:
             return json.dumps({'success': False})
+
+
+@application.route('/add_spotify', methods=['POST'])
+@login_required
+def add_spotify():
+    if request.method == 'POST':
+        if request.args.get('code'):
+            try:
+                spot = auth.SpotAuth()
+                spot.save_token(request.args.get('code'), current_user.get_id())
+                return redirect('/dashboard')
+            except:
+                return redirect('/auth')
+
 
 
 @application.errorhandler(401)

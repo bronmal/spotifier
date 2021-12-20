@@ -43,6 +43,11 @@
             background-color: #00D95F;
             color: black;
         }
+        &.yandex {
+            margin: 0px 24px 22px 24px;
+            background-color: #fc3f1d;
+            color: white;
+        }
     }
     &.company-logo {
         float: left;
@@ -68,6 +73,10 @@
             margin-right: 59px;
         }
         &.spotify-url {
+            margin-top: 13px;
+            margin-right: 71px;
+        }
+        &.yandex-url {
             margin-top: 13px;
             margin-right: 71px;
         }
