@@ -77,7 +77,8 @@ class Spotify:
         while True:
             result = self.spot.current_user_playlists(limit=50, offset=self.count)
             for i, item in enumerate(result['items']):
-                playlists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url']})
+                playlists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url'],
+                                  'service': 'spotify'})
             self.count += 50
             if result['next'] is None:
                 self.count = 0
@@ -90,7 +91,8 @@ class Spotify:
                 print("range:", sp_range)
                 result = self.spot.current_user_top_artists(time_range=sp_range, limit=self.count)
                 for i, item in enumerate(result['items']):
-                    artists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url']})
+                    artists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url'],
+                                    'service': 'spotify'})
                 self.count += 50
             if result['next'] is None:
                 self.count = 0
@@ -101,7 +103,8 @@ class Spotify:
         while True:
             result = self.spot.current_user_saved_albums(limit=50, offset=self.count)
             for i, item in enumerate(result['items']):
-                albums.append({'title': item['album']['name'], 'id': i, 'photo': item['album']['images'][0]['url']})
+                albums.append({'title': item['album']['name'], 'id': i, 'photo': item['album']['images'][0]['url'],
+                               'service': 'spotify'})
             self.count += 50
             if result['next'] is None:
                 self.count = 0
