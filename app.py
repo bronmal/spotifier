@@ -158,7 +158,7 @@ def dashboard():
 
 @application.route('/get_audio', methods=['GET', 'POST'])
 def get_audio():
-    tracks_vk, playlists_vk, albums_vk = [], [], []
+    """tracks_vk, playlists_vk, albums_vk = [], [], []
     tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
 
     vk_token = db.get_token(current_user.get_id(), 'vk')
@@ -174,8 +174,10 @@ def get_audio():
 
     db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot, albums=albums_vk + albums_spot,
                   playlists=playlists_vk + playlists_spot, artists=artists_spot)
-    return json.dumps({'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
-                       'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
+    # return json.dumps({'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
+                       # 'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})"""
+    with open("data.json") as f:
+        return(f.read())
 
 
 @application.route('/add_vk', methods=['get', 'post'])
