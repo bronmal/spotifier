@@ -64,7 +64,6 @@ def in_db(email):
     return None
 
 
-
 def add_service(user_id, token, service):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -177,3 +176,72 @@ def get_user_info_dashboard(user_id, only_photo=False):
                 return i['name'], i['date_end'], i['subscription'], i['connected_services'], i['avatar']
             if only_photo:
                 return i['avatar']
+
+
+def user_payed(user_id, payment_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ UPDATE spotifier
+                        SET subscription = %s
+                        WHERE user_id = %s """
+
+    cursor.execute(query, (True, user_id))
+
+    query = """ UPDATE spotifier
+                        SET payment_id = %s
+                        WHERE user_id = %s """
+
+    cursor.execute(query, (payment_id, user_id))
+
+    cursor.close()
+    con.close()
+
+
+def delete_sub(user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ UPDATE spotifier
+                        SET subscription = %s
+                        WHERE user_id = %s """
+
+    cursor.execute(query, (False, user_id))
+
+    query = """ UPDATE spotifier
+                        SET payment_id = %s
+                        WHERE user_id = %s """
+
+    cursor.execute(query, (None, user_id))
+
+    cursor.close()
+    con.close()
+
+
+def save_yookassa_id(user_id, id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ UPDATE spotifier
+                            SET yookassa_id = %s
+                            WHERE user_id = %s """
+
+    cursor.execute(query, (id, user_id))
+
+    cursor.close()
+    con.close()
+
+
+def get_yookassa_id(user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ SELECT yookassa_id FROM spotifier WHERE user_id = %s """
+
+    cursor.execute(query, (user_id,))
+
+    cursor.close()
+    con.close()
+
+    return cursor.fetchall()
+
