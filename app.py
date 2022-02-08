@@ -151,8 +151,12 @@ def logout():
 def dashboard():
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
-    return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
-                           kassa=kassa.create_payment(current_user.get_id()))
+    if db.get_user_by_id(current_user.get_id())['subscription'] == 0:
+        return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
+                               kassa=kassa.create_payment(current_user.get_id()), kassa_text='Оформить подписку')
+    if db.get_user_by_id(current_user.get_id())['subscription'] == 1:
+        return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
+                               kassa='/disconnect_sub', kassa_text='Отключить подписку')
     # добавить обработчик создания нового токена, во избежание устаревания токена
 
 
@@ -176,8 +180,8 @@ def get_audio():
                   playlists=playlists_vk + playlists_spot, artists=artists_spot)
     return json.dumps({'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
                         'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
-    #with open("data.json") as f:
-       # return(f.read())
+    # with open("data.json") as f:
+        # return(f.read())
 
 
 @application.route('/add_vk', methods=['get', 'post'])
@@ -250,15 +254,19 @@ def apple_pay():
 
 @application.route('/check_payment')
 def check_payment():
-    yookassa_id = db.get_yookassa_id(current_user.get_id())
+    yookassa_id = db.get_yookassa_id(request.args.get('login'))['yookassa_id']
     info_payment = kassa.check(yookassa_id)
     if info_payment.paid is True and info_payment.payment_method.saved is True:
         db.user_payed(current_user.get_id(), info_payment.payment_method.id)
+        return redirect('/dashboard')
+    else:
+        return redirect('/')
 
 
 @application.route('/disconnect_sub')
 def disconnect_sub():
     db.delete_sub(current_user.get_id())
+    return redirect('/dashboard')
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ import calendar
 
 def create_con():
         con = pymysql.connect(user='mysql', host='127.0.0.1',
-                              password='', database='spotifier')
+                              password='1q2w3e4r5', database='spotifier')
         return con
 
 
@@ -182,6 +182,17 @@ def user_payed(user_id, payment_id):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
+    date = datetime.now()
+    days_in_month = calendar.monthrange(date.year, date.month)[1]
+    date += timedelta(days=days_in_month)
+    date = str(date.day) + '.' + str(date.month)
+
+    query = """ UPDATE spotifier
+                          SET date_end = %s
+                          WHERE user_id = %s """
+
+    cursor.execute(query, (date, user_id))
+
     query = """ UPDATE spotifier
                         SET subscription = %s
                         WHERE user_id = %s """
@@ -195,6 +206,7 @@ def user_payed(user_id, payment_id):
     cursor.execute(query, (payment_id, user_id))
 
     cursor.close()
+    con.commit()
     con.close()
 
 
@@ -208,6 +220,7 @@ def delete_sub(user_id):
 
     cursor.execute(query, (False, user_id))
 
+
     query = """ UPDATE spotifier
                         SET payment_id = %s
                         WHERE user_id = %s """
@@ -215,6 +228,7 @@ def delete_sub(user_id):
     cursor.execute(query, (None, user_id))
 
     cursor.close()
+    con.commit()
     con.close()
 
 
@@ -229,6 +243,7 @@ def save_yookassa_id(user_id, id):
     cursor.execute(query, (id, user_id))
 
     cursor.close()
+    con.commit()
     con.close()
 
 
@@ -243,5 +258,15 @@ def get_yookassa_id(user_id):
     cursor.close()
     con.close()
 
+    return cursor.fetchone()
+
+
+def get_info_all_users():
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """SELECT user_id, payment_id, date_end FROM spotifier """
+
+    cursor.execute(query)
     return cursor.fetchall()
 
