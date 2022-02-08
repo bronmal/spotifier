@@ -66,7 +66,8 @@ class Spotify:
             for item in result['items']:
                 track = item['track']
                 tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
-                               'photo': track['album']['images'][0]['url'], 'service': 'spotify'})
+                               'album': track['album']['name'], 'photo': track['album']['images'][0]['url'],
+                               'service': 'spotify'})
             self.count += 50
             if result['next'] is None:
                 self.count = 0
