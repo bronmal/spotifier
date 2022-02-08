@@ -3,6 +3,7 @@ import uuid
 import config
 import auth
 import db
+import kassa
 import services
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory, Response
 from flask_login import current_user, login_user, logout_user, login_required
@@ -109,6 +110,7 @@ def spotify():
                 spot = auth.SpotAuth()
                 name, email, photo = spot.name(request.args.get('code'))
                 auth_in(email, name, photo)
+                spot.save_token(request.args.get('code'), current_user.get_id())
                 return redirect('/dashboard')
             except:
                 return redirect('/auth')
@@ -147,28 +149,35 @@ def logout():
 
 @application.route('/dashboard')
 def dashboard():
-    tracks_vk, playlists_vk, albums_vk = [], [], []
+    name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
+        current_user.get_id())
+    return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
+                           kassa=kassa.create_payment(current_user.get_id()))
+    # добавить обработчик создания нового токена, во избежание устаревания токена
+
+
+@application.route('/get_audio', methods=['GET', 'POST'])
+def get_audio():
+    '''tracks_vk, playlists_vk, albums_vk = [], [], []
     tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
 
     vk_token = db.get_token(current_user.get_id(), 'vk')
     spotify_token = db.get_token(current_user.get_id(), 'spotify')
+
     if vk_token:
         api_vk = services.Vk(vk_token)
         tracks_vk, playlists_vk, albums_vk = api_vk.get_music()
+
     if spotify_token:
         api_spotify = services.Spotify(spotify_token)
         tracks_spot, playlists_spot, artists_spot, albums_spot = api_spotify.get_music()
 
     db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot, albums=albums_vk + albums_spot,
                   playlists=playlists_vk + playlists_spot, artists=artists_spot)
-
-    name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
-        current_user.get_id())
-    return render_template('app.html', name=name, data_end=date_end, avatar=avatar), json.dumps(
-        {'subscription': subscription,
-         'services': services_connected, 'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
-         'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
-    # добавить обработчик создания нового токена, во избежании устаревания токена
+    return json.dumps({'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
+                        'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})'''
+    with open("data.json") as f:
+        return(f.read())
 
 
 @application.route('/add_vk', methods=['get', 'post'])
@@ -216,7 +225,7 @@ def get_code():
             return json.dumps({'success': False})
 
 
-@application.route('/add_spotify', methods=['POST'])
+@application.route('/add_spotify', methods=['GET', 'POST'])
 @login_required
 def add_spotify():
     if request.method == 'POST':
@@ -229,7 +238,6 @@ def add_spotify():
                 return redirect('/auth')
 
 
-
 @application.errorhandler(401)
 def err_401(e):
     return 'не авторизован'
@@ -238,6 +246,19 @@ def err_401(e):
 @application.route('/.well-known')
 def apple_pay():
     return send_from_directory('static', 'apple-developer-merchantid-domain-association')
+
+
+@application.route('/check_payment')
+def check_payment():
+    yookassa_id = db.get_yookassa_id(current_user.get_id())
+    info_payment = kassa.check(yookassa_id)
+    if info_payment.paid is True and info_payment.payment_method.saved is True:
+        db.user_payed(current_user.get_id(), info_payment.payment_method.id)
+
+
+@application.route('/disconnect_sub')
+def disconnect_sub():
+    db.delete_sub(current_user.get_id())
 
 
 if __name__ == '__main__':
