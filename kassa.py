@@ -7,7 +7,7 @@ from yookassa.domain.models.currency import Currency
 from yookassa.domain.common.confirmation_type import ConfirmationType
 from yookassa.domain.request.payment_request_builder import PaymentRequestBuilder
 
-Configuration.configure(822381, 'test_Z0bQfQgOZa2d_KbHJmo4j65IfoiG7OPfdCLvfrz5VtE')
+Configuration.configure(config.SHOP_ID, config.SHOP_TOKEN)
 
 
 def create_payment(user_id):

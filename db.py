@@ -2,11 +2,12 @@ import pymysql
 import json
 from datetime import datetime, timedelta
 import calendar
+import config
 
 
 def create_con():
-        con = pymysql.connect(user='mysql', host='127.0.0.1',
-                              password='1q2w3e4r5', database='spotifier')
+        con = pymysql.connect(user=config.DB_LOGIN, host='127.0.0.1',
+                              password=config.DB_PASS, database=config.DB_DATABASE)
         return con
 
 

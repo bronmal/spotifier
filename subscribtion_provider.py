@@ -1,11 +1,12 @@
 import db
+import config
 from datetime import datetime
 from yookassa import Configuration
 from yookassa import Payment
 from yookassa.domain.models.currency import Currency
 from yookassa.domain.request.payment_request_builder import PaymentRequestBuilder
 
-Configuration.configure(822381, 'test_Z0bQfQgOZa2d_KbHJmo4j65IfoiG7OPfdCLvfrz5VtE')
+Configuration.configure(config.SHOP_ID, config.SHOP_TOKEN)
 
 users_info = db.get_info_all_users()
 date_now = str(datetime.now().day) + '.' + str(datetime.now().month)

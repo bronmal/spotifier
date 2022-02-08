@@ -22,9 +22,9 @@ application.config['SESSION_FILE_DIR'] = '.flask_session/'
 Session(application)
 babel = Babel(application)
 
-os.environ['SPOTIPY_CLIENT_ID'] = config.ID
-os.environ['SPOTIPY_CLIENT_SECRET'] = config.SECRET
-os.environ['SPOTIPY_REDIRECT_URI'] = config.REDIRECT
+os.environ['SPOTIPY_CLIENT_ID'] = config.SPOTIFY_ID
+os.environ['SPOTIPY_CLIENT_SECRET'] = config.SPOTIFY_SECRET
+os.environ['SPOTIPY_REDIRECT_URI'] = config.SPOTIFY_REDIRECT
 
 
 @babel.localeselector
@@ -156,11 +156,12 @@ def logout():
 
 
 @application.route('/dashboard')
+@login_required
 def dashboard():
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
     if db.get_user_by_id(current_user.get_id())['subscription'] == 0:
-        return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
+        return render_template('app.html', name=name, data_end='', avatar=avatar,
                                kassa=kassa.create_payment(current_user.get_id()), kassa_text=_('Оформить подписку'))
     if db.get_user_by_id(current_user.get_id())['subscription'] == 1:
         return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
@@ -169,6 +170,7 @@ def dashboard():
 
 
 @application.route('/get_audio', methods=['GET', 'POST'])
+@login_required
 def get_audio():
     tracks_vk, playlists_vk, albums_vk = [], [], []
     tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
@@ -261,6 +263,7 @@ def apple_pay():
 
 
 @application.route('/check_payment')
+@login_required
 def check_payment():
     yookassa_id = db.get_yookassa_id(request.args.get('login'))['yookassa_id']
     info_payment = kassa.check(yookassa_id)
@@ -272,6 +275,7 @@ def check_payment():
 
 
 @application.route('/disconnect_sub')
+@login_required
 def disconnect_sub():
     db.delete_sub(current_user.get_id())
     return redirect('/dashboard')
