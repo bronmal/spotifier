@@ -9,3 +9,7 @@ GOOGLE_AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/v2/auth?access_
 GOOGLE_ACCESS_TOKEN_URI = 'https://www.googleapis.com/oauth2/v4/token'
 YANDEX_ID = '0b9c2c40111e4accbf1fd0129e2a3910'
 YANDEX_PASSWORD = '0163828d485842a3a40d4a6780b9d028'
+
+
+class Config(object):
+    LANGUAGES = ['ru', 'en', 'es', 'fr', 'de']

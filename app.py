@@ -8,6 +8,7 @@ import services
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory, Response
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
+from flask_babel import Babel, _
 from users import login, User
 
 application = Flask(__name__)
@@ -19,10 +20,17 @@ application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = '.flask_session/'
 Session(application)
+babel = Babel(application)
 
 os.environ['SPOTIPY_CLIENT_ID'] = config.ID
 os.environ['SPOTIPY_CLIENT_SECRET'] = config.SECRET
 os.environ['SPOTIPY_REDIRECT_URI'] = config.REDIRECT
+
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(config.Config.LANGUAGES)
+
 
 caches_folder = '.spotify_caches/'
 if not os.path.exists(caches_folder):
@@ -153,10 +161,10 @@ def dashboard():
         current_user.get_id())
     if db.get_user_by_id(current_user.get_id())['subscription'] == 0:
         return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
-                               kassa=kassa.create_payment(current_user.get_id()), kassa_text='Оформить подписку')
+                               kassa=kassa.create_payment(current_user.get_id()), kassa_text=_('Оформить подписку'))
     if db.get_user_by_id(current_user.get_id())['subscription'] == 1:
         return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
-                               kassa='/disconnect_sub', kassa_text='Отключить подписку')
+                               kassa='/disconnect_sub', kassa_text=_('Отключить подписку'))
     # добавить обработчик создания нового токена, во избежание устаревания токена
 
 
@@ -244,7 +252,7 @@ def add_spotify():
 
 @application.errorhandler(401)
 def err_401(e):
-    return 'не авторизован'
+    return _('не авторизован')
 
 
 @application.route('/.well-known')
