@@ -1,6 +1,7 @@
 import vk_api
-import requests
 import spotipy
+
+import db
 
 
 class Vk:
@@ -58,6 +59,7 @@ class Spotify:
         self.auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-modify-private '
                                                               'playlist-modify-public ugc-image-upload '
                                                               'user-library-read '
+                                                              'user-library-modify '
                                                               'playlist-read-private '
                                                               'user-top-read '
                                                               'user-read-email',
@@ -100,7 +102,6 @@ class Spotify:
         count = 0
         while True:
             for sp_range in ['short_term', 'medium_term', 'long_term']:
-                print("range:", sp_range)
                 result = self.spot.current_user_top_artists(time_range=sp_range, limit=self.count)
                 for i, item in enumerate(result['items']):
                     artists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url'],
@@ -128,3 +129,22 @@ class Spotify:
     def get_music(self):
         return self.tracks(), self.playlists(), self.artists(), self.albums()
 
+    def search_tracks_id(self, tracks, user_id):
+        items = []
+        tracks_db = db.get_audio(tracks, 'tracks', user_id)
+        for i in tracks_db:
+            result = self.spot.search(i, type='track', limit=1)
+            try:
+                items.append(result['tracks']['items'][0]['id'])
+            except:
+                pass  # TODO отправлять неперенесенные треки
+        return items
+
+    def transfer_tracks(self, tracks, user_id):
+        tracks_id = self.search_tracks_id(tracks, user_id)
+        for i in range(0, len(tracks_id), 50):
+            chunk = tracks_id[i:i+50]
+            self.spot.current_user_saved_tracks_add(chunk)
+
+    def transfer_albums(self, albums, user_id):
+        pass

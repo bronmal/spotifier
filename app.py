@@ -129,6 +129,7 @@ def spotify():
             spot = auth.SpotAuth()
             spot.name(request.args.get('code'))
             spot.save_token(request.args.get('code'), current_user.get_id())
+            return redirect('/dashboard')
 
 
 @application.route('/auth_google')
@@ -204,7 +205,24 @@ def send_audio():
 @application.route('/send_audio', methods=['POST'])
 def get_audio():
     if request.method == 'POST':
-        pass
+        a = request.json
+        tracks = request.json['tracks']
+        albums = request.json['albums']
+        playlists = request.json['playlists']
+        artists = request.json['artists']
+        to_service = request.json['to_service']['to_service']
+
+        vk_token = db.get_token(current_user.get_id(), 'vk')
+        spotify_token = db.get_token(27, 'spotify') # брать айди юзера
+
+        if to_service == 'spotify':
+            if spotify_token:
+                api = services.Spotify(spotify_token)
+                api.transfer_tracks(tracks, 27)
+                api.transfer_albums(albums, 27)
+                return json.dumps({'success': True})
+            else:
+                return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Spotify')})
 
 
 @application.route('/add_vk', methods=['get', 'post'])

@@ -73,6 +73,7 @@ class SpotAuth:
         self.auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-modify-private '
                                                               'playlist-modify-public ugc-image-upload '
                                                               'user-library-read '
+                                                              'user-library-modify '
                                                               'playlist-read-private '
                                                               'user-top-read '
                                                               'user-read-email',
@@ -84,7 +85,10 @@ class SpotAuth:
     def name(self, code):
         self.auth_manager.get_access_token(code, as_dict=False)
         self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
-        photo_url = self.spot.me()['images'][0]['url']
+        try:
+            photo_url = self.spot.me()['images'][0]['url']
+        except:
+            photo_url = None
         photo = requests.get(photo_url).content
         return self.spot.me()['display_name'], self.spot.me()['email'], photo
 

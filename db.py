@@ -271,3 +271,25 @@ def get_info_all_users():
     cursor.execute(query)
     return cursor.fetchall()
 
+
+def get_audio(audio, types, user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ SELECT * FROM spotifier"""
+
+    cursor.execute(query)
+
+    info = cursor.fetchall()
+    tracks_db = None
+    find_tracks = []
+    for i in info:
+        if i['user_id'] == user_id:
+            tracks_db = json.loads(i[types])
+
+    for i in tracks_db:
+        for b in audio:
+            if i['id'] == b['id'] and i['service'] == b['service']:
+                find_tracks.append(i['title'] + ' ' + i['artist'])
+    return find_tracks
+
