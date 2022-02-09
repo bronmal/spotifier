@@ -8,6 +8,7 @@ import services
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory, Response
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
+from flask_babel import Babel, _
 from users import login, User
 
 application = Flask(__name__)
@@ -19,10 +20,17 @@ application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = '.flask_session/'
 Session(application)
+babel = Babel(application)
 
-os.environ['SPOTIPY_CLIENT_ID'] = config.ID
-os.environ['SPOTIPY_CLIENT_SECRET'] = config.SECRET
-os.environ['SPOTIPY_REDIRECT_URI'] = config.REDIRECT
+os.environ['SPOTIPY_CLIENT_ID'] = config.SPOTIFY_ID
+os.environ['SPOTIPY_CLIENT_SECRET'] = config.SPOTIFY_SECRET
+os.environ['SPOTIPY_REDIRECT_URI'] = config.SPOTIFY_REDIRECT
+
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(config.Config.LANGUAGES)
+
 
 caches_folder = '.spotify_caches/'
 if not os.path.exists(caches_folder):
@@ -148,17 +156,23 @@ def logout():
 
 
 @application.route('/dashboard')
+@login_required
 def dashboard():
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
-    return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
-                           kassa=kassa.create_payment(current_user.get_id()))
+    if db.get_user_by_id(current_user.get_id())['subscription'] == 0:
+        return render_template('app.html', name=name, data_end='', avatar=avatar,
+                               kassa=kassa.create_payment(current_user.get_id()), kassa_text=_('Оформить подписку'))
+    if db.get_user_by_id(current_user.get_id())['subscription'] == 1:
+        return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
+                               kassa='/disconnect_sub', kassa_text=_('Отключить подписку'))
     # добавить обработчик создания нового токена, во избежание устаревания токена
 
 
 @application.route('/get_audio', methods=['GET', 'POST'])
+@login_required
 def get_audio():
-    '''tracks_vk, playlists_vk, albums_vk = [], [], []
+    tracks_vk, playlists_vk, albums_vk = [], [], []
     tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
 
     vk_token = db.get_token(current_user.get_id(), 'vk')
@@ -175,9 +189,9 @@ def get_audio():
     db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot, albums=albums_vk + albums_spot,
                   playlists=playlists_vk + playlists_spot, artists=artists_spot)
     return json.dumps({'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
-                        'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})'''
-    with open("data.json") as f:
-        return(f.read())
+                        'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
+    # with open("data.json") as f:
+        # return(f.read())
 
 
 @application.route('/add_vk', methods=['get', 'post'])
@@ -240,7 +254,7 @@ def add_spotify():
 
 @application.errorhandler(401)
 def err_401(e):
-    return 'не авторизован'
+    return _('не авторизован')
 
 
 @application.route('/.well-known')
@@ -249,16 +263,22 @@ def apple_pay():
 
 
 @application.route('/check_payment')
+@login_required
 def check_payment():
-    yookassa_id = db.get_yookassa_id(current_user.get_id())
+    yookassa_id = db.get_yookassa_id(request.args.get('login'))['yookassa_id']
     info_payment = kassa.check(yookassa_id)
     if info_payment.paid is True and info_payment.payment_method.saved is True:
         db.user_payed(current_user.get_id(), info_payment.payment_method.id)
+        return redirect('/dashboard')
+    else:
+        return redirect('/')
 
 
 @application.route('/disconnect_sub')
+@login_required
 def disconnect_sub():
     db.delete_sub(current_user.get_id())
+    return redirect('/dashboard')
 
 
 if __name__ == '__main__':
