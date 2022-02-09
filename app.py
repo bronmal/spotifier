@@ -124,6 +124,11 @@ def spotify():
                 return redirect('/dashboard')
             except:
                 return redirect('/auth')
+    else:
+        if request.args.get('code'):
+            spot = auth.SpotAuth()
+            spot.name(request.args.get('code'))
+            spot.save_token(request.args.get('code'), current_user.get_id())
 
 
 @application.route('/auth_google')
