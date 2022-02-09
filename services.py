@@ -20,27 +20,33 @@ class Vk:
         playlists = []
         albums = []
         music_tracks = self.tracks()['items']
+        count_tr = 0
         for i in music_tracks:
             try:
                 tracks.append({'title': i['title'], 'artist': i['artist'], 'photo': i['album']['thumb']['photo_1200'],
-                               'service': 'vk'})
+                               'service': 'vk', 'id': count_tr})
             except:
-                tracks.append({'title': i['title'], 'artist': i['artist'], 'service': 'vk'})
+                tracks.append({'title': i['title'], 'artist': i['artist'], 'service': 'vk', 'id': count_tr})
+            count_tr += 1
 
         music_albums = self.playlists_albums()['items']
+        count_al_pl = 0
         for i in music_albums:
             if i['album_type'] == 'playlist':
                 try:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk'})
+                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id': count_al_pl})
                 except:
-                    playlists.append({'title': i['title'], 'access_key': i['access_key'], 'service': 'vk'})
+                    playlists.append({'title': i['title'], 'access_key': i['access_key'],
+                                      'service': 'vk', 'id': count_al_pl})
             if i['album_type'] == 'main_only':
                 try:
                     albums.append({'title': i['title'], 'access_key': i['original'], 'photo': i['photo']['photo_1200'],
-                                   'service': 'vk'})
+                                   'service': 'vk', 'id': count_al_pl})
                 except:
-                    albums.append({'title': i['title'], 'access_key': i['original'], 'service': 'vk'})
+                    albums.append({'title': i['title'], 'access_key': i['original'], 'service': 'vk',
+                                   'id': count_al_pl})
+            count_al_pl += 1
 
         return tracks, playlists, albums
 
