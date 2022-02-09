@@ -9,6 +9,7 @@ from flask import Flask, session, request, redirect, render_template, json, send
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
 from flask_babel import Babel, _
+from flask_babel_js import BabelJS
 from users import login, User
 
 application = Flask(__name__)
@@ -21,6 +22,7 @@ application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = '.flask_session/'
 Session(application)
 babel = Babel(application)
+babel_js = BabelJS(application)
 
 os.environ['SPOTIPY_CLIENT_ID'] = config.SPOTIFY_ID
 os.environ['SPOTIPY_CLIENT_SECRET'] = config.SPOTIFY_SECRET
@@ -122,6 +124,11 @@ def spotify():
                 return redirect('/dashboard')
             except:
                 return redirect('/auth')
+    else:
+        if request.args.get('code'):
+            spot = auth.SpotAuth()
+            spot.name(request.args.get('code'))
+            spot.save_token(request.args.get('code'), current_user.get_id())
 
 
 @application.route('/auth_google')
@@ -171,7 +178,7 @@ def dashboard():
 
 @application.route('/get_audio', methods=['GET', 'POST'])
 @login_required
-def get_audio():
+def send_audio():
     tracks_vk, playlists_vk, albums_vk = [], [], []
     tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
 
@@ -192,6 +199,12 @@ def get_audio():
                         'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
     # with open("data.json") as f:
         # return(f.read())
+
+
+@application.route('/send_audio', methods=['POST'])
+def get_audio():
+    if request.method == 'POST':
+        pass
 
 
 @application.route('/add_vk', methods=['get', 'post'])

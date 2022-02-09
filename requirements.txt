@@ -1,6 +1,8 @@
 Flask
 flask_session
 flask_login
+flask-babel
+flask-babel-js
 spotipy
 requests
 vk_api
@@ -11,4 +13,3 @@ google-api-python-client
 google-auth
 virtualenv
 sshtunnel
-flask-babel
