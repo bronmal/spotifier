@@ -44,8 +44,9 @@ def create_user(email, name, photo):
     date = str(date.day) + '.' + str(date.month)
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("INSERT INTO spotifier (email, name, avatar, subscription, date_end) VALUES (%s, %s, %s, %s, %s)",
-                   (email, name, photo, False, date))
+    cursor.execute("INSERT INTO spotifier (email, name, avatar, subscription, date_end, free_transfer)"
+                   " VALUES (%s, %s, %s, %s, %s, %s)",
+                   (email, name, photo, False, date, 10))
     cursor.close()
     con.commit()
     con.close()

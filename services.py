@@ -51,6 +51,30 @@ class Vk:
 
         return tracks, playlists, albums
 
+    def search_tracks_ids(self, tracks, user_id):
+        items = []
+        tracks_db = db.get_audio(tracks, 'tracks', user_id)
+        for i in tracks_db:
+            result = self.api.method('audio.search', values={'q': i, 'owner_id': self.user_id})
+            items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
+        return items
+
+    def transfer_tracks(self, tracks, user_id, sub=True):
+        tracks_ids = self.search_tracks_ids(tracks, user_id)
+        if sub:
+            for i in tracks_ids:
+                self.api.method('audio.add', values={'audio_id': i['id'], 'owner_id': i['owner_id']})
+        if not sub:
+            count = 0
+            for i in range(0, 10):
+                try:
+                    self.api.method('audio.add', values={'audio_id': tracks_ids[i]['id'],
+                                                         'owner_id': tracks_ids[i]['owner_id']})
+                    count += 1
+                except:
+                    pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
 
 class Spotify:
     def __init__(self, token):
@@ -151,6 +175,7 @@ class Spotify:
         if not sub:
             chunk = tracks_ids[0:9]
             self.spot.current_user_saved_tracks_add(chunk)
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
     def search_albums_ids(self, albums, user_id):
         items = []

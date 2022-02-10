@@ -211,7 +211,7 @@ def get_audio():
         artists = request.json['artists']
         to_service = request.json['to_service']['to_service']
 
-        vk_token = db.get_token(current_user.get_id(), 'vk')
+        vk_token = db.get_token(27, 'vk')
         spotify_token = db.get_token(27, 'spotify') # брать айди юзера
 
         if to_service == 'spotify':
@@ -227,6 +227,17 @@ def get_audio():
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Spotify')})
+
+        if to_service == 'vk':
+            if vk_token:
+                api = services.Vk(vk_token)
+                if db.check_sub(27):
+                    api.transfer_tracks(tracks, 27)
+                if not db.check_sub(27) and db.check_free_transfer(27) > 0:
+                    api.transfer_tracks(tracks, 27, False)
+                return json.dumps({'success': True})
+            else:
+                return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Vk')})
 
 
 @application.route('/add_vk', methods=['get', 'post'])
@@ -317,4 +328,4 @@ def disconnect_sub():
 
 
 if __name__ == '__main__':
-    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='192.168.1.41')
+    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='127.0.0.1')
