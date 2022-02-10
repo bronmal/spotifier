@@ -205,10 +205,9 @@ def send_audio():
 @application.route('/send_audio', methods=['POST'])
 def get_audio():
     if request.method == 'POST':
-        a = request.json
         tracks = request.json['tracks']
         albums = request.json['albums']
-        playlists = request.json['playlists']
+        # playlists = request.json['playlists']
         artists = request.json['artists']
         to_service = request.json['to_service']['to_service']
 
@@ -220,6 +219,8 @@ def get_audio():
                 api = services.Spotify(spotify_token)
                 api.transfer_tracks(tracks, 27)
                 api.transfer_albums(albums, 27)
+                api.transfer_artists(artists, 27)
+                # api.transfer_playlists(playlists, 27)
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Spotify')})

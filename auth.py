@@ -74,6 +74,8 @@ class SpotAuth:
                                                               'playlist-modify-public ugc-image-upload '
                                                               'user-library-read '
                                                               'user-library-modify '
+                                                              'user-follow-modify '
+                                                              'user-follow-read '
                                                               'playlist-read-private '
                                                               'user-top-read '
                                                               'user-read-email',
