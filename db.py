@@ -233,6 +233,54 @@ def delete_sub(user_id):
     con.close()
 
 
+def check_sub(user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """SELECT * FROM spotifier"""
+
+    cursor.execute(query)
+
+    info = cursor.fetchall()
+
+    for i in info:
+        if i['user_id'] == user_id:
+            if i['subscription'] == 0:
+                return False
+            if i['subscription'] == 1:
+                return True
+
+
+def check_free_transfer(user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """SELECT * FROM spotifier"""
+
+    cursor.execute(query)
+
+    info = cursor.fetchall()
+
+    for i in info:
+        if i['user_id'] == user_id:
+            return i['free_transfer']
+
+
+def use_free_transfer(user_id, count):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ UPDATE spotifier
+                                SET free_transfer = %s
+                                WHERE user_id = %s """
+
+    cursor.execute(query, (count, user_id))
+
+    cursor.close()
+    con.commit()
+    con.close()
+
+
 def save_yookassa_id(user_id, id):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)

@@ -217,10 +217,13 @@ def get_audio():
         if to_service == 'spotify':
             if spotify_token:
                 api = services.Spotify(spotify_token)
-                api.transfer_tracks(tracks, 27)
-                api.transfer_albums(albums, 27)
-                api.transfer_artists(artists, 27)
-                # api.transfer_playlists(playlists, 27)
+                if db.check_sub(27):
+                    api.transfer_tracks(tracks, 27)
+                    api.transfer_albums(albums, 27)
+                    api.transfer_artists(artists, 27)
+                    # api.transfer_playlists(playlists, 27)
+                if not db.check_sub(27) and db.check_free_transfer(27) > 0:
+                    api.transfer_tracks(tracks, 27, False)
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Spotify')})
@@ -314,4 +317,4 @@ def disconnect_sub():
 
 
 if __name__ == '__main__':
-    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='127.0.0.1')
+    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='192.168.1.41')

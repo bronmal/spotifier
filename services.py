@@ -142,10 +142,14 @@ class Spotify:
                 pass  # TODO отправлять неперенесенные треки
         return items
 
-    def transfer_tracks(self, tracks, user_id):
+    def transfer_tracks(self, tracks, user_id, sub=True):
         tracks_ids = self.search_tracks_ids(tracks, user_id)
-        for i in range(0, len(tracks_ids), 50):
-            chunk = tracks_ids[i:i+50]
+        if sub:
+            for i in range(0, len(tracks_ids), 50):
+                chunk = tracks_ids[i:i+50]
+                self.spot.current_user_saved_tracks_add(chunk)
+        if not sub:
+            chunk = tracks_ids[0:9]
             self.spot.current_user_saved_tracks_add(chunk)
 
     def search_albums_ids(self, albums, user_id):
