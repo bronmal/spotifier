@@ -1,12 +1,14 @@
 Flask
 flask_session
 flask_login
+flask-babel
+flask-babel-js
 spotipy
 requests
 vk_api
 pymysql
 yookassa
-authlib
+authlib==0.11
 google-api-python-client
 google-auth
 virtualenv

@@ -7,29 +7,29 @@
     <link rel="stylesheet" href="/static/index.css" />
     <link rel="icon" href="/static/images/spotifier-logo.svg" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Перенос музыки из между сервисами всего за пару кликов." />
+    <meta name="description" content={{ _("Перенос музыки из между сервисами всего за пару кликов.")  }}/>
     <title>Spotifier</title>
 </head>
 
 <body class="body auth" onresize="resizeAllElements()" onload="resizeAllElements()">
     <img src="/static/images/spotifier-logo.svg" alt="" srcset="" class="resizable auth logo">
     <div class="resizable auth container">
-        <div class="resizable auth login-text">Войти</div>
+        <div class="resizable auth login-text">{{ _("Войти") }}</div>
         <div class="resizable auth login-container google">
             <img src="/static/images/google-logo.svg" class="resizable auth company-logo">
-            <a href={{google}} class="resizable auth login-url google-url"> Войти с помощью Google</a>
+            <a href={{google}} class="resizable auth login-url google-url"> {{ _('Войти с помощью Google') }} </a>
         </div>
         <div class="resizable auth login-container vk">
             <img src="/static/images/vk-logo.svg" class="resizable auth company-logo">
-            <a href={{vk}} class="resizable auth login-url vk-url"> Войти с помощью Вконтакте</a>
+            <a href={{vk}} class="resizable auth login-url vk-url">{{ _('Войти с помощью Вконтакте') }}</a>
         </div>
         <div class="resizable auth login-container spotify">
             <img src="/static/images/spotify-logo.svg" class="resizable auth company-logo">
-            <a href={{spotify}} class="resizable auth login-url spotify-url"> Войти с помощью Spotify</a>
+            <a href={{spotify}} class="resizable auth login-url spotify-url">{{ _('Войти с помощью Spotify') }}</a>
         </div>
         <div class="resizable auth login-container yandex">
             <img src="/static/images/yandex-logo.svg" class="resizable auth company-logo">
-            <a href={{yandex}} class="resizable auth login-url yandex-url"> Войти с помощью Yandex</a>
+            <a href={{yandex}} class="resizable auth login-url yandex-url">{{ _('Войти с помощью Yandex') }}</a>
         </div>
     </div>
 

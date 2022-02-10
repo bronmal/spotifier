@@ -2,11 +2,12 @@ import pymysql
 import json
 from datetime import datetime, timedelta
 import calendar
+import config
 
 
 def create_con():
-        con = pymysql.connect(user='mysql', host='127.0.0.1',
-                              password='', database='spotifier')
+        con = pymysql.connect(user=config.DB_LOGIN, host='127.0.0.1',
+                              password=config.DB_PASS, database=config.DB_DATABASE)
         return con
 
 
@@ -182,6 +183,17 @@ def user_payed(user_id, payment_id):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
 
+    date = datetime.now()
+    days_in_month = calendar.monthrange(date.year, date.month)[1]
+    date += timedelta(days=days_in_month)
+    date = str(date.day) + '.' + str(date.month)
+
+    query = """ UPDATE spotifier
+                          SET date_end = %s
+                          WHERE user_id = %s """
+
+    cursor.execute(query, (date, user_id))
+
     query = """ UPDATE spotifier
                         SET subscription = %s
                         WHERE user_id = %s """
@@ -195,6 +207,7 @@ def user_payed(user_id, payment_id):
     cursor.execute(query, (payment_id, user_id))
 
     cursor.close()
+    con.commit()
     con.close()
 
 
@@ -208,6 +221,7 @@ def delete_sub(user_id):
 
     cursor.execute(query, (False, user_id))
 
+
     query = """ UPDATE spotifier
                         SET payment_id = %s
                         WHERE user_id = %s """
@@ -215,6 +229,7 @@ def delete_sub(user_id):
     cursor.execute(query, (None, user_id))
 
     cursor.close()
+    con.commit()
     con.close()
 
 
@@ -229,6 +244,7 @@ def save_yookassa_id(user_id, id):
     cursor.execute(query, (id, user_id))
 
     cursor.close()
+    con.commit()
     con.close()
 
 
@@ -243,5 +259,42 @@ def get_yookassa_id(user_id):
     cursor.close()
     con.close()
 
+    return cursor.fetchone()
+
+
+def get_info_all_users():
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """SELECT user_id, payment_id, date_end FROM spotifier """
+
+    cursor.execute(query)
     return cursor.fetchall()
+
+
+def get_audio(audio, types, user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ SELECT * FROM spotifier"""
+
+    cursor.execute(query)
+
+    info = cursor.fetchall()
+    tracks_db = None
+    find_tracks = []
+    for i in info:
+        if i['user_id'] == user_id:
+            tracks_db = json.loads(i[types])
+
+    for i in tracks_db:
+        for b in audio:
+            if i['id'] == b['id'] and i['service'] == b['service']:
+                if types == 'tracks':
+                    find_tracks.append(i['title'] + ' ' + i['artist'])
+                if types == 'albums':
+                    find_tracks.append(i['title'])
+                if types == 'artists':
+                    find_tracks.append(i['title'])
+    return find_tracks
 

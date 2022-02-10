@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/index.css" />
     <link rel="icon" href="/static/images/spotifier-logo.svg" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Перенос музыки из между сервисами всего за пару кликов." />
+    <meta name="description" content={{ _('Перенос музыки из между сервисами всего за пару кликов.') }}/>
     <title>Spotifier</title>
 </head>
 
@@ -20,18 +20,18 @@
             <div class="resizable app personal-info name-lastname">{{ name }}</div>
             <img src="/static/images/logout.svg" onclick="logout()" class="resizable app personal-info logout">
             <div class="resizable app personal-info subscription-box">
-                <div class="resizable app personal-info subscription-box text"><a href={{ kassa }}>Оформить подписку</a></div>
+                <div class="resizable app personal-info subscription-box text"><a href={{ kassa }}>{{ kassa_text }}</a></div>
                 <div class="resizable app personal-info subscription-box line"></div>
                 <div class="resizable app personal-info subscription-box question-mark">?</div>
             </div>
-            <div class="resizable app personal-info next-payment">Дата следующего списания {{ data_end }}</div>
+            <div class="resizable app personal-info next-payment">{{ _('Дата следующего списания: ') }}{{ data_end }}</div>
         </div>
         <div class="resizable app added-services">
-            Подключенные сервисы:
+            {{ _('Подключенные сервисы: ') }}
             <img src="/static/images/add-service.svg" class="resizable app added-services add-service-button">
         </div>
         <div class="resizable app transfer-music">
-            Перенести музыку
+            {{ _('Перенести музыку') }}
         </div>
         <div class="resizable app menu-options">
             <img src="/static/images/account-circle.svg" alt="profile" class="resizable app menu-options image profile">
@@ -45,24 +45,24 @@
         <div class="resizable app music-container">
             <div class="resizable app music-container my-box playlists" onclick="choose()">
                 <img src="/static/images/playlists.svg" class="resizable app music-container my-box image playlists">
-                <div class="resizable app music-container my-box text playlists">Мои плейлисты</div>
+                <div class="resizable app music-container my-box text playlists">{{ _('Мои плейлисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow playlists">
             </div>
             <div class="resizable app music-container my-box tracks" onclick="choose()">
                 <img src="/static/images/tracks.svg" class="resizable app music-container my-box image tracks">
-                <div class="resizable app music-container my-box text tracks">Мои треки</div>
+                <div class="resizable app music-container my-box text tracks">{{ _('Мои треки') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow tracks">
 
             </div>
             <div class="resizable app music-container my-box artists" onclick="choose()">
                 <img src="/static/images/artists.svg" class="resizable app music-container my-box image artists">
-                <div class="resizable app music-container my-box text artists">Мои артисты</div>
+                <div class="resizable app music-container my-box text artists">{{ _('Мои артисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow artists">
 
             </div>
             <div class="resizable app music-container my-box albums" onclick="choose()">
                 <img src="/static/images/albums.svg" class="resizable app music-container my-box image albums">
-                <div class="resizable app music-container my-box text albums">Мои альбомы</div>
+                <div class="resizable app music-container my-box text albums">{{ _('Мои альбомы') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow albums">
 
             </div>
