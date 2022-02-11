@@ -88,7 +88,7 @@ function sendData() {
         "tracks": [],
         "artists": [],
         "albums": [],
-        "to_service": "spotify"
+        "to_service": "vk"
     }
     for (let i = 0; i < chosenTracks.length; i++) {
         id = chosenTracks[i].className.substring(chosenTracks[i].className.indexOf("id") + 2)

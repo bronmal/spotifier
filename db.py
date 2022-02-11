@@ -338,12 +338,13 @@ def get_audio(audio, types, user_id):
 
     for i in tracks_db:
         for b in audio:
-            if i['id'] == b['id'] and i['service'] == b['service']:
-                if types == 'tracks':
-                    find_tracks.append(i['title'] + ' ' + i['artist'])
-                if types == 'albums':
-                    find_tracks.append(i['title'])
-                if types == 'artists':
-                    find_tracks.append(i['title'])
+            if i['id'] == int(b['id']):
+                if i['service'] == b['service']:
+                    if types == 'tracks':
+                        find_tracks.append(i['title'] + ' ' + i['artist'])
+                    if types == 'albums':
+                        find_tracks.append(i['title'])
+                    if types == 'artists':
+                        find_tracks.append(i['title'])
     return find_tracks
 

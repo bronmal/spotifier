@@ -217,12 +217,12 @@ def get_audio():
         if to_service == 'spotify':
             if spotify_token:
                 api = services.Spotify(spotify_token)
-                if db.check_sub(25):
+                if db.check_sub(current_user.get_id()):
                     api.transfer_tracks(tracks, current_user.get_id())
                     api.transfer_albums(albums, current_user.get_id())
                     api.transfer_artists(artists, current_user.get_id())
                     # api.transfer_playlists(playlists, 27)
-                if not db.check_sub(25) and db.check_free_transfer(current_user.get_id()) > 0:
+                if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
             else:
