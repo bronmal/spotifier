@@ -251,6 +251,7 @@ def get_audio():
                 api = services.Yandex(token=yandex_token)
                 if db.check_sub(current_user.get_id()):
                     api.transfer_tracks(tracks, current_user.get_id())
+                    api.transfer_albums(albums, current_user.get_id())
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})

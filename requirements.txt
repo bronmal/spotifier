@@ -5,8 +5,9 @@ flask-babel
 flask-babel-js
 spotipy
 yandex-musix
-requests
+deezer-python
 vk_api
+requests
 pymysql
 yookassa
 authlib==0.11

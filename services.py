@@ -1,10 +1,12 @@
 import vk_api
 import spotipy
 import yandex_music
-
+import deezer
 import config
 import db
 
+
+# TODO  добавить сервис deezer
 
 class Vk:
     def __init__(self, token):
@@ -172,7 +174,7 @@ class Spotify:
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in range(0, len(tracks_ids), 50):
-                chunk = tracks_ids[i:i+50]
+                chunk = tracks_ids[i:i + 50]
                 self.spot.current_user_saved_tracks_add(chunk)
         if not sub:
             chunk = tracks_ids[0:config.LIMIT]
@@ -193,7 +195,7 @@ class Spotify:
     def transfer_albums(self, albums, user_id):
         albums_ids = self.search_albums_ids(albums, user_id)
         for i in range(0, len(albums_ids), 50):
-            chunk = albums_ids[i:i+50]
+            chunk = albums_ids[i:i + 50]
             self.spot.current_user_saved_albums_add(chunk)
 
     def search_playlists_ids(self, playlists, user_id):
@@ -210,7 +212,7 @@ class Spotify:
     def transfer_playlists(self, playlists, user_id):
         playlists_ids = self.search_albums_ids(playlists, user_id)
         for i in range(0, len(playlists_ids), 50):
-            chunk = playlists_ids[i:i+50]
+            chunk = playlists_ids[i:i + 50]
             self.spot.current_user_playlists(chunk)
 
     def search_artists_ids(self, artists, user_id):
@@ -227,7 +229,7 @@ class Spotify:
     def transfer_artists(self, artists, user_id):
         artists_ids = self.search_artists_ids(artists, user_id)
         for i in range(0, len(artists_ids), 50):
-            chunk = artists_ids[i:i+50]
+            chunk = artists_ids[i:i + 50]
             self.spot.user_follow_artists(chunk)
 
 
@@ -240,7 +242,7 @@ class Yandex:
 
     def save_token(self, user_id):
         db.add_service(user_id, self.api.token, 'yandex')
-    
+
     def tracks(self):
         tracks = []
         items = self.api.users_likes_tracks()
@@ -295,9 +297,30 @@ class Yandex:
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in range(0, len(tracks_ids), 20):
-                chunk = tracks_ids[i:i+20]
+                chunk = tracks_ids[i:i + 20]
                 self.api.users_likes_tracks_add(chunk)
         if not sub:
             chunk = tracks_ids[0:config.LIMIT]
             self.api.users_likes_tracks_add(chunk)
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
+
+    def search_albums_ids(self, albums, user_id):
+        items = []
+        tracks_db = db.get_audio(albums, 'albums', user_id)
+        for i in tracks_db:
+            result = self.api.search(i, type_='album')
+            items.append(result.albums.results[0].id)
+        return items
+
+    def transfer_albums(self, albums, user_id, sub=True):
+        albums_ids = self.search_albums_ids(albums, user_id)
+        if sub:
+            for i in range(0, len(albums_ids), 20):
+                chunk = albums_ids[i:i + 20]
+                self.api.users_likes_albums_add(chunk)
+        if not sub:
+            chunk = albums_ids[0:config.LIMIT]
+            self.api.users_likes_albums_add(chunk)
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
+
+
