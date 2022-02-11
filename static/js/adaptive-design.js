@@ -10,12 +10,15 @@ function recalcuteStyles() {
     for (i = 0; i < resizableElements.length; i++) {
         if (resizableElements[i].offsetWidth !== document.body.offsetWidth & resizableElements[i].offsetHeight !== document.body.offsetHeight) {
             className = resizableElements[i].className;
+
             if (className.baseVal !== undefined) {
                 className = className.baseVal
             }
+
             if (resizableObjects[className] === undefined) {
                 style = window.getComputedStyle(resizableElements[i], null);
                 styles = {}
+
                 for (k in style) {
                     styles[k] = style[k]
                 }
@@ -57,11 +60,16 @@ function recomputeStyle(element) {
 
 
 function resizeAllElements() {
+    updateStyles();
     recalcuteStyles();
+    console.log(resizableObjects);
     for (i in resizableObjects) {
 
         originWidth = getAttribute("width", resizableObjects[i]);
         originHeight = getAttribute("height", resizableObjects[i]);
+
+        originMaxWidth = getAttribute("maxWidth", resizableObjects[i])
+        originMaxHeight = getAttribute("maxHeight", resizableObjects[i])
 
         originMarginLeft = getAttribute("marginLeft", resizableObjects[i]);
         originMarginRight = getAttribute("marginRight", resizableObjects[i]);
@@ -80,6 +88,10 @@ function resizeAllElements() {
         for (j = 0; j < needToBeResized.length; j++) {
             needToBeResized[j].style.width = recomputeAttribute(originWidth, deltaW) + "px";
             needToBeResized[j].style.height = recomputeAttribute(originHeight, deltaH) + "px";
+
+            needToBeResized[j].style.maxWidth = recomputeAttribute(originWidth, deltaW) + "px";
+            needToBeResized[j].style.maxHeight = recomputeAttribute(originHeight, deltaH) + "px";
+
 
             needToBeResized[j].style.marginTop = recomputeAttribute(originMarginTop, deltaH) + "px";
             needToBeResized[j].style.marginBottom = recomputeAttribute(originMarginBottom, deltaH) + "px";

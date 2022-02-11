@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 
 <head>
@@ -7,12 +8,12 @@
     <link rel="stylesheet" href="/static/index.css" />
     <link rel="icon" href="/static/images/spotifier-logo.svg" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content={{ _('Перенос музыки из между сервисами всего за пару кликов.') }}/>
+    <meta name="description" content={{ _( 'Перенос музыки из между сервисами всего за пару кликов.') }}/>
     <title>Spotifier</title>
 </head>
 
 
-<body class="body app" onload="resizeAllElements()" onresize="resizeAllElements()">
+<body class="body app" onload="appOnLoad()" onresize="appOnResize()">
     <div class="resizable app slider">
         <img src="/static/images/menu-opened.svg" class="resizable app menu-button" onclick="hideMenu()">
         <div class="resizable app personal-info">
@@ -43,24 +44,24 @@
 
         </div>
         <div class="resizable app music-container">
-            <div class="resizable app music-container my-box playlists" onclick="choose()">
+            <div class="resizable app music-container my-box playlists" onclick="displayPlaylists()">
                 <img src="/static/images/playlists.svg" class="resizable app music-container my-box image playlists">
                 <div class="resizable app music-container my-box text playlists">{{ _('Мои плейлисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow playlists">
             </div>
-            <div class="resizable app music-container my-box tracks" onclick="choose()">
+            <div class="resizable app music-container my-box tracks" onclick="displayTracks()">
                 <img src="/static/images/tracks.svg" class="resizable app music-container my-box image tracks">
                 <div class="resizable app music-container my-box text tracks">{{ _('Мои треки') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow tracks">
 
             </div>
-            <div class="resizable app music-container my-box artists" onclick="choose()">
+            <div class="resizable app music-container my-box artists" onclick="displayArtists()">
                 <img src="/static/images/artists.svg" class="resizable app music-container my-box image artists">
                 <div class="resizable app music-container my-box text artists">{{ _('Мои артисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow artists">
 
             </div>
-            <div class="resizable app music-container my-box albums" onclick="choose()">
+            <div class="resizable app music-container my-box albums" onclick="displayAlbums()">
                 <img src="/static/images/albums.svg" class="resizable app music-container my-box image albums">
                 <div class="resizable app music-container my-box text albums">{{ _('Мои альбомы') }}</div>
                 <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow albums">
@@ -71,9 +72,22 @@
         <img src="/static/images/spotifier-logo.svg" class="resizable app spotifier-logo">
     </div>
     <div class="resizable app main-container">
-
+        <div class="resizable app chosen option">{chosen}: 0</div>
+        <div class="resizable app chosen count">{{ _('Выбрано') }}: 0</div>
+        <div class="resizable app chosen add">{{ _('Добавить')}} {chosen}</div>
+        <div class="resizable app chosen transfer">{{ _('Перенести')}} {chosen}</div>
+        <div class="resizable app song top-part">
+            <input class="resizable app song top-part checkbox" type="checkbox"></input>
+            <div class="resizable app song top-part label">{{ _('Название') }}</div>
+            <div class="resizable app song top-part service">{{ _('Сервис') }}</div>
+            <div class="resizable app song top-part option1">{{ _('Автор') }}</div>
+            <div class="resizable app song top-part option2">{{ _('Альбом') }}</div>
+            <div class="resizable app song top-part change">{{ _('Изменить') }}</div>
+            <div class="resizable app song top-part delete">{{ _('Удалить') }}</div>
+        </div>
     </div>
 </body>
 <script src="/static/js/adaptive-design.js"></script>
+<script src="{{ url_for('babel_catalog') }}"></script>
 <script src="/static/js/app.js"></script>
 <script src="/static/js/test.js"></script>

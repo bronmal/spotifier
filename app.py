@@ -209,21 +209,21 @@ def get_audio():
         albums = request.json['albums']
         # playlists = request.json['playlists']
         artists = request.json['artists']
-        to_service = request.json['to_service']['to_service']
+        to_service = request.json['to_service']
 
-        vk_token = db.get_token(27, 'vk')
-        spotify_token = db.get_token(27, 'spotify') # брать айди юзера
+        vk_token = db.get_token(current_user.get_id(), 'vk')
+        spotify_token = db.get_token(current_user.get_id(), 'spotify') # брать айди юзера
 
         if to_service == 'spotify':
             if spotify_token:
                 api = services.Spotify(spotify_token)
-                if db.check_sub(27):
-                    api.transfer_tracks(tracks, 27)
-                    api.transfer_albums(albums, 27)
-                    api.transfer_artists(artists, 27)
+                if db.check_sub(25):
+                    api.transfer_tracks(tracks, current_user.get_id())
+                    api.transfer_albums(albums, current_user.get_id())
+                    api.transfer_artists(artists, current_user.get_id())
                     # api.transfer_playlists(playlists, 27)
-                if not db.check_sub(27) and db.check_free_transfer(27) > 0:
-                    api.transfer_tracks(tracks, 27, False)
+                if not db.check_sub(25) and db.check_free_transfer(current_user.get_id()) > 0:
+                    api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Spotify')})
@@ -231,10 +231,10 @@ def get_audio():
         if to_service == 'vk':
             if vk_token:
                 api = services.Vk(vk_token)
-                if db.check_sub(27):
-                    api.transfer_tracks(tracks, 27)
-                if not db.check_sub(27) and db.check_free_transfer(27) > 0:
-                    api.transfer_tracks(tracks, 27, False)
+                if db.check_sub(current_user.get_id()):
+                    api.transfer_tracks(tracks, current_user.get_id())
+                if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
+                    api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Vk')})

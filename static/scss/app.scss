@@ -3,6 +3,8 @@
         transition-duration: .2s;
     }
     &.slider {
+        position: sticky;
+        top: 0;
         transition-duration: 0.25s;
         box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
         background-color: #494781;
@@ -161,7 +163,8 @@
             &.right-arrow {
                 display: none;
                 width: 24px;
-                height: 24px;
+                max-width: 24px;
+                max-height: 24px;
                 background: none;
                 border-radius: 0;
                 float: right;
@@ -185,7 +188,7 @@
     }
     &.spotifier-logo {
         width: 256px;
-        height: 232px;
+        height: 213px;
     }
     &.menu-options {
         display: none;
@@ -209,10 +212,151 @@
         }
     }
     &.main-container {
+        display: block;
         float: right;
         overflow-y: hidden;
-        width: 1100px;
+        width: 1050px;
         height: 900px;
-        background: url(/static/images/big-blurried-spotifer-logo.svg) no-repeat center;
+        background: url(/static/images/big-blurried-spotifer-logo.svg) repeat center;
+    }
+    &.chosen {
+        width: 200px;
+        color: white;
+        display: inline-block;
+        &.option {
+            font-size: 22px;
+            width: 150px;
+            height: 40px;
+            margin: 112px 80px 0 0;
+        }
+        &.option::first-letter {
+            text-transform: uppercase;
+        }
+        &.count {
+            font-size: 22px;
+            width: 127px;
+            height: 40px;
+            margin: 112px 121px 0 0;
+        }
+        &.add {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 99px;
+            background-color: #46437B;
+            font-size: 12px;
+            width: 188px;
+            height: 40px;
+            margin: 112px 90px 0 0;
+        }
+        &.transfer {
+            margin: 112px 0 0 0;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
+            border-radius: 99px;
+            font-size: 12px;
+            width: 168px;
+            height: 40px;
+        }
+    }
+    &.song {
+        color: white;
+        vertical-align: middle;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        width: 936px;
+        height: 40px;
+        margin: 0 0 10px 0;
+        border-radius: 8px;
+        background-color: rgba($color: #46437B, $alpha: .25);
+        text-decoration: none;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        &.checkbox {
+            background: none;
+            max-width: 18px;
+            height: 18px;
+            margin: 11px 45px 11px 16px;
+        }
+        &.label {
+            margin: 0;
+            background: none;
+            width: 168px;
+        }
+        &.service {
+            margin: 0;
+            background: none;
+            width: 24px;
+            height: 24px;
+            margin: 0 119px 0 0;
+        }
+        &.option1 {
+            margin: 0 45px 0 0;
+            background: none;
+            width: 100px;
+        }
+        &.option2 {
+            margin: 0 61px 0 0;
+            background: none;
+            width: 100px;
+        }
+        &.change-btn {
+            margin: 0 131px 0 0;
+            background: none;
+            width: 24px;
+        }
+        &.change-btn:hover {
+            cursor: pointer;
+        }
+        &.delete-btn {
+            margin: 0;
+            background: none;
+            width: 24px;
+        }
+        &.delete-btn:hover {
+            cursor: pointer;
+        }
+    }
+    &.song.top-part {
+        display: inline-flex;
+        width: 936px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: #46437B;
+        text-transform: capitalize;
+        overflow: visible;
+        &.checkbox {
+            margin: 11px 45px 11px 16px;
+            max-width: 18px;
+            height: 18px;
+        }
+        &.label {
+            width: 168px;
+            margin: 0;
+        }
+        &.service {
+            width: 24px;
+            height: 24px;
+            margin: 0 119px 0 0;
+        }
+        &.option1 {
+            width: 100px;
+            margin: 0 45px 0 0;
+        }
+        &.option2 {
+            width: 100px;
+            margin: 0 61px 0 0;
+        }
+        &.change {
+            width: 24px;
+            margin: 0 131px 0 0;
+        }
+        &.delete {
+            width: 24px;
+            margin: 0;
+        }
     }
 }
