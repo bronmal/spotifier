@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+            <!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+       ym(83155189, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+       });
+</script>
+<!-- /Yandex.Metrika counter -->
+
+	<meta charset="utf-8" />
+        <link rel="stylesheet" href="/static/mobile-css300px.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+        <script src="/static/js/vk_form_test.js"></script>
+
+        <title>Авторизация VK</title>
+</head>
+<body>
+<div class="wrapper">
+    <div class="content">
+        <div class="top-part">
+        <div class="header">
+            <div class="logo">
+                <a href="/">sp<strong id="letter-o">o</strong>tifier</a>
+            </div>
+
+            <div class="menu">
+                <button>
+                    <div id="container">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="banner">
+            <div class="smth-1">Перенести</div>
+            <div class="test">C VK В SPOTIFY</div>
+        </div>
+
+        <div class="btn-start">
+            <div class="vk_form">
+                <div class="vk_auth">
+                    <span>Авторизация VK</span>
+                </div>
+
+                    <div class="vk_auth_login" id="vk_auth_login">
+                        <p>
+                            <p>Логин</p>
+                            <input type="text" name="login" id="login" placeholder="Номер телефона или e-mail">
+                        </p>
+                    </div>
+                    <div class="vk_auth_pass" id="vk_auth_pass">
+                        <p>
+                            <p>Пароль</p>
+                            <input type="password" name="password" id="pass" placeholder="Пароль">
+                        </p>
+                    </div>
+                    <div class="vk_auth_2fa" id='hidden_2fa'>
+                        <p>
+                            <p id="2fa">Код</p>
+                            <div id="wrong_code_hidden" >
+                                Код не верный
+                            </div>
+                            <input type="text" name="2fa" id="2fa_code" placeholder="Код подтверждения">
+                        </p>
+                    </div>
+                    <div id="wrong-pass" style="display: none;color: red;">
+                        Логин или пароль неверен
+                    </div>
+                    <div class="vk_auth_submit">
+                        <p>
+                            <button onclick="PopUpShow()" id="vk_button" type="submit" value="Войти">Войти в вк</button>
+                        </p>
+                    </div>
+                    <div class="b-popup" id="popup1" style="display: none;">
+                        <div class="b-popup-content">
+                            <div class="text-title">
+                                <strong class="text-spotifier">Spotifier</strong>
+                                требуется доступ к вашему аккаунту
+                                <strong class="text-vk">VKontakte</strong>
+                            </div>
+                            <div class="text-desc">
+                                <strong>Внимательно ознакомьтесь:</strong>
+                            </div>
+                            <ul class="auth-list">
+                                <li>Для этого мы используем неофициальный API&nbsp;— доступ может исчезнуть в любой момент.</li>
+                                <li>Вы получите <b>уведомление о подключении к вашей учетной записи из Германии</b>. Не волнуйтесь, это мы.</li>
+                            </ul>
+                        <div class="buttons">
+                            <a href="javascript:PopUpHideAndCancel()" id="cancel">Отказаться</a>
+                            <a href="javascript:PopUpHideAndAccept()" id="accept">Принять</a>
+                        </div>
+                        </div>
+                    </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+    </div>
+
+    <div class="FAQ">
+        часто задаваемые вопросы
+        <div class="box">
+            <div class="qst">
+                <p>почему мы?</p>
+                <div>
+                    Перенос музыки за пару кликов, ваши данные не хранятся на наших серверах, все строго
+                    конфиденциально.
+                </div>
+            </div>
+            <div class="qst">
+                <p>Как все перенести?</p>
+                <div>
+                    Жми на кнопку "ПЕРЕНЕСТИ". Затем заходишь в Vk, заходишь в Spotify и ждешь. Пара минут, и ты
+                    можешь наслаждаться своей любимой музыкой в Spotify, который начнет учитывать твои вкусы.
+                </div>
+            </div>
+            <div class="qst">
+                <p>Бесплатен ли перенос?</p>
+                <div>
+                    Вы можете перенести 100 любых треков бесплатно, а после оплаты 149 руб.
+                    мы снимем ограничение на перенос. Нажимая на кнопку оплатить вы соглашаетесь
+                    с <a href="/static/Spotifier Пользовательское Соглашение.pdf" id="user_agreement">пользовательским соглашением.</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+</body>
+<script src="/static/js/vk_form_test.js"></script>
+</html>

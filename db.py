@@ -44,8 +44,9 @@ def create_user(email, name, photo):
     date = str(date.day) + '.' + str(date.month)
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("INSERT INTO spotifier (email, name, avatar, subscription, date_end) VALUES (%s, %s, %s, %s, %s)",
-                   (email, name, photo, False, date))
+    cursor.execute("INSERT INTO spotifier (email, name, avatar, subscription, date_end, free_transfer)"
+                   " VALUES (%s, %s, %s, %s, %s, %s)",
+                   (email, name, photo, False, date, 10))
     cursor.close()
     con.commit()
     con.close()
@@ -233,6 +234,54 @@ def delete_sub(user_id):
     con.close()
 
 
+def check_sub(user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """SELECT * FROM spotifier"""
+
+    cursor.execute(query)
+
+    info = cursor.fetchall()
+
+    for i in info:
+        if i['user_id'] == user_id:
+            if i['subscription'] == 0:
+                return False
+            if i['subscription'] == 1:
+                return True
+
+
+def check_free_transfer(user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """SELECT * FROM spotifier"""
+
+    cursor.execute(query)
+
+    info = cursor.fetchall()
+
+    for i in info:
+        if i['user_id'] == user_id:
+            return i['free_transfer']
+
+
+def use_free_transfer(user_id, count):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ UPDATE spotifier
+                                SET free_transfer = %s
+                                WHERE user_id = %s """
+
+    cursor.execute(query, (count, user_id))
+
+    cursor.close()
+    con.commit()
+    con.close()
+
+
 def save_yookassa_id(user_id, id):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -270,4 +319,31 @@ def get_info_all_users():
 
     cursor.execute(query)
     return cursor.fetchall()
+
+
+def get_audio(audio, types, user_id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = """ SELECT * FROM spotifier"""
+
+    cursor.execute(query)
+
+    info = cursor.fetchall()
+    tracks_db = None
+    find_tracks = []
+    for i in info:
+        if i['user_id'] == user_id:
+            tracks_db = json.loads(i[types])
+
+    for i in tracks_db:
+        for b in audio:
+            if i['id'] == b['id'] and i['service'] == b['service']:
+                if types == 'tracks':
+                    find_tracks.append(i['title'] + ' ' + i['artist'])
+                if types == 'albums':
+                    find_tracks.append(i['title'])
+                if types == 'artists':
+                    find_tracks.append(i['title'])
+    return find_tracks
 

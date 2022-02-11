@@ -1,6 +1,7 @@
 import vk_api
-import requests
 import spotipy
+
+import db
 
 
 class Vk:
@@ -50,6 +51,30 @@ class Vk:
 
         return tracks, playlists, albums
 
+    def search_tracks_ids(self, tracks, user_id):
+        items = []
+        tracks_db = db.get_audio(tracks, 'tracks', user_id)
+        for i in tracks_db:
+            result = self.api.method('audio.search', values={'q': i, 'owner_id': self.user_id})
+            items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
+        return items
+
+    def transfer_tracks(self, tracks, user_id, sub=True):
+        tracks_ids = self.search_tracks_ids(tracks, user_id)
+        if sub:
+            for i in tracks_ids:
+                self.api.method('audio.add', values={'audio_id': i['id'], 'owner_id': i['owner_id']})
+        if not sub:
+            count = 0
+            for i in range(0, 10):
+                try:
+                    self.api.method('audio.add', values={'audio_id': tracks_ids[i]['id'],
+                                                         'owner_id': tracks_ids[i]['owner_id']})
+                    count += 1
+                except:
+                    pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
 
 class Spotify:
     def __init__(self, token):
@@ -58,6 +83,9 @@ class Spotify:
         self.auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-modify-private '
                                                               'playlist-modify-public ugc-image-upload '
                                                               'user-library-read '
+                                                              'user-library-modify '
+                                                              'user-follow-modify '
+                                                              'user-follow-read '
                                                               'playlist-read-private '
                                                               'user-top-read '
                                                               'user-read-email',
@@ -100,7 +128,6 @@ class Spotify:
         count = 0
         while True:
             for sp_range in ['short_term', 'medium_term', 'long_term']:
-                print("range:", sp_range)
                 result = self.spot.current_user_top_artists(time_range=sp_range, limit=self.count)
                 for i, item in enumerate(result['items']):
                     artists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url'],
@@ -128,3 +155,75 @@ class Spotify:
     def get_music(self):
         return self.tracks(), self.playlists(), self.artists(), self.albums()
 
+    def search_tracks_ids(self, tracks, user_id):
+        items = []
+        tracks_db = db.get_audio(tracks, 'tracks', user_id)
+        for i in tracks_db:
+            result = self.spot.search(i, type='track', limit=1)
+            try:
+                items.append(result['tracks']['items'][0]['id'])
+            except:
+                pass  # TODO отправлять неперенесенные треки
+        return items
+
+    def transfer_tracks(self, tracks, user_id, sub=True):
+        tracks_ids = self.search_tracks_ids(tracks, user_id)
+        if sub:
+            for i in range(0, len(tracks_ids), 50):
+                chunk = tracks_ids[i:i+50]
+                self.spot.current_user_saved_tracks_add(chunk)
+        if not sub:
+            chunk = tracks_ids[0:9]
+            self.spot.current_user_saved_tracks_add(chunk)
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
+
+    def search_albums_ids(self, albums, user_id):
+        items = []
+        albums_db = db.get_audio(albums, 'albums', user_id)
+        for i in albums_db:
+            result = self.spot.search(i, type='album', limit=1)
+            try:
+                items.append(result['albums']['items'][0]['id'])
+            except:
+                pass  # TODO отправлять неперенесенные треки
+        return items
+
+    def transfer_albums(self, albums, user_id):
+        albums_ids = self.search_albums_ids(albums, user_id)
+        for i in range(0, len(albums_ids), 50):
+            chunk = albums_ids[i:i+50]
+            self.spot.current_user_saved_albums_add(chunk)
+
+    def search_playlists_ids(self, playlists, user_id):
+        items = []
+        albums_db = db.get_audio(playlists, 'playlists', user_id)
+        for i in albums_db:
+            result = self.spot.search(i, type='playlist', limit=1)
+            try:
+                items.append(result['playlist']['items'][0]['id'])
+            except:
+                pass  # TODO отправлять неперенесенные треки
+        return items
+
+    def transfer_playlists(self, playlists, user_id):
+        playlists_ids = self.search_albums_ids(playlists, user_id)
+        for i in range(0, len(playlists_ids), 50):
+            chunk = playlists_ids[i:i+50]
+            self.spot.current_user_playlists(chunk)
+
+    def search_artists_ids(self, artists, user_id):
+        items = []
+        albums_db = db.get_audio(artists, 'artists', user_id)
+        for i in albums_db:
+            result = self.spot.search(i, type='artist', limit=1)
+            try:
+                items.append(result['artists']['items'][0]['id'])
+            except:
+                pass  # TODO отправлять неперенесенные треки
+        return items
+
+    def transfer_artists(self, artists, user_id):
+        artists_ids = self.search_artists_ids(artists, user_id)
+        for i in range(0, len(artists_ids), 50):
+            chunk = artists_ids[i:i+50]
+            self.spot.user_follow_artists(chunk)
