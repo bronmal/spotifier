@@ -323,4 +323,21 @@ class Yandex:
             self.api.users_likes_albums_add(chunk)
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
+    def search_artists_ids(self, artists, user_id):
+        items = []
+        tracks_db = db.get_audio(artists, 'artists', user_id)
+        for i in tracks_db:
+            result = self.api.search(i, type_='artist')
+            items.append(result.artists.results[0].id)
+        return items
 
+    def transfer_artists(self, artists, user_id, sub=True):
+        artists_ids = self.search_artists_ids(artists, user_id)
+        if sub:
+            for i in range(0, len(artists_ids), 20):
+                chunk = artists_ids[i:i + 20]
+                self.api.users_likes_artists_add(chunk)
+        if not sub:
+            chunk = artists_ids[0:config.LIMIT]
+            self.api.users_likes_artists_add(chunk)
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
