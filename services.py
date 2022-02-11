@@ -1,6 +1,8 @@
 import vk_api
 import spotipy
 import yandex_music
+
+import config
 import db
 
 
@@ -66,7 +68,7 @@ class Vk:
                 self.api.method('audio.add', values={'audio_id': i['id'], 'owner_id': i['owner_id']})
         if not sub:
             count = 0
-            for i in range(0, 10):
+            for i in range(0, config.LIMIT):
                 try:
                     self.api.method('audio.add', values={'audio_id': tracks_ids[i]['id'],
                                                          'owner_id': tracks_ids[i]['owner_id']})
@@ -173,7 +175,7 @@ class Spotify:
                 chunk = tracks_ids[i:i+50]
                 self.spot.current_user_saved_tracks_add(chunk)
         if not sub:
-            chunk = tracks_ids[0:9]
+            chunk = tracks_ids[0:config.LIMIT]
             self.spot.current_user_saved_tracks_add(chunk)
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
@@ -280,3 +282,22 @@ class Yandex:
 
     def get_music(self):
         return self.tracks(), self.albums(), self.artists(), self.playlists()
+
+    def search_tracks_ids(self, tracks, user_id):
+        items = []
+        tracks_db = db.get_audio(tracks, 'tracks', user_id)
+        for i in tracks_db:
+            result = self.api.search(i, type_='track')
+            items.append(result.tracks.results[0].track_id)
+        return items
+
+    def transfer_tracks(self, tracks, user_id, sub=True):
+        tracks_ids = self.search_tracks_ids(tracks, user_id)
+        if sub:
+            for i in range(0, len(tracks_ids), 20):
+                chunk = tracks_ids[i:i+20]
+                self.api.users_likes_tracks_add(chunk)
+        if not sub:
+            chunk = tracks_ids[0:config.LIMIT]
+            self.api.users_likes_tracks_add(chunk)
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))

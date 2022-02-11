@@ -218,7 +218,8 @@ def get_audio():
         to_service = request.json['to_service']
 
         vk_token = db.get_token(current_user.get_id(), 'vk')
-        spotify_token = db.get_token(current_user.get_id(), 'spotify') # брать айди юзера
+        spotify_token = db.get_token(current_user.get_id(), 'spotify')
+        yandex_token = db.get_token(current_user.get_id(), 'yandex')
 
         if to_service == 'spotify':
             if spotify_token:
@@ -244,6 +245,17 @@ def get_audio():
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Vk')})
+
+        if to_service == 'yandex':
+            if yandex_token:
+                api = services.Yandex(token=yandex_token)
+                if db.check_sub(current_user.get_id()):
+                    api.transfer_tracks(tracks, current_user.get_id())
+                if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
+                    api.transfer_tracks(tracks, current_user.get_id(), False)
+                return json.dumps({'success': True})
+            else:
+                return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Yandex')})
 
 
 @application.route('/add_vk', methods=['get', 'post'])
