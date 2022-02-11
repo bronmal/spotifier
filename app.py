@@ -198,11 +198,13 @@ def send_audio():
 
     if yandex_token:
         api_yandex = services.Yandex(token=yandex_token)
-        tracks_ya = api_yandex.get_music()
+        tracks_ya, albums_ya = api_yandex.get_music()
 
-    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot + tracks_ya, albums=albums_vk + albums_spot,
-                  playlists=playlists_vk + playlists_spot, artists=artists_spot)
-    return json.dumps({'tracks': tracks_vk + tracks_spot + tracks_ya, 'albums': albums_vk + albums_spot,
+    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot + tracks_ya,
+                  albums=albums_vk + albums_spot + albums_ya,
+                  playlists=playlists_vk + playlists_spot,
+                  artists=artists_spot)
+    return json.dumps({'tracks': tracks_vk + tracks_spot + tracks_ya, 'albums': albums_vk + albums_spot + albums_ya,
                       'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
 
 

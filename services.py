@@ -250,5 +250,15 @@ class Yandex:
             count += 1
         return tracks
 
+    def albums(self):
+        albums = []
+        items = self.api.users_likes_albums()
+        count = 0
+        for i in items:
+            albums.append({'title': i['album']['title'], 'artist': i['album']['artists'][0]['name'],
+                           'service': 'yandex', 'id': count})
+            count += 1
+        return albums
+
     def get_music(self):
-        return self.tracks()
+        return self.tracks(), self.albums()
