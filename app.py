@@ -182,9 +182,11 @@ def dashboard():
 def send_audio():
     tracks_vk, playlists_vk, albums_vk = [], [], []
     tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
+    tracks_ya, playlists_ya, albums_ya, artists_ya = [], [], [], []
 
     vk_token = db.get_token(current_user.get_id(), 'vk')
     spotify_token = db.get_token(current_user.get_id(), 'spotify')
+    yandex_token = db.get_token(current_user.get_id(), 'yandex')
 
     if vk_token:
         api_vk = services.Vk(vk_token)
@@ -194,12 +196,14 @@ def send_audio():
         api_spotify = services.Spotify(spotify_token)
         tracks_spot, playlists_spot, artists_spot, albums_spot = api_spotify.get_music()
 
-    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot, albums=albums_vk + albums_spot,
+    if yandex_token:
+        api_yandex = services.Yandex(token=yandex_token)
+        tracks_ya = api_yandex.get_music()
+
+    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot + tracks_ya, albums=albums_vk + albums_spot,
                   playlists=playlists_vk + playlists_spot, artists=artists_spot)
-    return json.dumps({'tracks': tracks_vk + tracks_spot, 'albums': albums_vk + albums_spot,
-                        'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
-    # with open("data.json") as f:
-        # return(f.read())
+    return json.dumps({'tracks': tracks_vk + tracks_spot + tracks_ya, 'albums': albums_vk + albums_spot,
+                      'playlists': playlists_vk + playlists_spot, 'artists': artists_spot})
 
 
 @application.route('/send_audio', methods=['POST'])
@@ -285,17 +289,17 @@ def get_code():
             return json.dumps({'success': False})
 
 
-@application.route('/add_spotify', methods=['GET', 'POST'])
+@application.route('/add_yandex', methods=['GET', 'POST'])
 @login_required
-def add_spotify():
+def add_yandex():
+    if request.method == 'GET':
+        return render_template('yandex_form_test.html')
     if request.method == 'POST':
-        if request.args.get('code'):
-            try:
-                spot = auth.SpotAuth()
-                spot.save_token(request.args.get('code'), current_user.get_id())
-                return redirect('/dashboard')
-            except:
-                return redirect('/auth')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        yandex_api = services.Yandex(username, password)
+        yandex_api.save_token(current_user.get_id())
+        return redirect('/dashboard')
 
 
 @application.errorhandler(401)

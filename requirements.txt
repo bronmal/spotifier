@@ -4,6 +4,7 @@ flask_login
 flask-babel
 flask-babel-js
 spotipy
+yandex-musix
 requests
 vk_api
 pymysql

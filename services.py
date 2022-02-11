@@ -1,6 +1,6 @@
 import vk_api
 import spotipy
-
+import yandex_music
 import db
 
 
@@ -227,3 +227,28 @@ class Spotify:
         for i in range(0, len(artists_ids), 50):
             chunk = artists_ids[i:i+50]
             self.spot.user_follow_artists(chunk)
+
+
+class Yandex:
+    def __init__(self, login=None, password=None, token=None):
+        if login and password:
+            self.api = yandex_music.Client.from_credentials(login, password)
+        if token:
+            self.api = yandex_music.Client.from_token(token)
+
+    def save_token(self, user_id):
+        db.add_service(user_id, self.api.token, 'yandex')
+    
+    def tracks(self):
+        tracks = []
+        items = self.api.users_likes_tracks()
+        count = 0
+        for i in items:
+            track = i.fetch_track()
+            tracks.append({'title': track['title'], 'artist': track['artists'][0]['name'],
+                           'album': track['albums'][0]['title'], 'service': 'yandex', 'id': count})
+            count += 1
+        return tracks
+
+    def get_music(self):
+        return self.tracks()
