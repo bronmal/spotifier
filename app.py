@@ -274,7 +274,9 @@ def get_audio():
             if deezer_token:
                 api = services.Deezer(token=deezer_token)
                 if db.check_sub(32):
-                    api.transfer_tracks(tracks, 32)
+                    # api.transfer_tracks(tracks, current_user.get_id())
+                    # api.transfer_albums(albums, current_user.get_id())
+                    api.transfer_artists(artists, 32)
                 if not db.check_sub(32) and db.check_free_transfer(32) > 0:
                     api.transfer_tracks(tracks, 32, False)
                 return json.dumps({'success': True})

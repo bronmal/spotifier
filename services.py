@@ -434,9 +434,75 @@ class Deezer:
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in tracks_ids:
-                self.api.add_user_track(i)
+                try:
+                    self.api.add_user_track(i)
+                except:
+                    pass
         if not sub:
             chunk = tracks_ids[0:config.LIMIT]
+            count = 0
             for i in chunk:
-                self.api.add_user_track(i)
-            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
+                try:
+                    self.api.add_user_track(i)
+                    count += 1
+                except:
+                    pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
+    def search_albums_ids(self, albums, user_id):
+        items = []
+        albums_db = db.get_audio(albums, 'albums', user_id)
+        for i in albums_db:
+            result = self.api.search(i, ordering='ALBUM_ASC')
+            for i in result:
+                items.append(i.album.id)
+                break
+        return items
+
+    def transfer_albums(self, albums, user_id, sub=True):
+        albums_ids = self.search_albums_ids(albums, user_id)
+        if sub:
+            for i in albums_ids:
+                try:
+                    self.api.add_user_album(i)
+                except:
+                    pass
+        if not sub:
+            chunk = albums_ids[0:config.LIMIT]
+            count = 0
+            for i in chunk:
+                try:
+                    self.api.add_user_album(i)
+                    count += 1
+                except:
+                    pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
+    def search_artists_ids(self, artists, user_id):
+        items = []
+        artists_db = db.get_audio(artists, 'artists', user_id)
+        for i in artists_db:
+            result = self.api.search(i, ordering='ARTIST_ASC')
+            for i in result:
+                items.append(i.artist.id)
+                break
+        return items
+
+    def transfer_artists(self, artists, user_id, sub=True):
+        artists_ids = self.search_artists_ids(artists, user_id)
+        if sub:
+            for i in artists_ids:
+                try:
+                    self.api.add_user_artist(i)
+                except:
+                    pass
+        if not sub:
+            chunk = artists_ids[0:config.LIMIT]
+            count = 0
+            for i in chunk:
+                try:
+                    self.api.add_user_artist(i)
+                    count += 1
+                except: pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
