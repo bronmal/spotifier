@@ -1,4 +1,5 @@
-URL = 'http://127.0.0.1:5000'
+#URL = 'http://127.0.0.1:5000'
+URL = 'https://spotifier.ru'
 LIMIT = 9
 
 DB_LOGIN = 'mysql'
@@ -20,7 +21,9 @@ GOOGLE_ACCESS_TOKEN_URI = 'https://www.googleapis.com/oauth2/v4/token'
 YANDEX_ID = '0b9c2c40111e4accbf1fd0129e2a3910'
 YANDEX_PASSWORD = '0163828d485842a3a40d4a6780b9d028'
 
-
+DEEZER_ID = 527262
+DEEZER_SECRET_KEY = '9d0efed71f127a12e58b9e057d9cb2f3'
+DEEZER_REDIRECT = f'{URL}/add_deezer'
 
 
 class Config(object):

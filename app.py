@@ -183,10 +183,12 @@ def send_audio():
     tracks_vk, playlists_vk, albums_vk = [], [], []
     tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
     tracks_ya, playlists_ya, albums_ya, artists_ya = [], [], [], []
+    tracks_deez, playlists_deez, albums_deez, artists_deez = [], [], [], []
 
     vk_token = db.get_token(current_user.get_id(), 'vk')
     spotify_token = db.get_token(current_user.get_id(), 'spotify')
     yandex_token = db.get_token(current_user.get_id(), 'yandex')
+    deezer_token = db.get_token(current_user.get_id(), 'deezer')
 
     if vk_token:
         api_vk = services.Vk(vk_token)
@@ -200,12 +202,19 @@ def send_audio():
         api_yandex = services.Yandex(token=yandex_token)
         tracks_ya, albums_ya, artists_ya, playlists_ya = api_yandex.get_music()
 
-    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot + tracks_ya,
-                  albums=albums_vk + albums_spot + albums_ya,
+    if deezer_token:
+        api_deezer = services.Deezer(token=deezer_token)
+        tracks_deez, albums_deez, artists_deez = api_deezer.get_music()
+
+    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot + tracks_ya + tracks_deez,
+                  albums=albums_vk + albums_spot + albums_ya + albums_deez,
                   playlists=playlists_vk + playlists_spot + playlists_ya,
-                  artists=artists_spot + artists_ya)
-    return json.dumps({'tracks': tracks_vk + tracks_spot + tracks_ya, 'albums': albums_vk + albums_spot + albums_ya,
-                      'playlists': playlists_vk + playlists_spot + playlists_ya, 'artists': artists_spot + artists_ya})
+                  artists=artists_spot + artists_ya + artists_deez)
+
+    return json.dumps({'tracks': tracks_vk + tracks_spot + tracks_ya + tracks_deez,
+                       'albums': albums_vk + albums_spot + albums_ya + albums_deez,
+                      'playlists': playlists_vk + playlists_spot + playlists_ya,
+                       'artists': artists_spot + artists_ya + artists_deez})
 
 
 @application.route('/send_audio', methods=['POST'])
@@ -213,13 +222,14 @@ def get_audio():
     if request.method == 'POST':
         tracks = request.json['tracks']
         albums = request.json['albums']
-        # playlists = request.json['playlists']
+        playlists = request.json['playlists']
         artists = request.json['artists']
         to_service = request.json['to_service']
 
         vk_token = db.get_token(current_user.get_id(), 'vk')
         spotify_token = db.get_token(current_user.get_id(), 'spotify')
-        yandex_token = db.get_token(32, 'yandex')
+        yandex_token = db.get_token(current_user.get_id(), 'yandex')
+        deezer_token = db.get_token(32, 'deezer')
 
         if to_service == 'spotify':
             if spotify_token:
@@ -249,15 +259,27 @@ def get_audio():
         if to_service == 'yandex':
             if yandex_token:
                 api = services.Yandex(token=yandex_token)
-                if db.check_sub(32):
-                    # api.transfer_tracks(tracks, current_user.get_id())
-                    # api.transfer_albums(albums, current_user.get_id())
-                    api.transfer_artists(artists, 32)
+                if db.check_sub(current_user.get_id()):
+                    api.transfer_tracks(tracks, current_user.get_id())
+                    api.transfer_albums(albums, current_user.get_id())
+                    api.transfer_artists(artists, current_user.get_id())
+                    # api.transfer_playlists(playlists, 32)
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Yandex')})
+
+        if to_service == 'deezer':
+            if deezer_token:
+                api = services.Deezer(token=deezer_token)
+                if db.check_sub(32):
+                    api.transfer_tracks(tracks, 32)
+                if not db.check_sub(32) and db.check_free_transfer(32) > 0:
+                    api.transfer_tracks(tracks, 32, False)
+                return json.dumps({'success': True})
+            else:
+                return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Deezer')})
 
 
 @application.route('/add_vk', methods=['get', 'post'])
@@ -315,6 +337,14 @@ def add_yandex():
         password = request.form.get('password')
         yandex_api = services.Yandex(username, password)
         yandex_api.save_token(current_user.get_id())
+        return redirect('/dashboard')
+
+
+@application.route('/add_deezer', methods=['GET', 'POST'])
+@login_required
+def add_deezer():
+    if request.method == 'POST':
+        services.Deezer.save_token(request.args.get('code'), current_user.get_id())
         return redirect('/dashboard')
 
 

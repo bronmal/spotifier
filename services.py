@@ -1,3 +1,7 @@
+import json
+import urllib.parse
+
+import requests
 import vk_api
 import spotipy
 import yandex_music
@@ -340,4 +344,99 @@ class Yandex:
         if not sub:
             chunk = artists_ids[0:config.LIMIT]
             self.api.users_likes_artists_add(chunk)
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
+
+    def search_playlists_ids(self, playlists, user_id):
+        items = []
+        tracks_db = db.get_audio(playlists, 'playlists', user_id)
+        for i in tracks_db:
+            result = self.api.search(i, type_='playlist')
+            items.append(result.playlists.results[0].id)
+        return items
+
+    def transfer_playlists(self, playlists, user_id, sub=True):
+        playlists_ids = self.search_playlists_ids(playlists, user_id)
+        if sub:
+            for i in range(0, len(playlists_ids), 20):
+                chunk = playlists_ids[i:i + 20]
+                self.api.users_likes_playlists_add(chunk)
+        if not sub:
+            chunk = playlists_ids[0:config.LIMIT]
+            self.api.users_likes_playlists_add(chunk)
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
+
+
+class Deezer:
+    def __init__(self, token=None):
+        self.api = deezer.Client(app_id=config.DEEZER_ID, app_secret=config.SPOTIFY_SECRET, access_token=token)
+
+    @staticmethod
+    def create_url():
+        params = urllib.parse.urlencode({'app_id': config.DEEZER_ID,
+                                         'redirect_uri': config.DEEZER_REDIRECT,
+                                         'perms': 'basic_access,email,manage_library,'
+                                                  'offline_access,manage_community,'
+                                                  'delete_library,listening_history'})
+        return 'https://connect.deezer.com/oauth/auth.php' + '?' + params
+
+    @staticmethod
+    def save_token(code, user_id):
+        response = requests.post('https://connect.deezer.com/oauth/access_token.php',
+                                 params={'app_id': config.DEEZER_ID,
+                                         'secret': config.DEEZER_SECRET_KEY,
+                                         'code': code,
+                                         'output': 'json'})
+        token = response.json()['access_token']
+        db.add_service(user_id, token, 'deezer')
+
+    def tracks(self):
+        tracks = []
+        items = self.api.get_user_tracks()
+        count = 0
+        for i in items:
+            tracks.append({'title': i.title, 'artist': i.artist.name, 'album': i.album.title,
+                           'service': 'deezer', 'id': count})
+            count += 1
+        return tracks
+
+    def albums(self):
+        albums = []
+        items = self.api.get_user_albums()
+        count = 0
+        for i in items:
+            albums.append({'title': i.title, 'artist': i.artist.name, 'service': 'deezer', 'id': count})
+            count += 1
+        return albums
+
+    def artists(self):
+        artists = []
+        items = self.api.get_user_artists()
+        count = 0
+        for i in items:
+            artists.append({'title': i.name, 'service': 'deezer', 'id': count})
+            count += 1
+        return artists
+
+    def get_music(self):
+        return self.tracks(), self.albums(), self.artists()
+
+    def search_tracks_ids(self, tracks, user_id):
+        items = []
+        tracks_db = db.get_audio(tracks, 'tracks', user_id)
+        for i in tracks_db:
+            result = self.api.search(i, ordering='TRACK_ASC')
+            for i in result:
+                items.append(i.id)
+                break
+        return items
+
+    def transfer_tracks(self, tracks, user_id, sub=True):
+        tracks_ids = self.search_tracks_ids(tracks, user_id)
+        if sub:
+            for i in tracks_ids:
+                self.api.add_user_track(i)
+        if not sub:
+            chunk = tracks_ids[0:config.LIMIT]
+            for i in chunk:
+                self.api.add_user_track(i)
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
