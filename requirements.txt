@@ -4,7 +4,7 @@ flask_login
 flask-babel
 flask-babel-js
 spotipy
-yandex-musix
+yandex-music
 deezer-python
 vk_api
 requests
