@@ -1,4 +1,4 @@
-mutableElements = [document.querySelector('.resizable.app.chosen.option'), document.querySelector('.resizable.app.chosen.add'), document.querySelector('.resizable.app.chosen.transfer')]
+mutableElements = [document.querySelector('.app.chosen.option'), document.querySelector('.app.chosen.add'), document.querySelector('.app.chosen.transfer')]
 localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), artists: _('артисты'), albums: _("альбомы") }
 chosenTracks = [];
 chosenAlbums = [];
@@ -6,64 +6,14 @@ chosenArtists = [];
 
 currentOption = "{chosen}"
 
-//todo:
-// отравлять в таком формате
-// {
-//     "tracks": [
-//     {
-//     "id": 123,
-//     "service": "spotify"
-//     },
-//     {
-//     "id": 122343,
-//     "service": "vk"
-//     }
-//     ],
-//     "albums": [
-//     {
-//     "id": 123,
-//     "service": "spotify"
-//     },
-//     {
-//     "id": 1345343,
-//     "service": "vk"
-//     }
-//     ],
-//     "artists": [
-//     {
-//     "id": 153,
-//     "service": "spotify"
-//     },
-//     {
-//     "id": 12266743,
-//     "service": "vk"
-//     }
-//     ],
-//     "playlists": [
-//     {
-//     "id": 12343,
-//     "service": "spotify"
-//     },
-//     {
-//     "id": 13463,
-//     "service": "vk"
-//     }
-//     ],
-//     "to_service": [
-//     {
-//     "to_service": "spotify"
-//     }
-//     ]
-//     }
-
 function appOnLoad() {
-    replaceAllChosen("tracks");
+    replaceAllChosen(localizedVars.tracks);
     displayTracks();
-    // resizeAllElements();
+    changeDelta();
 }
 
 function appOnResize() {
-    // resizeAllElements();
+    changeDelta();
 }
 
 //ajax-query
@@ -119,14 +69,7 @@ function displayArtists() {
     deleteAllSongs();
     if (currentOption != localizedVars.artists) {
         replaceAllChosen(localizedVars.artists);
-        mainContainer = document.querySelector('.resizable.app.main-container')
-        artists = parseData().artists;
-        for (i in artists) {
-            addSong(artists[i].id, artists[i].title, artists[i].service, artists[i].album, artists[i].artist, mainContainer)
-        }
-        height = 162 + (tracks.length + 1) * (window.getComputedStyle(document.querySelector('.app.resizable.song')).height + 10) + "px"
-        document.body.style.height = height;
-        mainContainer.style.height = height
+        displayData('artists')
     }
     currentOption = localizedVars.artists
 
@@ -142,16 +85,26 @@ function displayTracks() {
     deleteAllSongs();
     if (currentOption != localizedVars.tracks) {
         replaceAllChosen(localizedVars.tracks);
-        mainContainer = document.querySelector('.resizable.app.main-container')
-        tracks = parseData().tracks;
-        for (i in tracks) {
-            addSong(tracks[i].id, tracks[i].title, tracks[i].service, tracks[i].album, tracks[i].artist, mainContainer)
-        }
-        height = 162 + (tracks.length + 1) * (window.getComputedStyle(document.querySelector('.app.resizable.song')).height + 10) + "px";
-        document.body.style.height = height;
-        mainContainer.style.height = height;
+        displayData('tracks')
     }
     currentOption = localizedVars.tracks
+}
+
+function displayData(data) {
+    mainContainer = document.querySelector('.app.main-container')
+    p_data = parseData()[`${data}`];
+    count = document.querySelector('.app.chosen.option').innerHTML
+    console.log(count);
+    _ = parseInt(count.substring(count.indexOf(':') + 1));
+    _ = p_data.length
+    document.querySelector('.app.chosen.option').innerHTML = count.substring(0, count.indexOf(':') + 2) + String(_)
+    for (i in p_data) {
+        addSong(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer)
+    }
+    height = 162 + (p_data.length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
+
+    document.body.style.height = `calc(${height}px*var(--deltaH))`;
+    mainContainer.style.height = `calc(${height}px*var(--deltaW))`;
 }
 
 function replaceAllChosen(element) {
@@ -167,14 +120,14 @@ function replaceChosen(string, replaceString) {
 }
 
 function openMenu() {
-    slider = document.querySelector('.resizable.app.slider');
-    personalInfo = document.querySelector('.resizable.app.personal-info');
-    addedServices = document.querySelector('.resizable.app.added-services');
-    musicContainer = document.querySelector('.resizable.app.music-container');
-    transferMusicBtn = document.querySelector('.resizable.app.transfer-music');
-    logo = document.querySelector('.resizable.app.spotifier-logo');
-    menuBtn = document.querySelector('.resizable.app.menu-button');
-    menuOptions = document.querySelector('.resizable.app.menu-options');
+    slider = document.querySelector('.app.slider');
+    personalInfo = document.querySelector('.app.personal-info');
+    addedServices = document.querySelector('.app.added-services');
+    musicContainer = document.querySelector('.app.music-container');
+    transferMusicBtn = document.querySelector('.app.transfer-music');
+    logo = document.querySelector('.app.spotifier-logo');
+    menuBtn = document.querySelector('.app.menu-button');
+    menuOptions = document.querySelector('.app.menu-options');
 
     intervalId = setInterval(() => {
         personalInfo.style.display = "block";
@@ -186,14 +139,14 @@ function openMenu() {
     }, 200)
 
 
-    menuBtn.style.height = recomputeAttribute(24, deltaH) + "px";
-    menuBtn.style.marginTop = recomputeAttribute(16, deltaH) + "px";
-    menuBtn.style.marginRight = recomputeAttribute(16, deltaW) + "px";
-    menuBtn.style.marginLeft = recomputeAttribute(216, deltaW) + "px";
+    menuBtn.style.height = `calc(24px*var(--deltaH))`;
+    menuBtn.style.marginTop = `calc(16px*var(--deltaH))`;
+    menuBtn.style.marginRight = `calc(16px*var(--deltaW))`;
+    menuBtn.style.marginLeft = `calc(216px*var(--deltaW))`;
     menuBtn.style.marginBottom = "0px";
 
     menuBtn.src = "/static/images/menu-opened.svg";
-    slider.style.width = recomputeAttribute(256, deltaW) + "px";
+    slider.style.width = `calc(256px*var(--deltaW))`;
     menuOptions.style.display = "none";
 
     menuBtn.onclick = hideMenu;
@@ -201,14 +154,14 @@ function openMenu() {
 }
 
 function hideMenu() {
-    slider = document.querySelector('.resizable.app.slider');
-    personalInfo = document.querySelector('.resizable.app.personal-info');
-    addedServices = document.querySelector('.resizable.app.added-services');
-    musicContainer = document.querySelector('.resizable.app.music-container');
-    transferMusicBtn = document.querySelector('.resizable.app.transfer-music');
-    logo = document.querySelector('.resizable.app.spotifier-logo');
-    menuBtn = document.querySelector('.resizable.app.menu-button');
-    menuOptions = document.querySelector('.resizable.app.menu-options');
+    slider = document.querySelector('.app.slider');
+    personalInfo = document.querySelector('.app.personal-info');
+    addedServices = document.querySelector('.app.added-services');
+    musicContainer = document.querySelector('.app.music-container');
+    transferMusicBtn = document.querySelector('.app.transfer-music');
+    logo = document.querySelector('.app.spotifier-logo');
+    menuBtn = document.querySelector('.app.menu-button');
+    menuOptions = document.querySelector('.app.menu-options');
 
     personalInfo.style.display = "none";
     addedServices.style.display = "none";
@@ -216,18 +169,17 @@ function hideMenu() {
     transferMusicBtn.style.display = "none";
     logo.style.display = "none";
 
-    menuBtn.style.height = recomputeAttribute(24, deltaH) + "px";
-    menuBtn.style.marginTop = recomputeAttribute(16, deltaH) + "px";
-    menuBtn.style.marginRight = recomputeAttribute(24, deltaW) + "px";
-    menuBtn.style.marginLeft = recomputeAttribute(24, deltaW) + "px";
+    menuBtn.style.height = `calc(24px*var(--deltaH))`;
+    menuBtn.style.marginTop = `calc(16px*var(--deltaH))`;
+    menuBtn.style.marginRight = `calc(24px*var(--deltaW))`;
+    menuBtn.style.marginLeft = `calc(24px*var(--deltaW))`;
     menuBtn.style.marginBottom = "0px";
 
     menuBtn.src = "/static/images/menu-closed.svg";
-    slider.style.width = recomputeAttribute(72, deltaW) + "px";
+    slider.style.width = `calc(72px*var(--deltaW))`;
     menuOptions.style.display = "flex";
 
     menuBtn.onclick = openMenu;
-    updateStyles();
 }
 
 async function addSong(id, title, service, album, artist, mainContainer) {
@@ -242,15 +194,15 @@ async function addSong(id, title, service, album, artist, mainContainer) {
             servicePath = '/static/images/spotify-logo1.svg';
             break;
     }
-    song.className = `resizable app song id${id}`
+    song.className = `app song id${id}`
     song.innerHTML = `
-        <input class="resizable app song checkbox" onclick="chooseSong()" type="checkbox"></input>
-        <label class="resizable app song label">${title}</label>
-        <img src="${servicePath}" class="resizable app song service ${service}"></img>
-        <div class="resizable app song option1">${artist}</div>
-        <div class="resizable app song option2">${album}</div>
-        <img src="/static/images/change-btn.svg" class="resizable app song change-btn" ></img>
-        <img src="/static/images/delete-btn.svg" class="resizable app song delete-btn" onclick="deleteSong()"></img>
+        <input class="app song checkbox" onclick="chooseSong()" type="checkbox"></input>
+        <label class="app song label">${title}</label>
+        <img src="${servicePath}" class="app song service ${service}"></img>
+        <div class="app song option1">${artist}</div>
+        <div class="app song option2">${album}</div>
+        <img src="/static/images/change-btn.svg" class="app song change-btn" ></img>
+        <img src="/static/images/delete-btn.svg" class="app song delete-btn" onclick="deleteSong()"></img>
         </input>`
 
     fragment.appendChild(song)
@@ -261,12 +213,19 @@ function chooseSong() {
     song = event.target.parentNode
     if (chosenTracks.includes(song)) {
         index = chosenTracks.indexOf(song);
-        chosenTracks.splice(index, 1)
+        chosenTracks.splice(index, 1);
+        count = document.querySelector('.app.chosen.count').innerHTML
+        _ = parseInt(count.substring(count.indexOf(':') + 1));
+        _ -= 1;
+        document.querySelector('.app.chosen.count').innerHTML = count.substring(0, count.indexOf(':') + 2) + String(_)
         return;
     }
     chosenTracks.push(song);
+    count = document.querySelector('.app.chosen.count').innerHTML
+    _ = parseInt(count.substring(count.indexOf(':') + 1));
+    _ += 1;
+    document.querySelector('.app.chosen.count').innerHTML = count.substring(0, count.indexOf(':') + 2) + String(_)
 
-    console.log(song);
 }
 
 function deleteSong() {
@@ -275,8 +234,8 @@ function deleteSong() {
 }
 
 function deleteAllSongs() {
-    mainContainer = document.querySelector('.resizable.app.main-container')
-    tracks = document.querySelectorAll('.resizable.app.song')
+    mainContainer = document.querySelector('.app.main-container')
+    tracks = document.querySelectorAll('.app.song')
     for (let i = 8; i < tracks.length; i++) {
         tracks[i].parentNode.removeChild(tracks[i])
     }
