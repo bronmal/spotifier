@@ -14,76 +14,76 @@
 
 
 <body class="body app" onload="appOnLoad()" onresize="appOnResize()">
-    <div class="resizable app slider">
-        <img src="/static/images/menu-opened.svg" class="resizable app menu-button" onclick="hideMenu()">
-        <div class="resizable app personal-info">
-            <img src="{{ url_for('serve_img') }}" alt="avatar" class="resizable app personal-info profile-picture">
-            <div class="resizable app personal-info name-lastname">{{ name }}</div>
-            <img src="/static/images/logout.svg" onclick="logout()" class="resizable app personal-info logout">
-            <div class="resizable app personal-info subscription-box">
-                <div class="resizable app personal-info subscription-box text"><a href={{ kassa }}>{{ kassa_text }}</a></div>
-                <div class="resizable app personal-info subscription-box line"></div>
-                <div class="resizable app personal-info subscription-box question-mark">?</div>
+    <div class="app slider">
+        <img src="/static/images/menu-opened.svg" class="app menu-button" onclick="hideMenu()">
+        <div class="app personal-info">
+            <img src="{{ url_for('serve_img') }}" alt="avatar" class="app personal-info profile-picture">
+            <div class="app personal-info name-lastname">{{ name }}</div>
+            <img src="/static/images/logout.svg" onclick="logout()" class="app personal-info logout">
+            <div class="app personal-info subscription-box">
+                <div class="app personal-info subscription-box text"><a style="text-decoration: none;color: white;" href={{ kassa }}>{{ kassa_text }}</a></div>
+                <div class="app personal-info subscription-box line"></div>
+                <div class="app personal-info subscription-box question-mark">?</div>
             </div>
-            <div class="resizable app personal-info next-payment">{{ _('Дата следующего списания: ') }}{{ data_end }}</div>
+            <div class="app personal-info next-payment">{{ _('Дата следующего списания: ') }}{{ data_end }}</div>
         </div>
-        <div class="resizable app added-services">
+        <div class="app added-services">
             {{ _('Подключенные сервисы: ') }}
-            <img src="/static/images/add-service.svg" class="resizable app added-services add-service-button">
+            <img src="/static/images/add-service.svg" class="app added-services add-service-button">
         </div>
-        <div class="resizable app transfer-music">
+        <div class="app transfer-music">
             {{ _('Перенести музыку') }}
         </div>
-        <div class="resizable app menu-options">
-            <img src="/static/images/account-circle.svg" alt="profile" class="resizable app menu-options image profile">
-            <img src="/static/images/add-service-box.svg" alt="profile" class="resizable app menu-options image add-service">
-            <img src="/static/images/playlists.svg" alt="profile" class="resizable app menu-options image playlists">
-            <img src="/static/images/tracks.svg" alt="profile" class="resizable app menu-options image tracks">
-            <img src="/static/images/artists.svg" alt="profile" class="resizable app menu-options image artists">
-            <img src="/static/images/albums.svg" alt="profile" class="resizable app menu-options image albums">
+        <div class="app menu-options">
+            <img src="/static/images/account-circle.svg" alt="profile" class="app menu-options image profile">
+            <img src="/static/images/add-service-box.svg" alt="profile" class="app menu-options image add-service">
+            <img src="/static/images/playlists.svg" alt="profile" class="app menu-options image playlists">
+            <img src="/static/images/tracks.svg" alt="profile" class="app menu-options image tracks">
+            <img src="/static/images/artists.svg" alt="profile" class="app menu-options image artists">
+            <img src="/static/images/albums.svg" alt="profile" class="app menu-options image albums">
 
         </div>
-        <div class="resizable app music-container">
-            <div class="resizable app music-container my-box playlists" onclick="displayPlaylists()">
-                <img src="/static/images/playlists.svg" class="resizable app music-container my-box image playlists">
-                <div class="resizable app music-container my-box text playlists">{{ _('Мои плейлисты') }}</div>
-                <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow playlists">
+        <div class="app music-container">
+            <div class="app music-container my-box playlists" onclick="displayPlaylists()">
+                <img src="/static/images/playlists.svg" class="app music-container my-box image playlists">
+                <div class="app music-container my-box text playlists">{{ _('Мои плейлисты') }}</div>
+                <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow playlists">
             </div>
-            <div class="resizable app music-container my-box tracks" onclick="displayTracks()">
-                <img src="/static/images/tracks.svg" class="resizable app music-container my-box image tracks">
-                <div class="resizable app music-container my-box text tracks">{{ _('Мои треки') }}</div>
-                <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow tracks">
+            <div class="app music-container my-box tracks" onclick="displayTracks()">
+                <img src="/static/images/tracks.svg" class="app music-container my-box image tracks">
+                <div class="app music-container my-box text tracks">{{ _('Мои треки') }}</div>
+                <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow tracks">
 
             </div>
-            <div class="resizable app music-container my-box artists" onclick="displayArtists()">
-                <img src="/static/images/artists.svg" class="resizable app music-container my-box image artists">
-                <div class="resizable app music-container my-box text artists">{{ _('Мои артисты') }}</div>
-                <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow artists">
+            <div class="app music-container my-box artists" onclick="displayArtists()">
+                <img src="/static/images/artists.svg" class="app music-container my-box image artists">
+                <div class="app music-container my-box text artists">{{ _('Мои артисты') }}</div>
+                <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow artists">
 
             </div>
-            <div class="resizable app music-container my-box albums" onclick="displayAlbums()">
-                <img src="/static/images/albums.svg" class="resizable app music-container my-box image albums">
-                <div class="resizable app music-container my-box text albums">{{ _('Мои альбомы') }}</div>
-                <img src="/static/images/right-arrow.svg" class="resizable app music-container my-box right-arrow albums">
+            <div class="app music-container my-box albums" onclick="displayAlbums()">
+                <img src="/static/images/albums.svg" class="app music-container my-box image albums">
+                <div class="app music-container my-box text albums">{{ _('Мои альбомы') }}</div>
+                <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow albums">
 
             </div>
 
         </div>
-        <img src="/static/images/spotifier-logo.svg" class="resizable app spotifier-logo">
+        <img src="/static/images/spotifier-logo.svg" class="app spotifier-logo">
     </div>
-    <div class="resizable app main-container">
-        <div class="resizable app chosen option">{chosen}: 0</div>
-        <div class="resizable app chosen count">{{ _('Выбрано') }}: 0</div>
-        <div class="resizable app chosen add">{{ _('Добавить')}} {chosen}</div>
-        <div class="resizable app chosen transfer">{{ _('Перенести')}} {chosen}</div>
-        <div class="resizable app song top-part">
-            <input class="resizable app song top-part checkbox" type="checkbox"></input>
-            <div class="resizable app song top-part label">{{ _('Название') }}</div>
-            <div class="resizable app song top-part service">{{ _('Сервис') }}</div>
-            <div class="resizable app song top-part option1">{{ _('Автор') }}</div>
-            <div class="resizable app song top-part option2">{{ _('Альбом') }}</div>
-            <div class="resizable app song top-part change">{{ _('Изменить') }}</div>
-            <div class="resizable app song top-part delete">{{ _('Удалить') }}</div>
+    <div class="app main-container">
+        <div class="app chosen option">{chosen}: 0</div>
+        <div class="app chosen count">{{ _('Выбрано') }}: 0</div>
+        <div class="app chosen add">{{ _('Добавить')}} {chosen}</div>
+        <div class="app chosen transfer">{{ _('Перенести')}} {chosen}</div>
+        <div class="app song top-part">
+            <input class="app song top-part checkbox" type="checkbox" onclick="chooseAllTracks()"></input>
+            <div class="app song top-part label">{{ _('Название') }}</div>
+            <div class="app song top-part service">{{ _('Сервис') }}</div>
+            <div class="app song top-part option1">{{ _('Автор') }}</div>
+            <div class="app song top-part option2">{{ _('Альбом') }}</div>
+            <div class="app song top-part change">{{ _('Изменить') }}</div>
+            <div class="app song top-part delete">{{ _('Удалить') }}</div>
         </div>
     </div>
 </body>

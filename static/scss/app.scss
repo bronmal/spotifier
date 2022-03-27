@@ -8,73 +8,73 @@
         transition-duration: 0.25s;
         box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
         background-color: #494781;
-        width: 256px;
-        height: 900px;
+        width: calc(256px * var(--deltaW));
+        height: calc(900px * var(--deltaH));
         float: left;
         margin: 0;
     }
     &.menu-button {
-        width: 24px;
-        height: 24px;
-        margin: 16px 16px 0 216px;
+        width: calc(24px*var(--deltaW));
+        height: calc(24px*var(--deltaH));
+        margin: calc(16px*var(--deltaH)) calc(16px*var(--deltaW)) 0 calc(216px*var(--deltaW));
         background-color: #494781;
         cursor: pointer;
     }
     &.personal-info {
-        height: 128px;
-        width: 224px;
+        height: calc(128px*var(--deltaH));
+        width: calc(224px*var(--deltaW));
         border-radius: 16px;
         background-color: #605E9A;
-        margin: 40px 16px 0 16px;
+        margin: calc(40px*var(--deltaH)) calc(16px*var(--deltaW)) 0 calc(16px*var(--deltaW));
         display: inline-block;
         &.logout {
-            width: 16px;
-            height: 16px;
+            width: calc(16px*var(--deltaW));
+            height: calc(16px*var(--deltaH));
             float: right;
-            margin: 0 16px 0 0;
-            padding: 18px 0 0 0;
+            margin: 0 calc(16px*var(--deltaW)) 0 0;
+            padding: calc(18px*var(--deltaH)) 0 0 0;
             cursor: pointer;
         }
         &.name-lastname {
-            width: 120px;
-            height: 20px;
+            width: calc(120px*var(--deltaW));
+            height: calc(20px*var(--deltaH));
             text-align: left;
             vertical-align: bottom;
-            font-size: 12px;
+            font-size: calc(12px*var(--deltaW));
             color: white;
-            margin: 20px 8px 0 0;
+            margin: calc(20px*var(--deltaH)) calc(8px*var(--deltaW)) 0 0;
         }
         &.profile-picture {
-            width: 40px;
-            height: 40px;
+            width: calc(40px*var(--deltaW));
+            height: calc(40px*var(--deltaH));
             border-radius: 50%;
             float: left;
-            margin: 22px 8px 0 16px;
+            margin: calc(22px*var(--deltaH)) calc(8px*var(--deltaW)) 0 calc(16px*var(--deltaW));
         }
         &.subscription-box {
             background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
-            width: 140px;
-            height: 24px;
-            margin: 12px 0 0 0;
+            width: calc(140px*var(--deltaW));
+            height: calc(24px*var(--deltaH));
+            margin: calc(12px*var(--deltaH)) 0 0 0;
             cursor: pointer;
             &.text {
-                margin: 0 0 0 9px;
+                margin: 0 0 0 calc(9px*var(--deltaW));
                 float: left;
-                padding: 6px 0 0 0;
+                padding: calc(6px*var(--deltaH)) 0 0 0;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 color: white;
-                width: 100px;
-                height: 12px;
-                font-size: 10px;
+                width: calc(100px*var(--deltaW));
+                height: calc(12px*var(--deltaH));
+                font-size: calc(10px*var(--deltaW));
                 background: none;
             }
             &.line {
                 float: left;
-                margin: 4px 0 0 7px;
+                margin: calc(4px*var(--deltaH)) 0 0 calc(7px*var(--deltaW));
                 width: 0;
-                height: 16px;
+                height: calc(16px*var(--deltaH));
                 background: none;
                 border: 1px solid rgba(250, 238, 239, 0.5);
                 border-radius: 99px;
@@ -83,10 +83,10 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                padding: 4px 0 0 0;
+                padding: calc(4px*var(--deltaH)) 0 0 0;
                 cursor: pointer;
-                width: 16px;
-                height: 16px;
+                width: calc(16px*var(--deltaW));
+                height: calc(16px*var(--deltaH));
                 margin: 0;
                 background: none;
                 color: white;
@@ -94,21 +94,21 @@
         }
         &.next-payment {
             color: #CFC4C5;
-            width: 101px;
-            height: 32px;
-            font-size: 11px;
-            margin: 8px 59px 0 64px;
+            width: calc(101px*var(--deltaW));
+            height: calc(32px*var(--deltaH));
+            font-size: calc(11px*var(--deltaW));
+            margin: calc(8px*var(--deltaH)) calc(59px*var(--deltaW)) 0 calc(64px*var(--deltaW));
         }
     }
     &.added-services {
-        width: 194px;
-        height: 72px;
-        margin: 32px 0 0 16px;
+        width: calc(194px*var(--deltaW));
+        height: calc(72px*var(--deltaH));
+        margin: calc(32px*var(--deltaH)) 0 0 calc(16px*var(--deltaW));
         color: #EBE0E1;
         &.add-service-button {
-            width: 32px;
-            height: 32px;
-            margin: 16px 0 0 0;
+            width: calc(32px*var(--deltaW));
+            height: calc(32px*var(--deltaH));
+            margin: calc(16px*var(--deltaH)) 0 0 0;
             cursor: pointer;
         }
     }
@@ -116,31 +116,31 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 224px;
-        height: 40px;
+        width: calc(224px*var(--deltaW));
+        height: calc(40px*var(--deltaH));
         background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
         color: white;
         border-radius: 99px;
         text-align: center;
-        margin: 64px 0 0 16px;
+        margin: calc(64px*var(--deltaH)) 0 0 calc(16px*var(--deltaW));
         cursor: pointer;
     }
     &.music-container {
-        width: 225px;
-        height: 184px;
-        margin: 48px 0 0 16px;
+        width: calc(225px*var(--deltaW));
+        height: calc(184px*var(--deltaH));
+        margin: calc(48px*var(--deltaH)) 0 0 calc(16px*var(--deltaW));
         &.my-box {
-            width: 224px;
-            height: 40px;
+            width: calc(224px*var(--deltaW));
+            height: calc(40px*var(--deltaH));
             background: rgba(65, 64, 120, 0.5);
             border-radius: 99px;
-            margin: 8px 0 0 0;
+            margin: calc(8px*var(--deltaH)) 0 0 0;
             cursor: pointer;
             transition-duration: 0.5s;
             &.image {
-                width: 24px;
-                height: 24px;
-                margin: 8px 0 0 15px;
+                width: calc(24px*var(--deltaW));
+                height: calc(24px*var(--deltaH));
+                margin: calc(8px*var(--deltaH)) 0 0 calc(15px*var(--deltaW));
                 border-radius: 0;
                 opacity: 0.6;
                 float: left;
@@ -150,10 +150,10 @@
                 display: flex;
                 justify-content: left;
                 align-items: center;
-                width: 107px;
-                height: 20px;
-                font-size: 14px;
-                padding: 10px;
+                width: calc(107px*var(--deltaW));
+                height: calc(20px*var(--deltaH));
+                font-size: calc(14px*var(--deltaW));
+                padding: calc(10px*var(--deltaH)) calc(10px*var(--deltaW));
                 background: none;
                 margin: 0;
                 float: left;
@@ -162,13 +162,12 @@
             }
             &.right-arrow {
                 display: none;
-                width: 24px;
-                max-width: 24px;
+                width: calc(24px*var(--deltaW));
                 max-height: 24px;
                 background: none;
                 border-radius: 0;
                 float: right;
-                margin: 8px 16px 0 0;
+                margin: calc(8px*var(--deltaH)) calc(16px*var(--deltaW)) 0 0;
             }
         }
         &.my-box:hover {
@@ -187,24 +186,24 @@
         }
     }
     &.spotifier-logo {
-        width: 256px;
-        height: 213px;
+        width: calc(256px*var(--deltaW));
+        height: calc(213px*var(--deltaH));
     }
     &.menu-options {
         display: none;
         flex-direction: column;
         align-items: flex-start;
-        width: 24px;
-        height: 264px;
-        margin: 278px 24px 0 24px;
+        width: calc(24px*var(--deltaW));
+        height: calc(264px*var(--deltaH));
+        margin: calc(278px*var(--deltaH)) calc(24px*var(--deltaW)) 0 calc(24px*var(--deltaW));
         &.image {
             transition-duration: 0.2s;
-            padding: 24px 0 0 0;
+            padding: calc(24px*var(--deltaH)) 0 0 0;
             opacity: 0.6;
             margin: 0px;
             display: inherit;
-            width: 24px;
-            height: 24px;
+            width: calc(24px*var(--deltaW));
+            height: calc(24px*var(--deltaH));
         }
         &.image:hover {
             cursor: pointer;
@@ -215,28 +214,28 @@
         display: block;
         float: right;
         overflow-y: hidden;
-        width: 1050px;
-        height: 900px;
+        width: calc(1050px*var(--deltaW));
+        height: calc(900px*var(--deltaH));
         background: url(/static/images/big-blurried-spotifer-logo.svg) repeat center;
     }
     &.chosen {
-        width: 200px;
+        width: calc(200px*var(--deltaW));
         color: white;
         display: inline-block;
         &.option {
-            font-size: 22px;
-            width: 150px;
-            height: 40px;
-            margin: 112px 80px 0 0;
+            font-size: calc(22px*var(--deltaW));
+            width: calc(150px*var(--deltaW));
+            height: calc(40px*var(--deltaH));
+            margin: calc(112px*var(--deltaH)) calc(80px*var(--deltaW)) 0 0;
         }
         &.option::first-letter {
             text-transform: uppercase;
         }
         &.count {
-            font-size: 22px;
-            width: 127px;
-            height: 40px;
-            margin: 112px 121px 0 0;
+            font-size: calc(22px*var(--deltaW));
+            width: calc(127px*var(--deltaW));
+            height: calc(40px*var(--deltaH));
+            margin: calc(112px*var(--deltaH)) calc(121px*var(--deltaW)) 0 0;
         }
         &.add {
             display: inline-flex;
@@ -244,32 +243,34 @@
             align-items: center;
             border-radius: 99px;
             background-color: #46437B;
-            font-size: 12px;
-            width: 188px;
-            height: 40px;
-            margin: 112px 90px 0 0;
+            font-size: calc(12px*var(--deltaW));
+            width: calc(188px*var(--deltaW));
+            height: calc(40px*var(--deltaH));
+            margin: calc(112px*var(--deltaH)) calc(90px*var(--deltaW)) 0 0;
+            cursor: pointer;
         }
         &.transfer {
-            margin: 112px 0 0 0;
+            margin: calc(112px*var(--deltaH)) 0 0 0;
             display: inline-flex;
             justify-content: center;
             align-items: center;
             background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
             border-radius: 99px;
-            font-size: 12px;
-            width: 168px;
-            height: 40px;
+            font-size: calc(12px*var(--deltaW));
+            width: calc(168px*var(--deltaW));
+            height: calc(40px*var(--deltaH));
+            cursor: pointer;
         }
     }
     &.song {
         color: white;
         vertical-align: middle;
-        font-size: 14px;
+        font-size: calc(14px*var(--deltaW));
         display: inline-flex;
         align-items: center;
-        width: 936px;
-        height: 40px;
-        margin: 0 0 10px 0;
+        width: calc(936px*var(--deltaW));
+        height: calc(40px*var(--deltaH));
+        margin: 0 0 calc(10px*var(--deltaH)) 0;
         border-radius: 8px;
         background-color: rgba($color: #46437B, $alpha: .25);
         text-decoration: none;
@@ -278,35 +279,38 @@
         &.checkbox {
             background: none;
             max-width: 18px;
-            height: 18px;
-            margin: 11px 45px 11px 16px;
+            height: calc(18px*var(--deltaH));
+            margin: calc(11px*var(--deltaH)) calc(45px*var(--deltaW)) calc(11px*var(--deltaH)) calc(16px*var(--deltaW));
         }
         &.label {
             margin: 0;
             background: none;
-            width: 168px;
+            width: calc(168px*var(--deltaW));
         }
         &.service {
             margin: 0;
             background: none;
-            width: 24px;
-            height: 24px;
-            margin: 0 119px 0 0;
+            width: calc(24px*var(--deltaW));
+            height: calc(24px*var(--deltaH));
+            margin: 0 calc(119px*var(--deltaW)) 0 0;
         }
         &.option1 {
-            margin: 0 45px 0 0;
+            vertical-align: top;
+            align-items: flex-start;
+            border-radius: 0;
+            margin: 0 calc(45px*var(--deltaW)) 0 0;
             background: none;
-            width: 100px;
+            width: calc(100px*var(--deltaW));
         }
         &.option2 {
-            margin: 0 61px 0 0;
+            margin: 0 calc(61px*var(--deltaW)) 0 0;
             background: none;
-            width: 100px;
+            width: calc(100px*var(--deltaW));
         }
         &.change-btn {
-            margin: 0 131px 0 0;
+            margin: 0 calc(131px*var(--deltaW)) 0 0;
             background: none;
-            width: 24px;
+            width: calc(24px*var(--deltaW));
         }
         &.change-btn:hover {
             cursor: pointer;
@@ -314,7 +318,7 @@
         &.delete-btn {
             margin: 0;
             background: none;
-            width: 24px;
+            width: calc(24px*var(--deltaW));
         }
         &.delete-btn:hover {
             cursor: pointer;
@@ -322,40 +326,41 @@
     }
     &.song.top-part {
         display: inline-flex;
-        width: 936px;
-        height: 40px;
+        width: calc(936px*var(--deltaW));
+        height: calc(40px*var(--deltaH));
         border-radius: 8px;
         background-color: #46437B;
         text-transform: capitalize;
         overflow: visible;
         &.checkbox {
-            margin: 11px 45px 11px 16px;
+            margin: calc(11px*var(--deltaH)) calc(45px*var(--deltaW)) calc(11px*var(--deltaH)) calc(16px*var(--deltaW));
             max-width: 18px;
-            height: 18px;
+            height: calc(18px*var(--deltaH));
         }
         &.label {
-            width: 168px;
+            width: calc(168px*var(--deltaW));
             margin: 0;
         }
         &.service {
-            width: 24px;
-            height: 24px;
-            margin: 0 119px 0 0;
+            width: calc(24px*var(--deltaW));
+            height: calc(24px*var(--deltaH));
+            margin: 0 calc(119px*var(--deltaW)) 0 0;
         }
         &.option1 {
+            align-items: center;
             width: 100px;
-            margin: 0 45px 0 0;
+            margin: 0 calc(45px*var(--deltaW)) 0 0;
         }
         &.option2 {
             width: 100px;
-            margin: 0 61px 0 0;
+            margin: 0 calc(61px*var(--deltaW)) 0 0;
         }
         &.change {
             width: 24px;
-            margin: 0 131px 0 0;
+            margin: 0 calc(131px*var(--deltaW)) 0 0;
         }
         &.delete {
-            width: 24px;
+            width: calc(24px*var(--deltaW));
             margin: 0;
         }
     }
