@@ -1,6 +1,5 @@
 import json
 import urllib.parse
-
 import requests
 import vk_api
 import spotipy
@@ -9,8 +8,6 @@ import deezer
 import config
 import db
 
-
-# TODO  добавить сервис deezer
 
 class Vk:
     def __init__(self, token):
