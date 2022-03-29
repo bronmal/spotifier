@@ -1,5 +1,4 @@
-#URL = 'http://127.0.0.1:5000'
-URL = 'https://spotifier.ru'
+URL = 'http://127.0.0.1:5000'
 LIMIT = 9
 
 DB_LOGIN = 'mysql'

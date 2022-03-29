@@ -124,7 +124,7 @@ def spotify():
                 return redirect('/dashboard')
             except:
                 return redirect('/auth')
-    else:
+    if current_user.get_id():
         if request.args.get('code'):
             spot = auth.SpotAuth()
             spot.name(request.args.get('code'))
@@ -175,6 +175,16 @@ def dashboard():
         return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
                                kassa='/disconnect_sub', kassa_text=_('Отключить подписку'))
     # добавить обработчик создания нового токена, во избежание устаревания токена
+
+
+@application.route('/get_services', methods=['GET'])
+@login_required
+def get_services():
+    services_with_token = db.get_connected_services(current_user.get_id())
+    services_name = []
+    for i in services_with_token:
+        services_name.append(i)
+    return json.dumps(services_name)
 
 
 @application.route('/get_audio', methods=['GET', 'POST'])

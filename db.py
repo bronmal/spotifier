@@ -36,6 +36,17 @@ def get_user_by_email(email):
         if i['email'] == email:
             return i
 
+def get_connected_services(id):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM spotifier")
+    rows = cursor.fetchall()
+    cursor.close()
+    con.close()
+
+    for i in rows:
+        if i['user_id'] == id:
+            return json.loads(i['connected_services'])
 
 def create_user(email, name, photo):
     date = datetime.now()
