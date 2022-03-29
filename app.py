@@ -177,12 +177,12 @@ def dashboard():
     # добавить обработчик создания нового токена, во избежание устаревания токена
 
 
-@application.route('/get_services')
+@application.route('/get_services', methods=['GET'])
 @login_required
 def get_services():
     services_with_token = db.get_connected_services(current_user.get_id())
     services_name = []
-    for i in services_with_token.Keys:
+    for i in services_with_token:
         services_name.append(i)
     return json.dumps(services_name)
 
