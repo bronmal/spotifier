@@ -6,5 +6,11 @@ body {
     overflow-x: hidden;
 }
 
+.non-selectable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
 @import "./auth.scss";
 @import "./app.scss";

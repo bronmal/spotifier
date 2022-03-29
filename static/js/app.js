@@ -3,13 +3,22 @@ localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), a
 chosenTracks = [];
 chosenAlbums = [];
 chosenArtists = [];
+chosenPlaylists = [];
+
+data = {
+    "tracks": [],
+    "artists": [],
+    "albums": [],
+    "playlists": [],
+    "to_service": ''
+}
 
 currentOption = "{chosen}"
 
 function appOnLoad() {
+    changeDelta();
     replaceAllChosen(localizedVars.tracks);
     displayTracks();
-    changeDelta();
 }
 
 function appOnResize() {
@@ -32,19 +41,10 @@ function parseData() {
     return json
 }
 
-function sendData() {
+function sendData(to_service) {
 
-    data = {
-        "tracks": [],
-        "artists": [],
-        "albums": [],
-        "to_service": "vk"
-    }
-    for (let i = 0; i < chosenTracks.length; i++) {
-        id = chosenTracks[i].className.substring(chosenTracks[i].className.indexOf("id") + 2)
-        service = chosenTracks[i].childNodes[5].className.substring(chosenTracks[i].childNodes[5].className.indexOf("service") + 8);
-        data.tracks.push({ "id": id, "service": service })
-    }
+    data.to_service = to_service;
+    console.log(data);
     $(() => {
         $.ajax({
             url: 'http://127.0.0.1:5000/send_audio',
@@ -61,13 +61,17 @@ function sendData() {
 
 
 function displayPlaylists() {
-    deleteAllSongs();
+    if (currentOption != localizedVars.playlists) {
+        deleteAllSongs();
+        replaceAllChosen(localizedVars.playlists);
+        displayData('playlists')
+    }
     currentOption = localizedVars.playlists
 }
 
 function displayArtists() {
-    deleteAllSongs();
     if (currentOption != localizedVars.artists) {
+        deleteAllSongs();
         replaceAllChosen(localizedVars.artists);
         displayData('artists')
     }
@@ -76,35 +80,50 @@ function displayArtists() {
 }
 
 function displayAlbums() {
-    deleteAllSongs();
+    if (currentOption != localizedVars.albums) {
+        deleteAllSongs();
+        replaceAllChosen(localizedVars.albums);
+        displayData('albums')
+    }
     currentOption = localizedVars.albums
 
 }
 
-function displayTracks() {
-    deleteAllSongs();
+async function displayTracks() {
     if (currentOption != localizedVars.tracks) {
+        deleteAllSongs();
         replaceAllChosen(localizedVars.tracks);
         displayData('tracks')
     }
     currentOption = localizedVars.tracks
 }
 
-function displayData(data) {
+async function displayData(data) {
     mainContainer = document.querySelector('.app.main-container')
     p_data = parseData()[`${data}`];
-    count = document.querySelector('.app.chosen.option').innerHTML
-    console.log(count);
-    _ = parseInt(count.substring(count.indexOf(':') + 1));
-    _ = p_data.length
-    document.querySelector('.app.chosen.option').innerHTML = count.substring(0, count.indexOf(':') + 2) + String(_)
+    setCount(p_data.length, "option")
     for (i in p_data) {
-        addSong(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer)
+        add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
     }
     height = 162 + (p_data.length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
 
     document.body.style.height = `calc(${height}px*var(--deltaH))`;
-    mainContainer.style.height = `calc(${height}px*var(--deltaW))`;
+    mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
+}
+
+function setCount(value, element) {
+    if (value >= 0) {
+        count = document.querySelector(`.app.chosen.${element}`).innerHTML
+        _ = value
+        document.querySelector(`.app.chosen.${element}`).innerHTML = count.substring(0, count.indexOf(':') + 2) + String(_)
+    }
+
+}
+
+function getCount(element) {
+    count = document.querySelector(`.app.chosen.${element}`).innerHTML
+    _ = parseInt(count.substring(count.indexOf(':') + 1));
+    return _;
 }
 
 function replaceAllChosen(element) {
@@ -128,6 +147,7 @@ function openMenu() {
     logo = document.querySelector('.app.spotifier-logo');
     menuBtn = document.querySelector('.app.menu-button');
     menuOptions = document.querySelector('.app.menu-options');
+    mainContainer = document.querySelector('.app.main-container')
 
     intervalId = setInterval(() => {
         personalInfo.style.display = "block";
@@ -148,6 +168,7 @@ function openMenu() {
     menuBtn.src = "/static/images/menu-opened.svg";
     slider.style.width = `calc(256px*var(--deltaW))`;
     menuOptions.style.display = "none";
+    mainContainer.style.width = `calc(1050px*var(--deltaW))`
 
     menuBtn.onclick = hideMenu;
 
@@ -162,6 +183,7 @@ function hideMenu() {
     logo = document.querySelector('.app.spotifier-logo');
     menuBtn = document.querySelector('.app.menu-button');
     menuOptions = document.querySelector('.app.menu-options');
+    mainContainer = document.querySelector('.app.main-container')
 
     personalInfo.style.display = "none";
     addedServices.style.display = "none";
@@ -178,11 +200,12 @@ function hideMenu() {
     menuBtn.src = "/static/images/menu-closed.svg";
     slider.style.width = `calc(72px*var(--deltaW))`;
     menuOptions.style.display = "flex";
+    mainContainer.style.width = `calc(1140px*var(--deltaW))`
 
     menuBtn.onclick = openMenu;
 }
 
-async function addSong(id, title, service, album, artist, mainContainer) {
+async function add(id, title, service, album, artist, mainContainer, type) {
     let fragment = new DocumentFragment();
     var song = document.createElement('div')
     servicePath = ""
@@ -196,7 +219,7 @@ async function addSong(id, title, service, album, artist, mainContainer) {
     }
     song.className = `app song id${id}`
     song.innerHTML = `
-        <input class="app song checkbox" onclick="chooseSong()" type="checkbox"></input>
+        <input class="app song checkbox" onclick="choose(document.querySelector('.app.song.id${id}'), '${type}')" type="checkbox"></input>
         <label class="app song label">${title}</label>
         <img src="${servicePath}" class="app song service ${service}"></img>
         <div class="app song option1">${artist}</div>
@@ -209,28 +232,43 @@ async function addSong(id, title, service, album, artist, mainContainer) {
     mainContainer.appendChild(fragment)
 }
 
-function chooseSong() {
-    song = event.target.parentNode
-    if (chosenTracks.includes(song)) {
-        index = chosenTracks.indexOf(song);
-        chosenTracks.splice(index, 1);
-        count = document.querySelector('.app.chosen.count').innerHTML
-        _ = parseInt(count.substring(count.indexOf(':') + 1));
-        _ -= 1;
-        document.querySelector('.app.chosen.count').innerHTML = count.substring(0, count.indexOf(':') + 2) + String(_)
+function choose(object, type) {
+
+    id = object.className.substring(object.className.indexOf("id") + 2)
+    service = object.childNodes[5].className.substring(object.childNodes[5].className.indexOf("service") + 8);
+
+    _ = { "id": id, "service": service }
+
+    if (data[`${type}`].some(item => item.id === id)) {
+        object.childNodes[1].checked = false;
+        index = data[`${type}`].indexOf(_);
+        data[`${type}`].splice(index, 1);
+        setCount(getCount("count") - 1, "count")
         return;
     }
-    chosenTracks.push(song);
-    count = document.querySelector('.app.chosen.count').innerHTML
-    _ = parseInt(count.substring(count.indexOf(':') + 1));
-    _ += 1;
-    document.querySelector('.app.chosen.count').innerHTML = count.substring(0, count.indexOf(':') + 2) + String(_)
+    object.childNodes[1].checked = true;
 
+
+
+
+    data[`${type}`].push(_);
+
+    setCount(getCount("count") + 1, "count")
+}
+
+function chooseAllSongs() {
+    tracks = document.querySelectorAll('.app.song')
+    for (let i = 8; i < tracks.length; i += 8) {
+        choose(tracks[i])
+    }
 }
 
 function deleteSong() {
     element = event.target.parentElement
     element.parentNode.removeChild(element)
+    setCount(getCount("option") - 1, "option")
+    setCount(getCount("count") - 1, "count")
+
 }
 
 function deleteAllSongs() {
@@ -241,8 +279,16 @@ function deleteAllSongs() {
     }
     document.body.style.height = "100%";
     mainContainer.style.height = "max-content";
+    setCount(0, "option")
+    setCount(0, "count")
+
 }
 
-function changeSong() {
+function showTransferPopUp() {
+    document.querySelector('.app.popup').style.display = 'flex'
+}
 
+function chooseService(service) {
+    document.querySelector('.app.popup').style.display = 'none'
+    sendData(service)
 }
