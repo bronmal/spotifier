@@ -177,6 +177,16 @@ def dashboard():
     # добавить обработчик создания нового токена, во избежание устаревания токена
 
 
+@application.route('/get_services')
+@login_required
+def get_services():
+    services_with_token = db.get_connected_services(current_user.get_id())
+    services_name = []
+    for i in services_with_token.Keys:
+        services_name.append(i)
+    return json.dumps(services_name)
+
+
 @application.route('/get_audio', methods=['GET', 'POST'])
 @login_required
 def send_audio():
