@@ -22,16 +22,19 @@
             <img src="/static/images/logout.svg" onclick="logout()" class="app personal-info logout">
             <div class="app personal-info subscription-box">
                 <div class="app personal-info subscription-box text"><a style="text-decoration: none;color: white;" href={{ kassa }}>{{ kassa_text }}</a></div>
-                <div class="app personal-info subscription-box line"></div>
-                <div class="app personal-info subscription-box question-mark">?</div>
+                <div class="app personal-info subscription-box line non-selectable"></div>
+                <div class="app personal-info subscription-box question-mark non-selectable">?</div>
             </div>
             <div class="app personal-info next-payment">{{ _('Дата следующего списания: ') }}{{ data_end }}</div>
         </div>
         <div class="app added-services">
-            {{ _('Подключенные сервисы: ') }}
+            <div class="app added-services text">
+                {{ _('Подключенные сервисы: ') }}
+
+            </div>
             <img src="/static/images/add-service.svg" class="app added-services add-service-button">
         </div>
-        <div class="app transfer-music">
+        <div class="app transfer-music non-selectable">
             {{ _('Перенести музыку') }}
         </div>
         <div class="app menu-options">
@@ -46,24 +49,24 @@
         <div class="app music-container">
             <div class="app music-container my-box playlists" onclick="displayPlaylists()">
                 <img src="/static/images/playlists.svg" class="app music-container my-box image playlists">
-                <div class="app music-container my-box text playlists">{{ _('Мои плейлисты') }}</div>
+                <div class="app music-container my-box text playlists non-selectable">{{ _('Мои плейлисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow playlists">
             </div>
             <div class="app music-container my-box tracks" onclick="displayTracks()">
                 <img src="/static/images/tracks.svg" class="app music-container my-box image tracks">
-                <div class="app music-container my-box text tracks">{{ _('Мои треки') }}</div>
+                <div class="app music-container my-box text tracks non-selectable">{{ _('Мои треки') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow tracks">
 
             </div>
             <div class="app music-container my-box artists" onclick="displayArtists()">
                 <img src="/static/images/artists.svg" class="app music-container my-box image artists">
-                <div class="app music-container my-box text artists">{{ _('Мои артисты') }}</div>
+                <div class="app music-container my-box text artists non-selectable">{{ _('Мои артисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow artists">
 
             </div>
             <div class="app music-container my-box albums" onclick="displayAlbums()">
                 <img src="/static/images/albums.svg" class="app music-container my-box image albums">
-                <div class="app music-container my-box text albums">{{ _('Мои альбомы') }}</div>
+                <div class="app music-container my-box text albums non-selectable">{{ _('Мои альбомы') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow albums">
 
             </div>
@@ -74,17 +77,32 @@
     <div class="app main-container">
         <div class="app chosen option">{chosen}: 0</div>
         <div class="app chosen count">{{ _('Выбрано') }}: 0</div>
-        <div class="app chosen add">{{ _('Добавить')}} {chosen}</div>
-        <div class="app chosen transfer">{{ _('Перенести')}} {chosen}</div>
+        <div class="app chosen add non-selectable">{{ _('Добавить')}} {chosen}</div>
+        <div class="app chosen transfer non-selectable" onclick="showTransferPopUp()">{{ _('Перенести')}} {chosen}</div>
         <div class="app song top-part">
-            <input class="app song top-part checkbox" type="checkbox" onclick="chooseAllTracks()"></input>
+            <input class="app song top-part checkbox" type="checkbox" onclick="chooseAllSongs()"></input>
             <div class="app song top-part label">{{ _('Название') }}</div>
             <div class="app song top-part service">{{ _('Сервис') }}</div>
             <div class="app song top-part option1">{{ _('Автор') }}</div>
             <div class="app song top-part option2">{{ _('Альбом') }}</div>
             <div class="app song top-part change">{{ _('Изменить') }}</div>
-            <div class="app song top-part delete">{{ _('Удалить') }}</div>
+            <div class="app song top-part delete" onclick="deleteAllSongs()">{{ _('Удалить') }}</div>
         </div>
+    </div>
+    <div class="app popup">
+        <div class="app popup-container">
+            <img onclick="this.parentElement.parentElement.style.display = 'none'" src="/static/images/arrow-back.svg" alt="goback" class="app popup-container goback-btn">
+            <div class="app popup-container popup-label main">{{ _('Перенести ваши плейлисты, треки, артистов и альбомы') }}</div>
+            <div class="app popup-container popup-label service-pick">{{ _('Выберите сервис для переноса:') }}</div>
+            <div class="app popup-container popup-service-container non-selectable">
+                <img src="/static/images/spotify 96x96.svg" onclick="chooseService('spotify')" class="app popup-container popup-service-container service spotify" />
+                <img src="/static/images/deezer 96x96.svg" onclick="chooseService('deezer')" class="app popup-container popup-service-container service deezer" />
+                <img src="/static/images/vk 96x96.svg" onclick="chooseService('vk')" class="app popup-container popup-service-container service vk" />
+                <img src="/static/images/yandex 96x96.svg" onclick="chooseService('yandex')" class="app popup-container popup-service-container service yandex" />
+            </div>
+        </div>
+
+
     </div>
 </body>
 <script src="/static/js/adaptive-design.js"></script>
