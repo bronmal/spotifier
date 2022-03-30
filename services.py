@@ -240,6 +240,9 @@ class Yandex:
             self.api = yandex_music.Client.from_credentials(login, password)
         if token:
             self.api = yandex_music.Client.from_token(token)
+        self.api.report_new_fields = False
+        self.api.report_new_fields_callback = False
+
 
     def save_token(self, user_id):
         db.add_service(user_id, self.api.token, 'yandex')

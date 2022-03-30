@@ -45,7 +45,7 @@ def main_page():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
 
-    return render_template('index.html')
+    return redirect('/dashboard')#render_template('index.html')
 
 
 @login.user_loader
