@@ -17,7 +17,6 @@ currentOption = "{chosen}"
 
 function appOnLoad() {
     changeDelta();
-    replaceAllChosen(localizedVars.tracks);
     displayTracks();
 }
 
@@ -26,19 +25,23 @@ function appOnResize() {
 }
 
 //ajax-query
-function parseData() {
-    var json = 0;
-    $(() => {
-        $.ajax({
-            url: 'http://127.0.0.1:5000/get_audio',
-            type: 'GET',
-            async: false,
-            success: function(response) {
-                json = jQuery.parseJSON(response);
-            }
+async function parseData() {
+    return new Promise(function(resolve, reject) {
+        $(() => {
+            $.ajax({
+                url: 'http://127.0.0.1:5000/get_audio',
+                type: 'GET',
+                async: true,
+                success: function(response) {
+                    resolve(response)
+                },
+                error: function(response) {
+                    return null;
+                    reject(response)
+                }
+            })
         })
     })
-    return json
 }
 
 function sendData(to_service) {
@@ -99,16 +102,25 @@ async function displayTracks() {
 }
 
 async function displayData(data) {
-    mainContainer = document.querySelector('.app.main-container')
-    p_data = parseData()[`${data}`];
-    setCount(p_data.length, "option")
-    for (i in p_data) {
-        add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
-    }
-    height = 162 + (p_data.length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
+    parseData().then((response) => {
+        mainContainer = document.querySelector('.app.main-container')
+        p_data = JSON.parse(response)[`${data}`]
+        console.log(p_data);
+        length = p_data.length
 
-    document.body.style.height = `calc(${height}px*var(--deltaH))`;
-    mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
+        for (i in p_data) {
+            add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
+        }
+        setCount(length, "option")
+
+        height = 162 + (length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
+
+        document.body.style.height = `calc(${height}px*var(--deltaH))`;
+        mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
+    })
+
+
+
 }
 
 function setCount(value, element) {
