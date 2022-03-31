@@ -33,6 +33,13 @@
 
             </div>
             <img src="/static/images/add-service.svg" class="app added-services add-service-button">
+            <img src="/static/images/left-arrow.svg" class="app added-services left-arrow-btn" onclick="next()">
+            <div class="app added-services service-container non-selectable">
+                <img src="/static/images/spotify-logo1.svg" onclick="window.location.href = '/add_spotify'" class="app added-services service-container service not-connected spotify">
+                <img src="/static/images/yandex-logo.svg" onclick="window.location.href = '/add_yandex'" class="app added-services service-container service not-connected yandex">
+                <img src="/static/images/vk-logo1.svg" onclick="window.location.href = '/add_vk'" class="app added-services service-container service not-connected vk">
+                <img src="/static/images/deezer-logo.svg" onclick="window.location.href = '/add_deezer'" class="app added-services service-container service not-connected deezer">
+            </div>
         </div>
         <div class="app transfer-music non-selectable">
             {{ _('Перенести музыку') }}
@@ -47,24 +54,24 @@
 
         </div>
         <div class="app music-container">
-            <div class="app music-container my-box playlists" onclick="displayPlaylists()">
+            <div class="app music-container my-box playlists" onclick="displayData('playlists', localizedVars.playlists)">
                 <img src="/static/images/playlists.svg" class="app music-container my-box image playlists">
                 <div class="app music-container my-box text playlists non-selectable">{{ _('Мои плейлисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow playlists">
             </div>
-            <div class="app music-container my-box tracks" onclick="displayTracks()">
+            <div class="app music-container my-box tracks" onclick="displayData('tracks', localizedVars.tracks)">
                 <img src="/static/images/tracks.svg" class="app music-container my-box image tracks">
                 <div class="app music-container my-box text tracks non-selectable">{{ _('Мои треки') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow tracks">
 
             </div>
-            <div class="app music-container my-box artists" onclick="displayArtists()">
+            <div class="app music-container my-box artists" onclick="displayData('artists', localizedVars.artists)">
                 <img src="/static/images/artists.svg" class="app music-container my-box image artists">
                 <div class="app music-container my-box text artists non-selectable">{{ _('Мои артисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow artists">
 
             </div>
-            <div class="app music-container my-box albums" onclick="displayAlbums()">
+            <div class="app music-container my-box albums" onclick="displayData('albums', localizedVars.albums)">
                 <img src="/static/images/albums.svg" class="app music-container my-box image albums">
                 <div class="app music-container my-box text albums non-selectable">{{ _('Мои альбомы') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow albums">

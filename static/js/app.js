@@ -1,9 +1,5 @@
 mutableElements = [document.querySelector('.app.chosen.option'), document.querySelector('.app.chosen.add'), document.querySelector('.app.chosen.transfer')]
 localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), artists: _('артисты'), albums: _("альбомы") }
-chosenTracks = [];
-chosenAlbums = [];
-chosenArtists = [];
-chosenPlaylists = [];
 
 data = {
     "tracks": [],
@@ -17,19 +13,23 @@ currentOption = "{chosen}"
 
 function appOnLoad() {
     changeDelta();
-    displayTracks();
+    getServices();
+    displayData('tracks', localizedVars.tracks);
 }
 
 function appOnResize() {
     changeDelta();
 }
 
-//ajax-query
-async function parseData() {
+function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+}
+
+async function parseData(url) {
     return new Promise(function(resolve, reject) {
         $(() => {
             $.ajax({
-                url: 'http://127.0.0.1:5000/get_audio',
+                url: url,
                 type: 'GET',
                 async: true,
                 success: function(response) {
@@ -45,9 +45,7 @@ async function parseData() {
 }
 
 function sendData(to_service) {
-
     data.to_service = to_service;
-    console.log(data);
     $(() => {
         $.ajax({
             url: 'http://127.0.0.1:5000/send_audio',
@@ -62,50 +60,15 @@ function sendData(to_service) {
     })
 }
 
-
-function displayPlaylists() {
-    if (currentOption != localizedVars.playlists) {
+async function displayData(data, type) {
+    if (currentOption != type) {
         deleteAllSongs();
-        replaceAllChosen(localizedVars.playlists);
-        displayData('playlists')
+        replaceAllChosen(type);
     }
-    currentOption = localizedVars.playlists
-}
-
-function displayArtists() {
-    if (currentOption != localizedVars.artists) {
-        deleteAllSongs();
-        replaceAllChosen(localizedVars.artists);
-        displayData('artists')
-    }
-    currentOption = localizedVars.artists
-
-}
-
-function displayAlbums() {
-    if (currentOption != localizedVars.albums) {
-        deleteAllSongs();
-        replaceAllChosen(localizedVars.albums);
-        displayData('albums')
-    }
-    currentOption = localizedVars.albums
-
-}
-
-async function displayTracks() {
-    if (currentOption != localizedVars.tracks) {
-        deleteAllSongs();
-        replaceAllChosen(localizedVars.tracks);
-        displayData('tracks')
-    }
-    currentOption = localizedVars.tracks
-}
-
-async function displayData(data) {
-    parseData().then((response) => {
+    currentOption = type
+    parseData('http://127.0.0.1:5000/get_audio').then((response) => {
         mainContainer = document.querySelector('.app.main-container')
         p_data = JSON.parse(response)[`${data}`]
-        console.log(p_data);
         length = p_data.length
 
         for (i in p_data) {
@@ -118,9 +81,6 @@ async function displayData(data) {
         document.body.style.height = `calc(${height}px*var(--deltaH))`;
         mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
     })
-
-
-
 }
 
 function setCount(value, element) {
@@ -228,6 +188,12 @@ async function add(id, title, service, album, artist, mainContainer, type) {
         case 'spotify':
             servicePath = '/static/images/spotify-logo1.svg';
             break;
+        case 'yandex':
+            servicePath = '/static/images/yandex-logo.svg'
+            break;
+        case 'deezer':
+            servicePath = '/static/images/deezer-logo.svg'
+            break;
     }
     song.className = `app song id${id}`
     song.innerHTML = `
@@ -237,7 +203,7 @@ async function add(id, title, service, album, artist, mainContainer, type) {
         <div class="app song option1">${artist}</div>
         <div class="app song option2">${album}</div>
         <img src="/static/images/change-btn.svg" class="app song change-btn" ></img>
-        <img src="/static/images/delete-btn.svg" class="app song delete-btn" onclick="deleteSong()"></img>
+        <img src="/static/images/delete-btn.svg" class="app song delete-btn" onclick="deleteSong(this)"></img>
         </input>`
 
     fragment.appendChild(song)
@@ -245,55 +211,52 @@ async function add(id, title, service, album, artist, mainContainer, type) {
 }
 
 function choose(object, type) {
-
     id = object.className.substring(object.className.indexOf("id") + 2)
     service = object.childNodes[5].className.substring(object.childNodes[5].className.indexOf("service") + 8);
 
     _ = { "id": id, "service": service }
 
-    if (data[`${type}`].some(item => item.id === id)) {
+    if (data[`${type}`].some(item => (item.id === id && item.service === service))) {
         object.childNodes[1].checked = false;
-        index = data[`${type}`].indexOf(_);
+        // index = data[`${type}`].indexOf(_);
+        index = 0;
+        for (key in data[`${type}`]) {
+            value = data[`${type}`][key];
+            if (id === value.id && service === value.service) {
+                break;
+            }
+            index++;
+        }
         data[`${type}`].splice(index, 1);
         setCount(getCount("count") - 1, "count")
         return;
     }
     object.childNodes[1].checked = true;
-
-
-
-
     data[`${type}`].push(_);
-
     setCount(getCount("count") + 1, "count")
 }
 
 function chooseAllSongs() {
     tracks = document.querySelectorAll('.app.song')
     for (let i = 8; i < tracks.length; i += 8) {
-        choose(tracks[i])
+        choose(tracks[i], getKeyByValue(localizedVars, chosenElement))
     }
 }
 
-function deleteSong() {
-    element = event.target.parentElement
-    element.parentNode.removeChild(element)
+function deleteSong(element) {
+    element.parentElement.parentElement.removeChild(element.parentElement)
     setCount(getCount("option") - 1, "option")
     setCount(getCount("count") - 1, "count")
-
 }
 
 function deleteAllSongs() {
     mainContainer = document.querySelector('.app.main-container')
     tracks = document.querySelectorAll('.app.song')
-    for (let i = 8; i < tracks.length; i++) {
-        tracks[i].parentNode.removeChild(tracks[i])
+    for (let i = 9; i < tracks.length; i += 8) {
+        deleteSong(tracks[i])
     }
     document.body.style.height = "100%";
     mainContainer.style.height = "max-content";
-    setCount(0, "option")
-    setCount(0, "count")
-
 }
 
 function showTransferPopUp() {
@@ -303,4 +266,26 @@ function showTransferPopUp() {
 function chooseService(service) {
     document.querySelector('.app.popup').style.display = 'none'
     sendData(service)
+}
+
+async function getServices() {
+    parseData('http://127.0.0.1:5000/get_services').then((response) => {
+        serviceElements = document.querySelectorAll('.app.added-services.service-container.service')
+        for (i = 0; i < serviceElements.length; i++) {
+            if (response.includes(serviceElements[i].className.substring(59, serviceElements[i].className.length))) {
+                serviceElements[i].classList.remove('not-connected')
+                serviceElements[i].removeAttribute('onclick')
+
+            }
+        }
+    })
+}
+
+async function next() {
+    let serviceBox = document.querySelector('.app.added-services.service-container.non-selectable');
+    let servicesCount = serviceBox.childNodes.length;
+    let firstService = serviceBox.childNodes[1];
+    let lastService = serviceBox.childNodes[servicesCount - 2];
+    serviceBox.removeChild(lastService);
+    serviceBox.insertBefore(lastService, firstService);
 }
