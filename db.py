@@ -36,6 +36,7 @@ def get_user_by_email(email):
         if i['email'] == email:
             return i
 
+
 def get_connected_services(id):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)

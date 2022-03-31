@@ -243,7 +243,6 @@ class Yandex:
         self.api.report_new_fields = False
         self.api.report_new_fields_callback = False
 
-
     def save_token(self, user_id):
         db.add_service(user_id, self.api.token, 'yandex')
 
