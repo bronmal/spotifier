@@ -195,44 +195,36 @@ def delete_service():
     return json.dumps({'success': True})
 
 
-@application.route('/get_audio', methods=['GET', 'POST'])
+@application.route('/get_audio', methods=['POST'])
 @login_required
 def send_audio():
-    tracks_vk, playlists_vk, albums_vk = [], [], []
-    tracks_spot, playlists_spot, albums_spot, artists_spot = [], [], [], []
-    tracks_ya, playlists_ya, albums_ya, artists_ya = [], [], [], []
-    tracks_deez, playlists_deez, albums_deez, artists_deez = [], [], [], []
+    service_name = request.args.get('service')
+    service_token = db.get_token(current_user.get_id(), service_name)
+    tracks, playlists, albums, artists = [], [], [], []
 
-    vk_token = db.get_token(current_user.get_id(), 'vk')
-    spotify_token = db.get_token(current_user.get_id(), 'spotify')
-    yandex_token = db.get_token(current_user.get_id(), 'yandex')
-    deezer_token = db.get_token(current_user.get_id(), 'deezer')
+    if service_name == 'vk':
+        api_vk = services.Vk(service_token)
+        tracks, playlists, albums = api_vk.get_music()
 
-    if vk_token:
-        api_vk = services.Vk(vk_token)
-        tracks_vk, playlists_vk, albums_vk = api_vk.get_music()
+    if service_name == 'spotify':
+        api_spotify = services.Spotify(service_token)
+        tracks, playlists, artists, albums = api_spotify.get_music()
 
-    if spotify_token:
-        api_spotify = services.Spotify(spotify_token)
-        tracks_spot, playlists_spot, artists_spot, albums_spot = api_spotify.get_music()
+    if service_name == 'yandex':
+        api_yandex = services.Yandex(token=service_token)
+        tracks, albums, artists, playlists = api_yandex.get_music()
 
-    if yandex_token:
-        api_yandex = services.Yandex(token=yandex_token)
-        tracks_ya, albums_ya, artists_ya, playlists_ya = api_yandex.get_music()
+    if service_name == 'deezer':
+        api_deezer = services.Deezer(token=service_token)
+        tracks, albums, artists = api_deezer.get_music()
 
-    if deezer_token:
-        api_deezer = services.Deezer(token=deezer_token)
-        tracks_deez, albums_deez, artists_deez = api_deezer.get_music()
+    db.save_music(current_user.get_id(), tracks=tracks, albums=albums,
+                  playlists=playlists, artists=artists)
 
-    db.save_music(current_user.get_id(), tracks=tracks_vk + tracks_spot + tracks_ya + tracks_deez,
-                  albums=albums_vk + albums_spot + albums_ya + albums_deez,
-                  playlists=playlists_vk + playlists_spot + playlists_ya,
-                  artists=artists_spot + artists_ya + artists_deez)
-
-    return json.dumps({'tracks': tracks_vk + tracks_spot + tracks_ya + tracks_deez,
-                       'albums': albums_vk + albums_spot + albums_ya + albums_deez,
-                      'playlists': playlists_vk + playlists_spot + playlists_ya,
-                       'artists': artists_spot + artists_ya + artists_deez})
+    return json.dumps({'tracks': tracks,
+                       'albums': albums,
+                       'playlists': playlists,
+                       'artists': artists})
 
 
 @application.route('/send_audio', methods=['POST'])
