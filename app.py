@@ -187,7 +187,7 @@ def get_services():
     return json.dumps(services_name)
 
 
-@application.route('/delete_service', methods=['POST'])
+@application.route('/delete_service', methods=['GET'])
 @login_required
 def delete_service():
     service = request.args.get('service')
