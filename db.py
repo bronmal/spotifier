@@ -49,6 +49,7 @@ def get_connected_services(id):
         if i['user_id'] == id:
             return json.loads(i['connected_services'])
 
+
 def create_user(email, name, photo):
     date = datetime.now()
     days_in_month = calendar.monthrange(date.year, date.month)[1]
@@ -99,6 +100,30 @@ def add_service(user_id, token, service):
     if connected_services is not None:
         connected_services.update({service: token})
         data = (json.dumps(connected_services), user_id)
+
+    cursor.execute(query, data)
+    cursor.close()
+    con.commit()
+    con.close()
+
+
+def remove_service(id, service):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM spotifier")
+    rows = cursor.fetchall()
+    connected_services = None
+
+    for i in rows:
+        if i['user_id'] == id:
+            connected_services = json.loads(i['connected_services'])
+
+    query = """ UPDATE spotifier
+                            SET connected_services = %s
+                            WHERE user_id = %s """
+
+    del connected_services[service]
+    data = (json.dumps(connected_services), id)
 
     cursor.execute(query, data)
     cursor.close()

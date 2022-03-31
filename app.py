@@ -187,6 +187,14 @@ def get_services():
     return json.dumps(services_name)
 
 
+@application.route('/delete_service', methods=['POST'])
+@login_required
+def delete_service():
+    service = request.args.get('service')
+    db.remove_service(current_user.get_id(), service)
+    return json.dumps({'success': True})
+
+
 @application.route('/get_audio', methods=['GET', 'POST'])
 @login_required
 def send_audio():
