@@ -87,11 +87,12 @@ class SpotAuth:
     def name(self, code):
         self.auth_manager.get_access_token(code, as_dict=False)
         self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
+        photo = None
         try:
             photo_url = self.spot.me()['images'][0]['url']
+            photo = requests.get(photo_url).content
         except:
             photo_url = None
-        photo = requests.get(photo_url).content
         return self.spot.me()['display_name'], self.spot.me()['email'], photo
 
     def save_token(self, code, user_id):
