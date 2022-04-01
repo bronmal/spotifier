@@ -109,10 +109,37 @@
             margin: calc(32px*var(--deltaH)) 0 0 calc(16px*var(--deltaW));
         }
         &.add-service-button {
+            display: inline-block;
             width: calc(32px*var(--deltaW));
             height: calc(32px*var(--deltaH));
             margin: calc(16px*var(--deltaH)) 0 0 calc(16px*var(--deltaW));
             cursor: pointer;
+        }
+        &.left-arrow-btn {
+            display: inline-block;
+            margin: 0 calc(2px*var(--deltaW)) calc(4px*var(--deltaH)) calc(4px*var(--deltaW));
+            width: calc(24px*var(--deltaW));
+            height: calc(24px*var(--deltaH));
+            cursor: pointer;
+        }
+        &.service-container {
+            display: inline-block;
+            width: calc(128px*var(--deltaW));
+            height: calc(32px*var(--deltaH));
+            overflow: hidden;
+            &.service {
+                width: calc(32px*var(--deltaW));
+                height: calc(32px*var(--deltaH));
+                margin: 0 calc(8px*var(--deltaW)) 0 0;
+                &.not-connected {
+                    -webkit-filter: grayscale(100%);
+                    -moz-filter: grayscale(100%);
+                    -o-filter: grayscale(100%);
+                    -ms-filter: grayscale(100%);
+                    filter: grayscale(100%);
+                    cursor: pointer;
+                }
+            }
         }
     }
     &.transfer-music {
@@ -219,7 +246,6 @@
         overflow-y: hidden;
         width: calc(1050px*var(--deltaW));
         height: calc(900px*var(--deltaH));
-        background: url(/static/images/big-blurried-spotifer-logo.svg) repeat center;
     }
     &.chosen {
         width: calc(200px*var(--deltaW));
@@ -288,6 +314,7 @@
         &.label {
             margin: 0;
             background: none;
+            border-radius: 0;
             align-items: flex-start;
             width: calc(168px*var(--deltaW));
         }

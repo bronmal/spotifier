@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="/static/index.css" />
     <link rel="icon" href="/static/images/spotifier-logo.svg" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content={{ _("Перенос музыки из между сервисами всего за пару кликов.")  }}/>
+    <meta name="description" content={{ _( "Перенос музыки из между сервисами всего за пару кликов.") }}/>
     <title>Spotifier</title>
 </head>
 
-<body class="body auth" onresize="resizeAllElements()" onload="resizeAllElements()">
+<body class="body auth" onresize="changeDelta()" onload="changeDelta()">
     <img src="/static/images/spotifier-logo.svg" alt="" srcset="" class="resizable auth logo">
     <div class="resizable auth container">
         <div class="resizable auth login-text">{{ _("Войти") }}</div>

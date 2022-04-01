@@ -130,86 +130,86 @@ body {
 }
 
 .auth.logo {
-  width: 256px;
-  height: 256px;
-  margin: 0 592px;
+  width: calc(256px * var(--deltaW));
+  height: calc(256px * var(--deltaH));
+  margin: 0 calc(592px * var(--deltaW));
 }
 .auth.container {
   background-color: #434080;
-  width: 360px;
-  height: 420px;
-  margin: 0 540px;
+  width: calc(360px * var(--deltaW));
+  height: calc(420px * var(--deltaH));
+  margin: 0 calc(540px * var(--deltaW));
   border-radius: 16px;
 }
 .auth.login-text {
-  margin: 0 140px 0 140px;
-  padding-top: 24px;
-  height: 36px;
-  width: 80px;
+  margin: 0 calc(140px * var(--deltaW)) 0 calc(140px * var(--deltaW));
+  padding-top: calc(24px * var(--deltaH)) calc(24px * var(--deltaW));
+  height: calc(36px * var(--deltaH));
+  width: calc(80px * var(--deltaW));
   color: white;
-  font-size: 28px;
+  font-size: calc(28px * var(--deltaW));
   font-weight: 500;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .auth.login-container {
-  width: 312px;
-  height: 40px;
+  width: calc(312px * var(--deltaW));
+  height: calc(40px * var(--deltaH));
   border-radius: 99px;
   cursor: pointer;
 }
 .auth.login-container.google {
-  margin: 64px 24px 22px 24px;
+  margin: calc(64px * var(--deltaH)) calc(24px * var(--deltaW)) calc(22px * var(--deltaH)) calc(24px * var(--deltaW));
   background-color: white;
   color: black;
 }
 .auth.login-container.vk {
-  margin: 0px 24px 22px 24px;
+  margin: 0px calc(24px * var(--deltaW)) calc(22px * var(--deltaH)) calc(24px * var(--deltaW));
   background-color: #4680C2;
   color: white;
 }
 .auth.login-container.spotify {
-  margin: 0px 24px 22px 24px;
+  margin: 0px calc(24px * var(--deltaW)) calc(22px * var(--deltaH)) calc(24px * var(--deltaW));
   background-color: #00D95F;
   color: black;
 }
 .auth.login-container.yandex {
-  margin: 0px 24px 22px 24px;
+  margin: 0px calc(24px * var(--deltaW)) calc(22px * var(--deltaH)) calc(24px * var(--deltaW));
   background-color: #fc3f1d;
   color: white;
 }
 .auth.company-logo {
   float: left;
-  width: 24px;
-  height: 24px;
-  margin: 8px 0 8px 16px;
+  width: calc(24px * var(--deltaW));
+  height: calc(24px * var(--deltaH));
+  margin: calc(8px * var(--deltaH)) 0 calc(8px * var(--deltaH)) calc(16px * var(--deltaW));
 }
 .auth.login-url {
   float: right;
   width: fit-content;
-  height: 14px;
-  font-size: 14px;
+  height: calc(14px * var(--deltaH));
+  font-size: calc(14px * var(--deltaW));
   font-weight: bold;
   text-align: center;
   text-decoration: none;
   color: inherit;
 }
 .auth.login-url.google-url {
-  margin-top: 13px;
-  margin-right: 71px;
+  margin-top: calc(13px * var(--deltaH));
+  margin-right: calc(71px * var(--deltaW));
 }
 .auth.login-url.vk-url {
-  margin-top: 13px;
-  margin-right: 59px;
+  margin-top: calc(13px * var(--deltaH));
+  margin-right: calc(59px * var(--deltaW));
 }
 .auth.login-url.spotify-url {
-  margin-top: 13px;
-  margin-right: 71px;
+  margin-top: calc(13px * var(--deltaH));
+  margin-right: calc(71px * var(--deltaW));
 }
 .auth.login-url.yandex-url {
-  margin-top: 13px;
-  margin-right: 71px;
+  margin-top: calc(13px * var(--deltaH));
+  margin-right: calc(71px * var(--deltaW));
 }
 
 .app * {
@@ -321,9 +321,36 @@ body {
   margin: calc(32px * var(--deltaH)) 0 0 calc(16px * var(--deltaW));
 }
 .app.added-services.add-service-button {
+  display: inline-block;
   width: calc(32px * var(--deltaW));
   height: calc(32px * var(--deltaH));
   margin: calc(16px * var(--deltaH)) 0 0 calc(16px * var(--deltaW));
+  cursor: pointer;
+}
+.app.added-services.left-arrow-btn {
+  display: inline-block;
+  margin: 0 calc(2px * var(--deltaW)) calc(4px * var(--deltaH)) calc(4px * var(--deltaW));
+  width: calc(24px * var(--deltaW));
+  height: calc(24px * var(--deltaH));
+  cursor: pointer;
+}
+.app.added-services.service-container {
+  display: inline-block;
+  width: calc(128px * var(--deltaW));
+  height: calc(32px * var(--deltaH));
+  overflow: hidden;
+}
+.app.added-services.service-container.service {
+  width: calc(32px * var(--deltaW));
+  height: calc(32px * var(--deltaH));
+  margin: 0 calc(8px * var(--deltaW)) 0 0;
+}
+.app.added-services.service-container.service.not-connected {
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  filter: grayscale(100%);
   cursor: pointer;
 }
 .app.transfer-music {
@@ -430,7 +457,6 @@ body {
   overflow-y: hidden;
   width: calc(1050px * var(--deltaW));
   height: calc(900px * var(--deltaH));
-  background: url(/static/images/big-blurried-spotifer-logo.svg) repeat center;
 }
 .app.chosen {
   width: calc(200px * var(--deltaW));
@@ -500,6 +526,7 @@ body {
 .app.song.label {
   margin: 0;
   background: none;
+  border-radius: 0;
   align-items: flex-start;
   width: calc(168px * var(--deltaW));
 }
