@@ -113,6 +113,23 @@ q {
 :root {
   --deltaW: 1;
   --deltaH: 1;
+  --songWidth: calc(936px*var(--deltaW));
+  --songHeight: calc(40px*var(--deltaH));
+  --songMargin: 0 0 calc(10px*var(--deltaH)) 0;
+  --songFontSize: calc(14px*var(--deltaW));
+  --songCheckboxHeight: calc(18px*var(--deltaH));
+  --songCheckboxMargin: calc(11px*var(--deltaH)) calc(45px*var(--deltaW)) calc(11px*var(--deltaH)) calc(16px*var(--deltaW));
+  --songLabelWidth: calc(168px*var(--deltaW));
+  --songServiceWidth: calc(24px*var(--deltaW));
+  --songServiceHeight: calc(24px*var(--deltaH));
+  --songServiceMargin: 0 calc(119px*var(--deltaW)) 0 0;
+  --songOption1Width: calc(100px*var(--deltaW));
+  --songOption1Margin: 0 calc(45px*var(--deltaW)) 0 0;
+  --songOption2Width: calc(100px*var(--deltaW));
+  --songOption2Margin: 0 calc(61px*var(--deltaW)) 0 0;
+  --songChangeBtnWidth: calc(24px*var(--deltaW));
+  --songChangeBtnMargin: 0 calc(131px*var(--deltaW)) 0 0;
+  --songDeleteBtnWidth: calc(24px*var(--deltaW));
 }
 
 body {
@@ -505,12 +522,12 @@ body {
 .app.song {
   color: white;
   vertical-align: middle;
-  font-size: calc(14px * var(--deltaW));
+  font-size: var(--songFontSize);
   display: inline-flex;
   align-items: center;
-  width: calc(936px * var(--deltaW));
-  height: calc(40px * var(--deltaH));
-  margin: 0 0 calc(10px * var(--deltaH)) 0;
+  width: var(--songWidth);
+  height: var(--songHeight);
+  margin: var(--songMargin);
   border-radius: 8px;
   background-color: rgba(70, 67, 123, 0.25);
   text-decoration: none;
@@ -520,40 +537,42 @@ body {
 .app.song.checkbox {
   background: none;
   max-width: 18px;
-  height: calc(18px * var(--deltaH));
-  margin: calc(11px * var(--deltaH)) calc(45px * var(--deltaW)) calc(11px * var(--deltaH)) calc(16px * var(--deltaW));
+  height: var(--songCheckboxHeight);
+  margin: var(--songCheckboxMargin);
 }
 .app.song.label {
   margin: 0;
   background: none;
   border-radius: 0;
   align-items: flex-start;
-  width: calc(168px * var(--deltaW));
+  width: var(--songLabelWidth);
 }
 .app.song.service {
   margin: 0;
   background: none;
-  width: calc(24px * var(--deltaW));
-  height: calc(24px * var(--deltaH));
-  margin: 0 calc(119px * var(--deltaW)) 0 0;
+  width: var(--songServiceWidth);
+  height: var(--songServiceHeight);
+  margin: var(--songServiceMargin);
 }
 .app.song.option1 {
   vertical-align: top;
   align-items: flex-start;
   border-radius: 0;
-  margin: 0 calc(45px * var(--deltaW)) 0 0;
+  margin: var(--songOption1Margin);
   background: none;
-  width: calc(100px * var(--deltaW));
+  width: var(--songOption1Width);
 }
 .app.song.option2 {
-  margin: 0 calc(61px * var(--deltaW)) 0 0;
+  margin: var(--songOption2Margin);
   background: none;
-  width: calc(100px * var(--deltaW));
+  border-radius: 0;
+  align-items: flex-start;
+  width: var(--songOption2Width);
 }
 .app.song.change-btn {
-  margin: 0 calc(131px * var(--deltaW)) 0 0;
+  margin: var(--songChangeBtnMargin);
   background: none;
-  width: calc(24px * var(--deltaW));
+  width: var(--songChangeBtnWidth);
 }
 .app.song.change-btn:hover {
   cursor: pointer;
@@ -561,7 +580,7 @@ body {
 .app.song.delete-btn {
   margin: 0;
   background: none;
-  width: calc(24px * var(--deltaW));
+  width: var(--songDeleteBtnWidth);
 }
 .app.song.delete-btn:hover {
   cursor: pointer;
@@ -596,6 +615,7 @@ body {
   margin: 0 calc(45px * var(--deltaW)) 0 0;
 }
 .app.song.top-part.option2 {
+  align-items: center;
   width: calc(100px * var(--deltaW));
   margin: 0 calc(61px * var(--deltaW)) 0 0;
 }

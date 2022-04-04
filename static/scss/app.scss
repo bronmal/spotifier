@@ -294,12 +294,12 @@
     &.song {
         color: white;
         vertical-align: middle;
-        font-size: calc(14px*var(--deltaW));
+        font-size: var(--songFontSize);
         display: inline-flex;
         align-items: center;
-        width: calc(936px*var(--deltaW));
-        height: calc(40px*var(--deltaH));
-        margin: 0 0 calc(10px*var(--deltaH)) 0;
+        width: var(--songWidth);
+        height: var(--songHeight);
+        margin: var(--songMargin);
         border-radius: 8px;
         background-color: rgba($color: #46437B, $alpha: .25);
         text-decoration: none;
@@ -308,40 +308,42 @@
         &.checkbox {
             background: none;
             max-width: 18px;
-            height: calc(18px*var(--deltaH));
-            margin: calc(11px*var(--deltaH)) calc(45px*var(--deltaW)) calc(11px*var(--deltaH)) calc(16px*var(--deltaW));
+            height: var(--songCheckboxHeight);
+            margin: var(--songCheckboxMargin);
         }
         &.label {
             margin: 0;
             background: none;
             border-radius: 0;
             align-items: flex-start;
-            width: calc(168px*var(--deltaW));
+            width: var(--songLabelWidth);
         }
         &.service {
             margin: 0;
             background: none;
-            width: calc(24px*var(--deltaW));
-            height: calc(24px*var(--deltaH));
-            margin: 0 calc(119px*var(--deltaW)) 0 0;
+            width: var(--songServiceWidth);
+            height: var(--songServiceHeight);
+            margin: var(--songServiceMargin);
         }
         &.option1 {
             vertical-align: top;
             align-items: flex-start;
             border-radius: 0;
-            margin: 0 calc(45px*var(--deltaW)) 0 0;
+            margin: var(--songOption1Margin);
             background: none;
-            width: calc(100px*var(--deltaW));
+            width: var(--songOption1Width);
         }
         &.option2 {
-            margin: 0 calc(61px*var(--deltaW)) 0 0;
+            margin: var(--songOption2Margin);
             background: none;
-            width: calc(100px*var(--deltaW));
+            border-radius: 0;
+            align-items: flex-start;
+            width: var(--songOption2Width);
         }
         &.change-btn {
-            margin: 0 calc(131px*var(--deltaW)) 0 0;
+            margin: var(--songChangeBtnMargin);
             background: none;
-            width: calc(24px*var(--deltaW));
+            width: var(--songChangeBtnWidth);
         }
         &.change-btn:hover {
             cursor: pointer;
@@ -349,7 +351,7 @@
         &.delete-btn {
             margin: 0;
             background: none;
-            width: calc(24px*var(--deltaW));
+            width: var(--songDeleteBtnWidth);
         }
         &.delete-btn:hover {
             cursor: pointer;
@@ -384,6 +386,7 @@
             margin: 0 calc(45px*var(--deltaW)) 0 0;
         }
         &.option2 {
+            align-items: center;
             width: calc(100px*var(--deltaW));
             margin: 0 calc(61px*var(--deltaW)) 0 0;
         }

@@ -45,7 +45,7 @@ async function parseData(url) {
 }
 
 
-async function parseServiceData(url, service) {
+async function parseServiceData(url, service, offset) {
     return new Promise(function(resolve, reject) {
         $(() => {
             $.ajax({
@@ -54,7 +54,7 @@ async function parseServiceData(url, service) {
                 async: true,
                 contentType: 'application/json;charset=UTF-8',
                 dataType: 'json',
-                data: { 'service': service },
+                data: { 'service': service, "offset": offset },
                 success: function(response) {
                     resolve(response)
                 },
@@ -90,29 +90,66 @@ async function displayData(data, type) {
     }
     length = 0
     currentOption = type
+
     parseData('http://127.0.0.1:5000/get_services').then((services) => {
         services = JSON.parse(services)
+        len = 15
+        offset = 0
         for (i = 0; i <= services.length; i++) {
-            parseServiceData('http://127.0.0.1:5000/get_audio', services[i]).then((response) => {
+            if (services[i] !== 'yandex' && services[i] !== 'deezer') {
+                recursiveAddSongs(services[i], 0, data)
 
-                mainContainer = document.querySelector('.app.main-container')
-                p_data = response[data]
-                length += p_data.length
-
-                for (i in p_data) {
-                    add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
-                }
-                setCount(length, "option")
-
-                height = 162 + (length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
-
-                document.body.style.height = `calc(${height}px*var(--deltaH))`;
-                mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
-            })
+            } else {
+                addSongs(services[i], data);
+            }
         }
     })
 
 
+}
+
+async function addSongs(service, data) {
+    parseServiceData('http://127.0.0.1:5000/get_audio', service, 0).then((response) => {
+        console.log(response);
+        mainContainer = document.querySelector('.app.main-container')
+        p_data = response[data]
+        offset += 15
+        length += p_data.length
+
+        for (i in p_data) {
+            add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
+        }
+        setCount(length, "option")
+
+        height = 162 + (length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
+
+        document.body.style.height = `calc(${height}px*var(--deltaH))`;
+        mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
+    })
+}
+
+async function recursiveAddSongs(service, offset, data) {
+    parseServiceData('http://127.0.0.1:5000/get_audio', service, offset).then((response) => {
+        console.log(response);
+        mainContainer = document.querySelector('.app.main-container')
+        p_data = response[data]
+        offset += 15
+        len = p_data.length
+        if (len === 15) {
+            recursiveAddSongs(service, offset, data);
+        }
+        length += p_data.length
+
+        for (i in p_data) {
+            add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
+        }
+        setCount(length, "option")
+
+        height = 162 + (length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
+
+        document.body.style.height = `calc(${height}px*var(--deltaH))`;
+        mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
+    })
 }
 
 function setCount(value, element) {
@@ -269,7 +306,7 @@ function choose(object, type) {
 }
 
 function chooseAllSongs() {
-    tracks = document.querySelectorAll('.app.song')
+    let tracks = document.querySelectorAll('.app.song')
     for (let i = 8; i < tracks.length; i += 8) {
         choose(tracks[i], getKeyByValue(localizedVars, chosenElement))
     }

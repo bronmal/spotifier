@@ -236,7 +236,7 @@ class Yandex:
 
     def tracks(self):
         tracks = []
-        items = self.api.users_likes_tracks(offset=2)
+        items = self.api.users_likes_tracks()
         count = 0
         for i in items:
             track = i.fetch_track()

@@ -6,4 +6,21 @@ $roboto-medium: "Roboto" 500;
 :root {
     --deltaW: 1;
     --deltaH: 1;
+    --songWidth: calc(936px*var(--deltaW));
+    --songHeight: calc(40px*var(--deltaH));
+    --songMargin: 0 0 calc(10px*var(--deltaH)) 0;
+    --songFontSize: calc(14px*var(--deltaW));
+    --songCheckboxHeight: calc(18px*var(--deltaH));
+    --songCheckboxMargin: calc(11px*var(--deltaH)) calc(45px*var(--deltaW)) calc(11px*var(--deltaH)) calc(16px*var(--deltaW));
+    --songLabelWidth: calc(168px*var(--deltaW));
+    --songServiceWidth: calc(24px*var(--deltaW));
+    --songServiceHeight: calc(24px*var(--deltaH));
+    --songServiceMargin: 0 calc(119px*var(--deltaW)) 0 0;
+    --songOption1Width: calc(100px*var(--deltaW));
+    --songOption1Margin: 0 calc(45px*var(--deltaW)) 0 0;
+    --songOption2Width: calc(100px*var(--deltaW));
+    --songOption2Margin: 0 calc(61px*var(--deltaW)) 0 0;
+    --songChangeBtnWidth: calc(24px*var(--deltaW));
+    --songChangeBtnMargin: 0 calc(131px*var(--deltaW)) 0 0;
+    --songDeleteBtnWidth: calc(24px*var(--deltaW));
 }
