@@ -199,16 +199,17 @@ def delete_service():
 @login_required
 def send_audio():
     service_name = request.args.get('service')
+    offset = int(request.args.get('offset'))
     service_token = db.get_token(current_user.get_id(), service_name)
     tracks, playlists, albums, artists = [], [], [], []
 
     if service_name == 'vk':
         api_vk = services.Vk(service_token)
-        tracks, playlists, albums = api_vk.get_music()
+        tracks, playlists, albums = api_vk.get_music(offset)
 
     if service_name == 'spotify':
         api_spotify = services.Spotify(service_token)
-        tracks, playlists, artists, albums = api_spotify.get_music()
+        tracks, playlists, artists, albums = api_spotify.get_music(offset)
 
     if service_name == 'yandex':
         api_yandex = services.Yandex(token=service_token)

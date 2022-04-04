@@ -8,34 +8,38 @@ import deezer
 import config
 import db
 
+count_tracks = 15
+
 
 class Vk:
     def __init__(self, token):
         self.api = vk_api.VkApi(token=token)
         self.user_id = self.api.method('users.get')[0]['id']
-        self.count = self.api.method('audio.getCount', values={'owner_id': self.user_id})
 
-    def tracks(self):
-        return self.api.method('audio.get', values={'count': self.count})
+    def tracks(self, offset):
+        return self.api.method('audio.get', values={'count': count_tracks, 'offset': offset})
 
-    def playlists_albums(self):
-        return self.api.method('audio.getPlaylists', values={'owner_id': self.user_id})
+    def playlists_albums(self, offset):
+        return self.api.method('audio.getPlaylists', values={'owner_id': self.user_id, 'count': count_tracks,
+                                                             'offset': offset})
 
-    def get_music(self):
+    def get_music(self, offset):
         tracks = []
         playlists = []
         albums = []
-        music_tracks = self.tracks()['items']
+        music_tracks = self.tracks(offset)['items']
         count_tr = 0
         for i in music_tracks:
             try:
-                tracks.append({'title': i['title'], 'artist': i['artist'], 'photo': i['album']['thumb']['photo_1200'],
+                tracks.append({'title': i['title'], 'artist': i['artist'],
+                               'photo': i['album']['thumb']['photo_1200'],
                                'service': 'vk', 'id': count_tr})
             except:
-                tracks.append({'title': i['title'], 'artist': i['artist'], 'service': 'vk', 'id': count_tr})
+                tracks.append({'title': i['title'], 'artist': i['artist'],
+                               'service': 'vk', 'id': count_tr})
             count_tr += 1
 
-        music_albums = self.playlists_albums()['items']
+        music_albums = self.playlists_albums(offset)['items']
         count_al_pl = 0
         for i in music_albums:
             if i['album_type'] == 'playlist':
@@ -98,67 +102,51 @@ class Spotify:
         self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
         self.count = 0
 
-    def tracks(self):
+    def tracks(self, offset):
         tracks = []
         count = 0
-        while True:
-            result = self.spot.current_user_saved_tracks(limit=50, offset=self.count)
-            for item in result['items']:
-                track = item['track']
-                tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
-                               'album': track['album']['name'], 'photo': track['album']['images'][0]['url'],
-                               'service': 'spotify', 'id': count})
-                count += 1
-            self.count += 50
-            if result['next'] is None:
-                self.count = 0
-                return tracks
+        result = self.spot.current_user_saved_tracks(limit=count_tracks, offset=offset)
+        for item in result['items']:
+            track = item['track']
+            tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
+                           'album': track['album']['name'], 'photo': track['album']['images'][0]['url'],
+                           'service': 'spotify', 'id': count})
+            count += 1
+        return tracks
 
-    def playlists(self):
+    def playlists(self, offset):
         playlists = []
         count = 0
-        while True:
-            result = self.spot.current_user_playlists(limit=50, offset=self.count)
-            for i, item in enumerate(result['items']):
-                playlists.append({'title': item['name'], 'id': count, 'photo': item['images'][0]['url'],
-                                  'service': 'spotify'})
-                count += 1
-            self.count += 50
-            if result['next'] is None:
-                self.count = 0
-                return playlists
+        result = self.spot.current_user_playlists(limit=count_tracks, offset=offset)
+        for i, item in enumerate(result['items']):
+            playlists.append({'title': item['name'], 'id': count, 'photo': item['images'][0]['url'],
+                              'service': 'spotify'})
+            count += 1
+        return playlists
 
-    def artists(self):
+    def artists(self, offset):
         artists = []
         count = 0
-        while True:
-            for sp_range in ['short_term', 'medium_term', 'long_term']:
-                result = self.spot.current_user_top_artists(time_range=sp_range, limit=self.count)
-                for i, item in enumerate(result['items']):
-                    artists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url'],
-                                    'service': 'spotify'})
-                    count += 1
-                self.count += 50
-            if result['next'] is None:
-                self.count = 0
-                return artists
+        for sp_range in ['short_term', 'medium_term', 'long_term']:
+            result = self.spot.current_user_top_artists(time_range=sp_range, limit=count_tracks, offset=offset)
+            for i, item in enumerate(result['items']):
+                artists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url'],
+                                'service': 'spotify'})
+                count += 1
+            return artists
 
-    def albums(self):
+    def albums(self, offset):
         albums = []
         count = 0
-        while True:
-            result = self.spot.current_user_saved_albums(limit=50, offset=self.count)
-            for i, item in enumerate(result['items']):
-                albums.append({'title': item['album']['name'], 'id': i, 'photo': item['album']['images'][0]['url'],
-                               'service': 'spotify'})
-                count += 1
-            self.count += 50
-            if result['next'] is None:
-                self.count = 0
-                return albums
+        result = self.spot.current_user_saved_albums(limit=count_tracks, offset=offset)
+        for i, item in enumerate(result['items']):
+            albums.append({'title': item['album']['name'], 'id': i, 'photo': item['album']['images'][0]['url'],
+                           'service': 'spotify'})
+            count += 1
+        return albums
 
-    def get_music(self):
-        return self.tracks(), self.playlists(), self.artists(), self.albums()
+    def get_music(self, offset):
+        return self.tracks(offset), self.playlists(offset), self.artists(offset), self.albums(offset)
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
@@ -248,7 +236,7 @@ class Yandex:
 
     def tracks(self):
         tracks = []
-        items = self.api.users_likes_tracks()
+        items = self.api.users_likes_tracks(offset=2)
         count = 0
         for i in items:
             track = i.fetch_track()
