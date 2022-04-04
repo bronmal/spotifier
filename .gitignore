@@ -10,3 +10,4 @@
 geckodriver.log
 /templates/vk_form_test.html
 /static/js/vk_form_test.js
+.cache
