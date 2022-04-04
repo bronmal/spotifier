@@ -96,7 +96,7 @@ class SpotAuth:
         return self.spot.me()['display_name'], self.spot.me()['email'], photo
 
     def save_token(self, code, user_id):
-        token = self.auth_manager.get_access_token(code, as_dict=False)
+        token = self.auth_manager.get_access_token(code, as_dict=False,  check_cache=False)
         db.add_service(user_id, token, 'spotify')
 
 

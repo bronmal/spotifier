@@ -195,7 +195,7 @@ def delete_service():
     return json.dumps({'success': True})
 
 
-@application.route('/get_audio', methods=['POST'])
+@application.route('/get_audio', methods=['POST', 'GET'])
 @login_required
 def send_audio():
     service_name = request.args.get('service')

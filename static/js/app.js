@@ -44,6 +44,29 @@ async function parseData(url) {
     })
 }
 
+
+async function parseServiceData(url, service) {
+    return new Promise(function(resolve, reject) {
+        $(() => {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                async: true,
+                contentType: 'application/json;charset=UTF-8',
+                dataType: 'json',
+                data: { 'service': service },
+                success: function(response) {
+                    resolve(response)
+                },
+                error: function(response) {
+                    return null;
+                    reject(response)
+                }
+            })
+        })
+    })
+}
+
 function sendData(to_service) {
     data.to_service = to_service;
     $(() => {
@@ -65,22 +88,31 @@ async function displayData(data, type) {
         deleteAllSongs();
         replaceAllChosen(type);
     }
+    length = 0
     currentOption = type
-    parseData('http://127.0.0.1:5000/get_audio').then((response) => {
-        mainContainer = document.querySelector('.app.main-container')
-        p_data = JSON.parse(response)[`${data}`]
-        length = p_data.length
+    parseData('http://127.0.0.1:5000/get_services').then((services) => {
+        services = JSON.parse(services)
+        for (i = 0; i <= services.length; i++) {
+            parseServiceData('http://127.0.0.1:5000/get_audio', services[i]).then((response) => {
 
-        for (i in p_data) {
-            add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
+                mainContainer = document.querySelector('.app.main-container')
+                p_data = response[data]
+                length += p_data.length
+
+                for (i in p_data) {
+                    add(p_data[i].id, p_data[i].title, p_data[i].service, p_data[i].album == undefined ? '' : p_data[i].album, p_data[i].artist == undefined ? '' : p_data[i].artist, mainContainer, data)
+                }
+                setCount(length, "option")
+
+                height = 162 + (length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
+
+                document.body.style.height = `calc(${height}px*var(--deltaH))`;
+                mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
+            })
         }
-        setCount(length, "option")
-
-        height = 162 + (length + 1) * (parseInt(window.getComputedStyle(document.querySelector('.app.song')).height.substring(0, window.getComputedStyle(document.querySelector('.app.song')).height.length - 2)) + 10);
-
-        document.body.style.height = `calc(${height}px*var(--deltaH))`;
-        mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
     })
+
+
 }
 
 function setCount(value, element) {
