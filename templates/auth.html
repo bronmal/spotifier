@@ -15,21 +15,21 @@
     <img src="/static/images/spotifier-logo.svg" alt="" srcset="" class="resizable auth logo">
     <div class="resizable auth container">
         <div class="resizable auth login-text">{{ _("Войти") }}</div>
-        <div class="resizable auth login-container google">
+        <div class="resizable auth login-container google" onclick="window.location.href='{{google}}'">
             <img src="/static/images/google-logo.svg" class="resizable auth company-logo">
-            <a href={{google}} class="resizable auth login-url google-url"> {{ _('Войти с помощью Google') }} </a>
+            <div class="resizable auth login-url google-url"> {{ _('Войти с помощью Google') }} </div>
         </div>
-        <div class="resizable auth login-container vk">
+        <div class="resizable auth login-container vk" onclick="window.location.href='{{vk}}'">
             <img src="/static/images/vk-logo.svg" class="resizable auth company-logo">
-            <a href={{vk}} class="resizable auth login-url vk-url">{{ _('Войти с помощью Вконтакте') }}</a>
+            <div class="resizable auth login-url vk-url">{{ _('Войти с помощью Вконтакте') }}</div>
         </div>
-        <div class="resizable auth login-container spotify">
+        <div class="resizable auth login-container spotify" onclick="window.location.href='{{spotify}}'">
             <img src="/static/images/spotify-logo.svg" class="resizable auth company-logo">
-            <a href={{spotify}} class="resizable auth login-url spotify-url">{{ _('Войти с помощью Spotify') }}</a>
+            <div class="resizable auth login-url spotify-url">{{ _('Войти с помощью Spotify') }}</div>
         </div>
-        <div class="resizable auth login-container yandex">
+        <div class="resizable auth login-container yandex" onclick="window.location.href='{{yandex}}'">
             <img src="/static/images/yandex-logo.svg" class="resizable auth company-logo">
-            <a href={{yandex}} class="resizable auth login-url yandex-url">{{ _('Войти с помощью Yandex') }}</a>
+            <div class="resizable auth login-url yandex-url">{{ _('Войти с помощью Yandex') }}</div>
         </div>
     </div>
 

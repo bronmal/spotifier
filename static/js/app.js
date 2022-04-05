@@ -113,7 +113,7 @@ async function displayData(data, type) {
 
     parseData('http://127.0.0.1:5000/get_services').then((response) => {
         let services = JSON.parse(response)
-        for (i = 0; i <= services.length; i++) {
+        for (i = 0; i < services.length; i++) {
             if (services[i] !== 'yandex' && services[i] !== 'deezer') {
                 recursiveAddSongs(services[i], 0, data)
 
@@ -142,6 +142,7 @@ async function addSongs(service, data) {
         document.body.style.height = `calc(${height}px*var(--deltaH))`;
         mainContainer.style.height = `calc(${height}px*var(--deltaH))`;
     })
+    return;
 }
 
 async function recursiveAddSongs(service, offset, data) {
