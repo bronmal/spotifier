@@ -14,12 +14,12 @@
 
 
 <body class="body app" onload="appOnLoad()" onresize="appOnResize()">
-    <div class="app slider">
-        <img src="/static/images/menu-opened.svg" class="app menu-button" onclick="hideMenu()">
+    <div class="app slider opened">
+        <img src="/static/images/menu-opened.svg" class="app menu-button">
         <div class="app personal-info">
             <img src="{{ url_for('serve_img') }}" alt="avatar" class="app personal-info profile-picture">
             <div class="app personal-info name-lastname">{{ name }}</div>
-            <img src="/static/images/logout.svg" onclick="logout()" class="app personal-info logout">
+            <img src="/static/images/logout.svg" class="app personal-info logout">
             <div class="app personal-info subscription-box">
                 <div class="app personal-info subscription-box text"><a style="text-decoration: none;color: white;" href={{ kassa }}>{{ kassa_text }}</a></div>
                 <div class="app personal-info subscription-box line non-selectable"></div>
@@ -33,15 +33,18 @@
 
             </div>
             <img src="/static/images/add-service.svg" class="app added-services add-service-button">
-            <img src="/static/images/left-arrow.svg" class="app added-services left-arrow-btn" onclick="next()">
+            <img src="/static/images/left-arrow.svg" class="app added-services left-arrow-btn">
             <div class="app added-services service-container non-selectable">
-                <img src="/static/images/spotify-logo1.svg" onclick="window.location.href = 'https://accounts.spotify.com/authorize?client_id=b1fa88d88e3042d8b40e21af7e55a0ba&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fauth_spotify&scope=playlist-modify-private+playlist-modify-public+ugc-image-upload+user-library-read+user-library-modify+user-follow-modify+user-follow-read+playlist-read-private+user-top-read+user-read-email&show_dialog=True'" class="app added-services service-container service not-connected spotify">
-                <img src="/static/images/yandex-logo.svg" onclick="window.location.href = '/add_yandex'" class="app added-services service-container service not-connected yandex">
-                <img src="/static/images/vk-logo1.svg" onclick="window.location.href = '/add_vk'" class="app added-services service-container service not-connected vk">
-                <img src="/static/images/deezer-logo.svg" onclick="window.location.href = 'https://connect.deezer.com/oauth/auth.php?app_id=527262&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fadd_deezer&perms=basic_access%2Cemail%2Cmanage_library%2Coffline_access%2Cmanage_community%2Cdelete_library%2Clistening_history'" class="app added-services service-container service not-connected deezer">
+                <img src="/static/images/spotify-logo1.svg" onclick="window.location.href = 'https://accounts.spotify.com/authorize?client_id=b1fa88d88e3042d8b40e21af7e55a0ba&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fauth_spotify&scope=playlist-modify-private+playlist-modify-public+ugc-image-upload+user-library-read+user-library-modify+user-follow-modify+user-follow-read+playlist-read-private+user-top-read+user-read-email&show_dialog=True'"
+                    class="app added-services service-container service not-connected spotify" />
+                <img src="/static/images/yandex-logo.svg" onclick="window.location.href = '/add_yandex'" class="app added-services service-container service not-connected yandex" />
+                <img src="/static/images/vk-logo1.svg" onclick="window.location.href = '/add_vk'" class="app added-services service-container service not-connected vk" />
+                <img src="/static/images/deezer-logo.svg" onclick="window.location.href = 'https://connect.deezer.com/oauth/auth.php?app_id=527262&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fadd_deezer&perms=basic_access%2Cemail%2Cmanage_library%2Coffline_access%2Cmanage_community%2Cdelete_library%2Clistening_history'"
+                    class="app added-services service-container service not-connected deezer" />
             </div>
+            <img src="/static/images/right-arrow.svg" class="app added-services right-arrow-btn">
         </div>
-        <div class="app transfer-music non-selectable" onclick="showTransferPopUp()">
+        <div class="app transfer-music non-selectable">
             {{ _('Перенести музыку') }}
         </div>
         <div class="app menu-options">
@@ -54,24 +57,24 @@
 
         </div>
         <div class="app music-container">
-            <div class="app music-container my-box playlists" onclick="displayData('playlists', localizedVars.playlists)">
+            <div class="app music-container my-box playlists">
                 <img src="/static/images/playlists.svg" class="app music-container my-box image playlists">
                 <div class="app music-container my-box text playlists non-selectable">{{ _('Мои плейлисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow playlists">
             </div>
-            <div class="app music-container my-box tracks" onclick="displayData('tracks', localizedVars.tracks)">
+            <div class="app music-container my-box tracks">
                 <img src="/static/images/tracks.svg" class="app music-container my-box image tracks">
                 <div class="app music-container my-box text tracks non-selectable">{{ _('Мои треки') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow tracks">
 
             </div>
-            <div class="app music-container my-box artists" onclick="displayData('artists', localizedVars.artists)">
+            <div class="app music-container my-box artists">
                 <img src="/static/images/artists.svg" class="app music-container my-box image artists">
                 <div class="app music-container my-box text artists non-selectable">{{ _('Мои артисты') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow artists">
 
             </div>
-            <div class="app music-container my-box albums" onclick="displayData('albums', localizedVars.albums)">
+            <div class="app music-container my-box albums">
                 <img src="/static/images/albums.svg" class="app music-container my-box image albums">
                 <div class="app music-container my-box text albums non-selectable">{{ _('Мои альбомы') }}</div>
                 <img src="/static/images/right-arrow.svg" class="app music-container my-box right-arrow albums">
@@ -85,15 +88,15 @@
         <div class="app chosen option">{chosen}: 0</div>
         <div class="app chosen count">{{ _('Выбрано') }}: 0</div>
         <div class="app chosen add non-selectable">{{ _('Добавить')}} {chosen}</div>
-        <div class="app chosen transfer non-selectable" onclick="showTransferPopUp()">{{ _('Перенести')}} {chosen}</div>
+        <div class="app chosen transfer non-selectable">{{ _('Перенести')}} {chosen}</div>
         <div class="app song top-part">
-            <input class="app song top-part checkbox" type="checkbox" onclick="chooseAllSongs()"></input>
+            <input class="app song top-part checkbox" type="checkbox"></input>
             <div class="app song top-part label">{{ _('Название') }}</div>
             <div class="app song top-part service">{{ _('Сервис') }}</div>
             <div class="app song top-part option1">{{ _('Автор') }}</div>
             <div class="app song top-part option2">{{ _('Альбом') }}</div>
             <div class="app song top-part change">{{ _('Изменить') }}</div>
-            <div class="app song top-part delete" onclick="deleteAllSongs()">{{ _('Удалить') }}</div>
+            <div class="app song top-part delete">{{ _('Удалить') }}</div>
         </div>
     </div>
     <div class="app popup">

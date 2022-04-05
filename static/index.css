@@ -351,6 +351,13 @@ body {
   height: calc(24px * var(--deltaH));
   cursor: pointer;
 }
+.app.added-services.right-arrow-btn {
+  display: inline-block;
+  margin: 0 calc(2px * var(--deltaW)) calc(4px * var(--deltaH)) calc(-6px * var(--deltaW));
+  width: calc(24px * var(--deltaW));
+  height: calc(24px * var(--deltaH));
+  cursor: pointer;
+}
 .app.added-services.service-container {
   display: inline-block;
   width: calc(128px * var(--deltaW));
@@ -684,6 +691,7 @@ body {
 }
 .app.popup-container.popup-service-container.service {
   cursor: pointer;
+  display: none;
   margin: 0 calc(16px * var(--deltaH)) calc(16px * var(--deltaW)) 0;
   width: calc(96px * var(--deltaW));
   height: calc(96px * var(--deltaH));
@@ -692,6 +700,14 @@ body {
   width: 6px;
 }
 .app.popup-container.popup-service-container::-webkit-scrollbar-thumb {
+  width: 6px;
+  border-radius: 99px;
+  background-color: #9A86C3;
+}
+.app::-webkit-scrollbar {
+  width: 6px;
+}
+.app::-webkit-scrollbar-thumb {
   width: 6px;
   border-radius: 99px;
   background-color: #9A86C3;
