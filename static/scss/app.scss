@@ -146,6 +146,22 @@
                     filter: grayscale(100%);
                     cursor: pointer;
                 }
+                &.image {
+                    width: calc(32px*var(--deltaW));
+                    height: calc(32px*var(--deltaH));
+                    margin: calc(-12px*var(--deltaH)) 0 0 0;
+                    z-index: 10;
+                }
+                &.close-btn {
+                    display: block;
+                    position: relative;
+                    float: right;
+                    z-index: 1000;
+                    width: calc(12px*var(--deltaW));
+                    height: calc(12px*var(--deltaH));
+                    cursor: pointer;
+                    margin: 0;
+                }
             }
         }
     }
