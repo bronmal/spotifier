@@ -1,5 +1,5 @@
 import config
-import db
+import db_orm as db
 from flask import url_for
 from yookassa import Configuration
 from yookassa import Payment

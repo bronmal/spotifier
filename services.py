@@ -1,4 +1,3 @@
-import json
 import urllib.parse
 import requests
 import vk_api
@@ -6,7 +5,7 @@ import spotipy
 import yandex_music
 import deezer
 import config
-import db
+import db_orm as db
 
 count_tracks = 15
 
@@ -17,48 +16,53 @@ class Vk:
         self.user_id = self.api.method('users.get')[0]['id']
 
     def tracks(self, offset):
-        return self.api.method('audio.get', values={'count': count_tracks, 'offset': offset})
+        try:
+            return self.api.method('audio.get', values={'count': count_tracks, 'offset': offset})
+        except:
+            return None
 
     def playlists_albums(self, offset):
         return self.api.method('audio.getPlaylists', values={'owner_id': self.user_id, 'count': count_tracks,
                                                              'offset': offset})
 
-    def get_music(self, offset):
+    def get_music(self, offset, ids):
         tracks = []
         playlists = []
         albums = []
         music_tracks = self.tracks(offset)['items']
-        count_tr = 0
-        for i in music_tracks:
-            try:
-                tracks.append({'title': i['title'], 'artist': i['artist'],
-                               'photo': i['album']['thumb']['photo_1200'],
-                               'service': 'vk', 'id': count_tr})
-            except:
-                tracks.append({'title': i['title'], 'artist': i['artist'],
-                               'service': 'vk', 'id': count_tr})
-            count_tr += 1
+        if music_tracks:
+            for i in music_tracks:
+                try:
+                    tracks.append({'title': i['title'], 'artist': i['artist'],
+                                   'photo': i['album']['thumb']['photo_1200'],
+                                   'service': 'vk', 'id': ids})
+                except:
+                    try:
+                        tracks.append({'title': i['title'], 'artist': i['artist'],
+                                       'service': 'vk', 'id': ids})
+                    except:
+                        break
+                ids += 1
 
         music_albums = self.playlists_albums(offset)['items']
-        count_al_pl = 0
         for i in music_albums:
             if i['album_type'] == 'playlist':
                 try:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id': count_al_pl})
+                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id': ids})
                 except:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'service': 'vk', 'id': count_al_pl})
+                                      'service': 'vk', 'id': ids})
             if i['album_type'] == 'main_only':
                 try:
                     albums.append({'title': i['title'], 'access_key': i['original'], 'photo': i['photo']['photo_1200'],
-                                   'service': 'vk', 'id': count_al_pl})
+                                   'service': 'vk', 'id': ids})
                 except:
                     albums.append({'title': i['title'], 'access_key': i['original'], 'service': 'vk',
-                                   'id': count_al_pl})
-            count_al_pl += 1
+                                   'id': ids})
+            ids += 1
 
-        return tracks, playlists, albums
+        return tracks, playlists, albums, ids
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
@@ -100,53 +104,51 @@ class Spotify:
                                                               'user-read-email',
                                                         show_dialog=True)
         self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
-        self.count = 0
+        self.ids = 0
 
-    def tracks(self, offset):
+    def tracks(self, offset, ids):
         tracks = []
-        count = 0
         result = self.spot.current_user_saved_tracks(limit=count_tracks, offset=offset)
         for item in result['items']:
             track = item['track']
             tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
                            'album': track['album']['name'], 'photo': track['album']['images'][0]['url'],
-                           'service': 'spotify', 'id': count})
-            count += 1
+                           'service': 'spotify', 'id': ids})
+            ids += 1
+        self.ids = ids
         return tracks
 
-    def playlists(self, offset):
+    def playlists(self, offset, ids):
         playlists = []
-        count = 0
         result = self.spot.current_user_playlists(limit=count_tracks, offset=offset)
         for i, item in enumerate(result['items']):
-            playlists.append({'title': item['name'], 'id': count, 'photo': item['images'][0]['url'],
+            playlists.append({'title': item['name'], 'id': ids, 'photo': item['images'][0]['url'],
                               'service': 'spotify'})
-            count += 1
+            ids += 1
         return playlists
 
-    def artists(self, offset):
+    def artists(self, offset, ids):
         artists = []
-        count = 0
         for sp_range in ['short_term', 'medium_term', 'long_term']:
             result = self.spot.current_user_top_artists(time_range=sp_range, limit=count_tracks, offset=offset)
             for i, item in enumerate(result['items']):
-                artists.append({'title': item['name'], 'id': i, 'photo': item['images'][0]['url'],
+                artists.append({'title': item['name'], 'id': ids, 'photo': item['images'][0]['url'],
                                 'service': 'spotify'})
-                count += 1
+                ids += 1
             return artists
 
-    def albums(self, offset):
+    def albums(self, offset, ids):
         albums = []
-        count = 0
         result = self.spot.current_user_saved_albums(limit=count_tracks, offset=offset)
         for i, item in enumerate(result['items']):
-            albums.append({'title': item['album']['name'], 'id': i, 'photo': item['album']['images'][0]['url'],
+            albums.append({'title': item['album']['name'], 'id': ids, 'photo': item['album']['images'][0]['url'],
                            'service': 'spotify'})
-            count += 1
+            ids += 1
         return albums
 
-    def get_music(self, offset):
-        return self.tracks(offset), self.playlists(offset), self.artists(offset), self.albums(offset)
+    def get_music(self, offset, ids):
+        return self.tracks(offset, ids), self.playlists(offset, ids),\
+               self.artists(offset, ids), self.albums(offset, ids), self.ids
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
@@ -230,19 +232,20 @@ class Yandex:
             self.api = yandex_music.Client.from_token(token)
         self.api.report_new_fields = False
         self.api.report_new_fields_callback = False
+        self.ids = 0
 
     def save_token(self, user_id):
         db.add_service(user_id, self.api.token, 'yandex')
 
-    def tracks(self):
+    def tracks(self, ids):
         tracks = []
         items = self.api.users_likes_tracks()
-        count = 0
         for i in items:
             track = i.fetch_track()
             tracks.append({'title': track['title'], 'artist': track['artists'][0]['name'],
-                           'album': track['albums'][0]['title'], 'service': 'yandex', 'id': count})
-            count += 1
+                           'album': track['albums'][0]['title'], 'service': 'yandex', 'id': ids})
+            ids += 1
+        self.ids = ids
         return tracks
 
     def albums(self):
@@ -273,8 +276,8 @@ class Yandex:
             count += 1
         return playlists
 
-    def get_music(self):
-        return self.tracks(), self.albums(), self.artists(), self.playlists()
+    def get_music(self, ids):
+        return self.tracks(ids), self.albums(), self.artists(), self.playlists(), self.ids
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
@@ -356,6 +359,7 @@ class Yandex:
 class Deezer:
     def __init__(self, token=None):
         self.api = deezer.Client(app_id=config.DEEZER_ID, app_secret=config.SPOTIFY_SECRET, access_token=token)
+        self.ids = 0
 
     @staticmethod
     def create_url():
@@ -376,14 +380,13 @@ class Deezer:
         token = response.json()['access_token']
         db.add_service(user_id, token, 'deezer')
 
-    def tracks(self):
+    def tracks(self, ids):
         tracks = []
         items = self.api.get_user_tracks()
-        count = 0
         for i in items:
             tracks.append({'title': i.title, 'artist': i.artist.name, 'album': i.album.title,
-                           'service': 'deezer', 'id': count})
-            count += 1
+                           'service': 'deezer', 'id': ids})
+            ids += 1
         return tracks
 
     def albums(self):
@@ -404,8 +407,8 @@ class Deezer:
             count += 1
         return artists
 
-    def get_music(self):
-        return self.tracks(), self.albums(), self.artists()
+    def get_music(self,):
+        return self.tracks(0), self.albums(), self.artists(), self.ids
 
     def search_tracks_ids(self, tracks, user_id):
         items = []

@@ -1,4 +1,4 @@
-import db
+import db_orm as db
 import config
 from datetime import datetime
 from yookassa import Configuration

@@ -6,8 +6,7 @@ import requests
 from authlib.client import OAuth2Session
 import google.oauth2.credentials
 import googleapiclient.discovery
-
-import db
+import db_orm as db
 
 
 class VkAuth:

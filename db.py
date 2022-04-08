@@ -1,3 +1,5 @@
+import time
+
 import pymysql
 import json
 from datetime import datetime, timedelta
@@ -148,6 +150,24 @@ def get_token(user_id, service):
                 return None
 
 
+def save_music1(user_id, tracks=None):
+    con = create_con()
+    cursor = con.cursor(pymysql.cursors.DictCursor)
+
+    query = f""" UPDATE spotifier
+                                    SET tracks = %s
+                                    WHERE user_id = %s """
+    try:
+        data = (json.dumps(tracks), user_id)
+        cursor.execute(query, data)
+    except Exception as err:
+        print(err)
+
+    cursor.close()
+    con.commit()
+    con.close()
+
+
 def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
     con = create_con()
     cursor = con.cursor(pymysql.cursors.DictCursor)
@@ -158,32 +178,14 @@ def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
     db_albums = [albums, 'albums']
     db_playlists = [playlists, 'playlists']
     db_artists = [artists, 'artists']
-    music = [db_artists, db_playlists, db_albums, db_tracks]
+    music = [db_tracks] #db_artists, db_playlists, db_albums]
     for i in rows:
         if i['user_id'] == user_id:
             if tracks:
                 if i['tracks'] is not None:
-                    music[3].append(json.loads(i['tracks']))
-                if i['tracks'] is None:
-                    music[3].append([None])
-
-            if albums:
-                if i['albums'] is not None:
-                    music[2].append(json.loads(i['tracks']))
-                if i['albums'] is None:
-                    music[2].append([None])
-
-            if playlists:
-                if i['playlists'] is not None:
-                    music[1].append(json.loads(i['tracks']))
-                if i['playlists'] is None:
-                    music[1].append([None])
-
-            if artists:
-                if i['artists'] is not None:
-                    music[0].append(json.loads(i['tracks']))
-                if i['artists'] is None:
-                    music[0].append([None])
+                    for b in json.loads(i['tracks']):
+                        music[0][0].append(b)
+                    # music[3].append(json.loads(i['tracks']))
             break
 
     for i in music:
@@ -199,6 +201,8 @@ def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
     cursor.close()
     con.commit()
     con.close()
+    time.sleep(0)
+    print(1)
 
 
 def get_user_info_dashboard(user_id, only_photo=False):

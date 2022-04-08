@@ -2,7 +2,7 @@ import os
 import uuid
 import config
 import auth
-import db
+import db_orm as db
 import kassa
 import services
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory, Response
@@ -166,12 +166,14 @@ def logout():
 @application.route('/dashboard')
 @login_required
 def dashboard():
+    session['ids'] = 0
+    db.delete_cache(current_user.get_id())
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
-    if db.get_user_by_id(current_user.get_id())['subscription'] == 0:
+    if db.get_user_by_id(current_user.get_id()).subscription == 0:
         return render_template('app.html', name=name, data_end='', avatar=avatar,
                                kassa=kassa.create_payment(current_user.get_id()), kassa_text=_('Оформить подписку'))
-    if db.get_user_by_id(current_user.get_id())['subscription'] == 1:
+    if db.get_user_by_id(current_user.get_id()).subscription == 1:
         return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
                                kassa='/disconnect_sub', kassa_text=_('Отключить подписку'))
     # добавить обработчик создания нового токена, во избежание устаревания токена
@@ -205,22 +207,26 @@ def send_audio():
 
     if service_name == 'vk':
         api_vk = services.Vk(service_token)
-        tracks, playlists, albums = api_vk.get_music(offset)
+        tracks, playlists, albums, ids = api_vk.get_music(offset, session['ids'])
+        session['ids'] = ids
 
     if service_name == 'spotify':
         api_spotify = services.Spotify(service_token)
-        tracks, playlists, artists, albums = api_spotify.get_music(offset)
+        tracks, playlists, artists, albums, ids = api_spotify.get_music(offset, session['ids'])
+        session['ids'] = ids
 
     if service_name == 'yandex':
         api_yandex = services.Yandex(token=service_token)
-        tracks, albums, artists, playlists = api_yandex.get_music()
+        tracks, albums, artists, playlists, ids = api_yandex.get_music(session['ids'])
+        session['ids'] = ids
 
     if service_name == 'deezer':
         api_deezer = services.Deezer(token=service_token)
-        tracks, albums, artists = api_deezer.get_music()
+        tracks, albums, artists, ids = api_deezer.get_music()
+        session['ids'] = ids
 
-    db.save_music(current_user.get_id(), tracks=tracks, albums=albums,
-                  playlists=playlists, artists=artists)
+    db.save_music(current_user.get_id(), tracks=tracks)
+    print(service_name, tracks)
 
     return json.dumps({'tracks': tracks,
                        'albums': albums,
@@ -374,7 +380,7 @@ def apple_pay():
 @application.route('/check_payment')
 @login_required
 def check_payment():
-    yookassa_id = db.get_yookassa_id(request.args.get('login'))['yookassa_id']
+    yookassa_id = db.get_yookassa_id(int(request.args.get('login')))
     info_payment = kassa.check(yookassa_id)
     if info_payment.paid is True and info_payment.payment_method.saved is True:
         db.user_payed(current_user.get_id(), info_payment.payment_method.id)
