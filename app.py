@@ -118,7 +118,8 @@ def spotify():
         if request.args.get('code'):
             try:
                 spot = auth.SpotAuth()
-                name, email, photo = spot.name(request.args.get('code'))
+                spot.get_token(request.args.get('code'), request.args.get('state'))
+                name, email, photo = spot.name(request.args.get('code'), request.args.get('state'))
                 auth_in(email, name, photo)
                 spot.save_token(request.args.get('code'), current_user.get_id())
                 return redirect('/dashboard')

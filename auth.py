@@ -1,4 +1,10 @@
+import base64
+import string
 import urllib.parse
+import random
+
+import six
+
 import config
 import vk_api
 import spotipy
@@ -69,21 +75,35 @@ class VkAuth:
 class SpotAuth:
     def __init__(self):
         self.spot = None
-        self.auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-modify-private '
-                                                              'playlist-modify-public ugc-image-upload '
-                                                              'user-library-read '
-                                                              'user-library-modify '
-                                                              'user-follow-modify '
-                                                              'user-follow-read '
-                                                              'playlist-read-private '
-                                                              'user-top-read '
-                                                              'user-read-email',
-                                                        show_dialog=True)
+        self.token = None
+        self.scopes = 'playlist-modify-private playlist-modify-public ugc-image-upload user-library-read ' \
+                      'user-library-modify user-follow-modify user-follow-read playlist-read-private ' \
+                      'user-top-read user-read-email'
 
     def create_link(self):
-        return self.auth_manager.get_authorize_url()
+        params = urllib.parse.urlencode({
+            'client_id': config.SPOTIFY_ID,
+            'scope': self.scopes,
+            'response_type': 'code',
+            'redirect_uri': config.SPOTIFY_REDIRECT,
+        })
+        return 'https://accounts.spotify.com/authorize?' + params
 
-    def name(self, code):
+    def get_token(self, code, state):
+        auth_header = base64.b64encode(
+            six.text_type(config.SPOTIFY_ID + ":" + config.SPOTIFY_SECRET).encode("ascii")
+        )
+        response = requests.post('https://accounts.spotify.com/api/token', params={
+            'code': code,
+            'redirect_uri': config.SPOTIFY_REDIRECT,
+            'grant_type': 'authorization_code'
+        }, headers={
+            "Authorization": "Basic %s" % auth_header.decode("ascii")
+        })
+
+        a = response.content
+
+    def name(self, code, state):
         self.auth_manager.get_access_token(code, as_dict=False)
         self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
         photo = None
