@@ -73,9 +73,10 @@ class VkAuth:
 
 
 class SpotAuth:
-    def __init__(self):
+    def __init__(self, token=None):
         self.spot = None
-        self.token = None
+        self.token = token
+        self.base_url = 'https://api.spotify.com/v1/'
         self.scopes = 'playlist-modify-private playlist-modify-public ugc-image-upload user-library-read ' \
                       'user-library-modify user-follow-modify user-follow-read playlist-read-private ' \
                       'user-top-read user-read-email'
@@ -89,11 +90,11 @@ class SpotAuth:
         })
         return 'https://accounts.spotify.com/authorize?' + params
 
-    def get_token(self, code, state):
+    def get_token(self, code):
         auth_header = base64.b64encode(
             six.text_type(config.SPOTIFY_ID + ":" + config.SPOTIFY_SECRET).encode("ascii")
         )
-        response = requests.post('https://accounts.spotify.com/api/token', params={
+        response = requests.post('https://accounts.spotify.com/api/token',{
             'code': code,
             'redirect_uri': config.SPOTIFY_REDIRECT,
             'grant_type': 'authorization_code'
@@ -101,22 +102,27 @@ class SpotAuth:
             "Authorization": "Basic %s" % auth_header.decode("ascii")
         })
 
-        a = response.content
+        self.token = response.json()['access_token']
 
-    def name(self, code, state):
-        self.auth_manager.get_access_token(code, as_dict=False)
-        self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
+    def _get(self, method, params=None):
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=self.token)
+        }
+
+        response = requests.get(self.base_url + method, params, headers=headers)
+        return response.json()
+
+    def get_name(self):
         photo = None
         try:
-            photo_url = self.spot.me()['images'][0]['url']
+            photo_url = self._get('me/')['images'][0]['url']
             photo = requests.get(photo_url).content
         except:
             photo_url = None
-        return self.spot.me()['display_name'], self.spot.me()['email'], photo
+        return self._get('me/')['display_name'], self._get('me/')['email'], photo
 
-    def save_token(self, code, user_id):
-        token = self.auth_manager.get_access_token(code, as_dict=False,  check_cache=False)
-        db.add_service(user_id, token, 'spotify')
+    def save_token(self, user_id):
+        db.add_service(user_id, self.token, 'spotify')
 
 
 class GoogleAuth:
