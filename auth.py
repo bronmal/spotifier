@@ -104,7 +104,7 @@ class SpotAuth:
 
         self.token = response.json()['access_token']
 
-    def _get(self, method, params=None):
+    def get(self, method, params=None):
         headers = {
             'Authorization': 'Bearer {token}'.format(token=self.token)
         }
@@ -115,11 +115,11 @@ class SpotAuth:
     def get_name(self):
         photo = None
         try:
-            photo_url = self._get('me/')['images'][0]['url']
+            photo_url = self.get('me/')['images'][0]['url']
             photo = requests.get(photo_url).content
         except:
             photo_url = None
-        return self._get('me/')['display_name'], self._get('me/')['email'], photo
+        return self.get('me/')['display_name'], self.get('me/')['email'], photo
 
     def save_token(self, user_id):
         db.add_service(user_id, self.token, 'spotify')

@@ -6,6 +6,7 @@ import yandex_music
 import deezer
 import config
 import db_orm as db
+from auth import SpotAuth
 
 count_tracks = 15
 
@@ -92,23 +93,12 @@ class Vk:
 class Spotify:
     def __init__(self, token):
         self.prefix = 'https://api.spotify.com/v1'
-        self.token = token
-        self.auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-modify-private '
-                                                              'playlist-modify-public ugc-image-upload '
-                                                              'user-library-read '
-                                                              'user-library-modify '
-                                                              'user-follow-modify '
-                                                              'user-follow-read '
-                                                              'playlist-read-private '
-                                                              'user-top-read '
-                                                              'user-read-email',
-                                                        show_dialog=True)
-        self.spot = spotipy.Spotify(auth_manager=self.auth_manager)
+        self.spot = SpotAuth(token)
         self.ids = 0
 
     def tracks(self, offset, ids):
         tracks = []
-        result = self.spot.current_user_saved_tracks(limit=count_tracks, offset=offset)
+        result = self.spot.get('me/tracks', {'limit': count_tracks, 'offset': offset})
         for item in result['items']:
             track = item['track']
             tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
@@ -120,7 +110,7 @@ class Spotify:
 
     def playlists(self, offset, ids):
         playlists = []
-        result = self.spot.current_user_playlists(limit=count_tracks, offset=offset)
+        result = self.spot.get('me/playlists', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
             playlists.append({'title': item['name'], 'id': ids, 'photo': item['images'][0]['url'],
                               'service': 'spotify'})
@@ -130,7 +120,7 @@ class Spotify:
     def artists(self, offset, ids):
         artists = []
         for sp_range in ['short_term', 'medium_term', 'long_term']:
-            result = self.spot.current_user_top_artists(time_range=sp_range, limit=count_tracks, offset=offset)
+            result = self.spot.get('me/top/artists', {'limit': count_tracks, 'offset': offset})
             for i, item in enumerate(result['items']):
                 artists.append({'title': item['name'], 'id': ids, 'photo': item['images'][0]['url'],
                                 'service': 'spotify'})
@@ -139,7 +129,7 @@ class Spotify:
 
     def albums(self, offset, ids):
         albums = []
-        result = self.spot.current_user_saved_albums(limit=count_tracks, offset=offset)
+        result = self.spot.get('me/albums', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
             albums.append({'title': item['album']['name'], 'id': ids, 'photo': item['album']['images'][0]['url'],
                            'service': 'spotify'})
