@@ -1,13 +1,8 @@
 import base64
-import string
 import urllib.parse
-import random
-
 import six
-
 import config
 import vk_api
-import spotipy
 import requests
 from authlib.client import OAuth2Session
 import google.oauth2.credentials

@@ -1,7 +1,6 @@
 import urllib.parse
 import requests
 import vk_api
-import spotipy
 import yandex_music
 import deezer
 import config
@@ -144,7 +143,7 @@ class Spotify:
         items = []
         tracks_db = db.get_audio(tracks, 'tracks', user_id)
         for i in tracks_db:
-            result = self.spot.search(i, type='track', limit=1)
+            result = self.spot.get('search', {'q': i, 'type': 'track', 'limit': 1})
             try:
                 items.append(result['tracks']['items'][0]['id'])
             except:
@@ -156,17 +155,17 @@ class Spotify:
         if sub:
             for i in range(0, len(tracks_ids), 50):
                 chunk = tracks_ids[i:i + 50]
-                self.spot.current_user_saved_tracks_add(chunk)
+                self.spot.put("me/tracks/?ids=" + ",".join(chunk))
         if not sub:
             chunk = tracks_ids[0:config.LIMIT]
-            self.spot.current_user_saved_tracks_add(chunk)
+            self.spot.put("me/tracks/?ids=" + ",".join(chunk))
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
     def search_albums_ids(self, albums, user_id):
         items = []
         albums_db = db.get_audio(albums, 'albums', user_id)
         for i in albums_db:
-            result = self.spot.search(i, type='album', limit=1)
+            result = self.spot.get('search', {'q': i, 'type': 'album', 'limit': 1})
             try:
                 items.append(result['albums']['items'][0]['id'])
             except:
@@ -177,13 +176,13 @@ class Spotify:
         albums_ids = self.search_albums_ids(albums, user_id)
         for i in range(0, len(albums_ids), 50):
             chunk = albums_ids[i:i + 50]
-            self.spot.current_user_saved_albums_add(chunk)
+            self.spot.put("me/albums?ids=" + ",".join(chunk))
 
     def search_playlists_ids(self, playlists, user_id):
         items = []
         albums_db = db.get_audio(playlists, 'playlists', user_id)
         for i in albums_db:
-            result = self.spot.search(i, type='playlist', limit=1)
+            result = self.spot.get('search', {'q': i, 'type': 'playlist', 'limit': 1})
             try:
                 items.append(result['playlist']['items'][0]['id'])
             except:
@@ -194,13 +193,13 @@ class Spotify:
         playlists_ids = self.search_albums_ids(playlists, user_id)
         for i in range(0, len(playlists_ids), 50):
             chunk = playlists_ids[i:i + 50]
-            self.spot.current_user_playlists(chunk)
+            self.spot.put("me/tracks/?ids=" + ",".join(chunk))
 
     def search_artists_ids(self, artists, user_id):
         items = []
         albums_db = db.get_audio(artists, 'artists', user_id)
         for i in albums_db:
-            result = self.spot.search(i, type='artist', limit=1)
+            result = self.spot.get('search', {'q': i, 'type': 'artist', 'limit': 1})
             try:
                 items.append(result['artists']['items'][0]['id'])
             except:
@@ -211,7 +210,7 @@ class Spotify:
         artists_ids = self.search_artists_ids(artists, user_id)
         for i in range(0, len(artists_ids), 50):
             chunk = artists_ids[i:i + 50]
-            self.spot.user_follow_artists(chunk)
+            self.spot.put("me/following?type=artist&ids=" + ",".join(chunk))
 
 
 class Yandex:

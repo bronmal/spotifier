@@ -33,6 +33,7 @@ class User(DeclarativeBase):
     payment_id = sqlalchemy.Column('payment_id', sqlalchemy.TEXT, nullable=True)
     date_end = sqlalchemy.Column('date_end', sqlalchemy.VARCHAR(6), nullable=False)
     connected_services = sqlalchemy.Column('connected_services', sqlalchemy.TEXT)
+    refresh_tokens = sqlalchemy.Column('refresh_tokens', sqlalchemy.JSON, nullable=True)
 
 
 DeclarativeBase.metadata.create_all(engine)
@@ -110,6 +111,16 @@ def add_service(user_id, token, service):
                 connected_services.update({service: token})
                 i.connected_services = json.dumps(connected_services)
 
+            session.commit()
+            session.close()
+            break
+
+
+def save_refresh_token(user_id, refresh_token):
+    session = create_session()
+    for i in session.query(User):
+        if i.user_id == user_id:
+            i.refresh_tokens = refresh_token
             session.commit()
             session.close()
             break
