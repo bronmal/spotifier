@@ -1,8 +1,10 @@
+import hashlib
 import urllib.parse
 import requests
 import vk_api
 import yandex_music
 import deezer
+import pylast
 import config
 import db_orm as db
 from auth import SpotAuth
@@ -29,7 +31,10 @@ class Vk:
         tracks = []
         playlists = []
         albums = []
-        music_tracks = self.tracks(offset)['items']
+        try:
+            music_tracks = self.tracks(offset)['items']
+        except:
+            music_tracks = None
         if music_tracks:
             for i in music_tracks:
                 try:
@@ -484,4 +489,33 @@ class Deezer:
                     count += 1
                 except: pass
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
+
+class LastFm:
+    def __init__(self, token=None):
+        self.network = pylast.LastFMNetwork(token=token, api_secret=config.LASTFM_SECRET, api_key=config.LASTFM_KEY)
+        self.api = pylast.User('test', self.network)
+        self.ids = 0
+
+    @staticmethod
+    def create_url():
+        params = urllib.parse.urlencode({'api_key': config.LASTFM_KEY,
+                                         'cb': config.LASTFM_REDIRECT})
+        return 'http://www.last.fm/api/auth/' + '?' + params
+
+    @staticmethod
+    def save_token(token, user_id):
+        pass
+
+    def get_music(self, ids):
+        return self.tracks(ids)
+
+    def tracks(self, ids):
+        tracks = []
+        items = self.api.get_loved_tracks()
+        for i in items:
+            tracks.append({'title': i.title, 'artist': i.artist.name, 'album': i.album.title,
+                           'service': 'deezer', 'id': ids})
+            ids += 1
+        return tracks
 

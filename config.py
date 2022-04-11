@@ -24,6 +24,10 @@ DEEZER_ID = 527262
 DEEZER_SECRET_KEY = '9d0efed71f127a12e58b9e057d9cb2f3'
 DEEZER_REDIRECT = f'{URL}/add_deezer'
 
+LASTFM_KEY = '6cddd7f7f30775e9c8970f39504f41b3'
+LASTFM_SECRET = '811ebd41610df4fc80edf9bc7d6982a5'
+LASTFM_REDIRECT = f'{URL}/add_lastfm'
+
 
 class Config(object):
     LANGUAGES = ['ru', 'en', 'es', 'fr', 'de']

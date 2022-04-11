@@ -172,13 +172,16 @@ def dashboard():
     db.delete_cache(current_user.get_id())
     name, date_end, subscription, services_connected, avatar = db.get_user_info_dashboard(
         current_user.get_id())
+    url_spotify = auth.SpotAuth().create_link()
+    url_deezer = services.Deezer.create_url()
     if db.get_user_by_id(current_user.get_id()).subscription == 0:
         return render_template('app.html', name=name, data_end='', avatar=avatar,
-                               kassa=kassa.create_payment(current_user.get_id()), kassa_text=_('Оформить подписку'))
+                               kassa=kassa.create_payment(current_user.get_id()), kassa_text=_('Оформить подписку'),
+                               url_deezer=url_deezer, url_spotify=url_spotify)
     if db.get_user_by_id(current_user.get_id()).subscription == 1:
         return render_template('app.html', name=name, data_end=date_end, avatar=avatar,
-                               kassa='/disconnect_sub', kassa_text=_('Отключить подписку'))
-    # добавить обработчик создания нового токена, во избежание устаревания токена
+                               kassa='/disconnect_sub', kassa_text=_('Отключить подписку'),
+                               url_deezer=url_deezer, url_spotify=url_spotify)
 
 
 @application.route('/get_services', methods=['GET'])
@@ -188,7 +191,9 @@ def get_services():
     services_name = []
     for i in services_with_token:
         services_name.append(i)
-    return json.dumps(services_name)
+    if services_name:
+        return json.dumps(services_name)
+    return json.dumps({'error': 'Нету подключенных сервисов'})
 
 
 @application.route('/delete_service', methods=['GET'])
@@ -227,8 +232,12 @@ def send_audio():
         tracks, albums, artists, ids = api_deezer.get_music()
         session['ids'] = ids
 
+    if service_name == 'lastfm':
+        api_lastfm = services.LastFm(token=service_token)
+        tracks, albums, artists, ids = api_lastfm.get_music(session['ids'])
+        session['ids'] = ids
+
     db.save_music(current_user.get_id(), tracks=tracks)
-    print(service_name, tracks)
 
     return json.dumps({'tracks': tracks,
                        'albums': albums,
@@ -257,7 +266,6 @@ def get_audio():
                     api.transfer_tracks(tracks, current_user.get_id())
                     api.transfer_albums(albums, current_user.get_id())
                     api.transfer_artists(artists, current_user.get_id())
-                    # api.transfer_playlists(playlists, 27)
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
@@ -282,7 +290,6 @@ def get_audio():
                     api.transfer_tracks(tracks, current_user.get_id())
                     api.transfer_albums(albums, current_user.get_id())
                     api.transfer_artists(artists, current_user.get_id())
-                    # api.transfer_playlists(playlists, 32)
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
@@ -366,6 +373,13 @@ def add_yandex():
 def add_deezer():
     if request.method == 'POST':
         services.Deezer.save_token(request.args.get('code'), current_user.get_id())
+        return redirect('/dashboard')
+
+
+@application.route('/add_lastfm', methods=['GET', 'POST'])
+@login_required
+def add_lastfm():
+        services.LastFm.save_token(request.args.get('token'), current_user.get_id())
         return redirect('/dashboard')
 
 
