@@ -100,49 +100,49 @@ class Spotify:
         self.spot = SpotAuth(token)
         self.ids = 0
 
-    def tracks(self, offset, ids):
+    def tracks(self, offset):
         tracks = []
         result = self.spot.get('me/tracks', {'limit': count_tracks, 'offset': offset})
         for item in result['items']:
             track = item['track']
             tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
                            'album': track['album']['name'], 'photo': track['album']['images'][0]['url'],
-                           'service': 'spotify', 'id': ids})
-            ids += 1
-        self.ids = ids
+                           'service': 'spotify', 'id': self.ids})
+            self.ids += 1
         return tracks
 
-    def playlists(self, offset, ids):
+    def playlists(self, offset):
         playlists = []
         result = self.spot.get('me/playlists', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            playlists.append({'title': item['name'], 'id': ids, 'photo': item['images'][0]['url'],
+            playlists.append({'title': item['name'], 'id': self.ids, 'photo': item['images'][0]['url'],
                               'service': 'spotify'})
-            ids += 1
+            self.ids += 1
         return playlists
 
-    def artists(self, offset, ids):
+    def artists(self, offset):
         artists = []
         for sp_range in ['short_term', 'medium_term', 'long_term']:
             result = self.spot.get('me/top/artists', {'limit': count_tracks, 'offset': offset})
             for i, item in enumerate(result['items']):
-                artists.append({'title': item['name'], 'id': ids, 'photo': item['images'][0]['url'],
+                artists.append({'title': item['name'], 'id': self.ids, 'photo': item['images'][0]['url'],
                                 'service': 'spotify'})
-                ids += 1
+                self.ids += 1
             return artists
 
-    def albums(self, offset, ids):
+    def albums(self, offset):
         albums = []
         result = self.spot.get('me/albums', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            albums.append({'title': item['album']['name'], 'id': ids, 'photo': item['album']['images'][0]['url'],
+            albums.append({'title': item['album']['name'], 'id': self.ids, 'photo': item['album']['images'][0]['url'],
                            'service': 'spotify'})
-            ids += 1
+            self.ids += 1
         return albums
 
     def get_music(self, offset, ids):
-        return self.tracks(offset, ids), self.playlists(offset, ids),\
-               self.artists(offset, ids), self.albums(offset, ids), self.ids
+        self.ids = ids
+        return self.tracks(offset), self.playlists(offset),\
+               self.artists(offset), self.albums(offset), self.ids
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
