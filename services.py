@@ -1,6 +1,8 @@
+import base64
 import hashlib
 import urllib.parse
 import requests
+import six
 import vk_api
 import yandex_music
 import deezer
@@ -491,31 +493,84 @@ class Deezer:
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
 
 
-class LastFm:
-    def __init__(self, token=None):
-        self.network = pylast.LastFMNetwork(token=token, api_secret=config.LASTFM_SECRET, api_key=config.LASTFM_KEY)
-        self.api = pylast.User('test', self.network)
+class Napster:
+    def __init__(self, token=None, user_id=None):
+        self.api = None
+        self.token = token
+        self.user_id = user_id
         self.ids = 0
+        try:
+            self.refresh_token = db.get_refr_token(user_id, 'napster')
+        except:
+            self.refresh_token = None
+        self.base_url = 'https://api.napster.com/v2.2/'
 
     @staticmethod
     def create_url():
-        params = urllib.parse.urlencode({'api_key': config.LASTFM_KEY,
-                                         'cb': config.LASTFM_REDIRECT})
-        return 'http://www.last.fm/api/auth/' + '?' + params
+        params = urllib.parse.urlencode({'client_id': config.NAPSTER_KEY,
+                                         'redirect_uri': config.NAPSTER_REDIRECT,
+                                         'response_type': 'code'})
+        return 'https://api.napster.com/oauth/authorize' + '?' + params
 
-    @staticmethod
-    def save_token(token, user_id):
-        pass
+    def get_token(self, code, user_id):
+        response = requests.post('https://api.napster.com/oauth/access_token', {
+            'client_id': config.NAPSTER_KEY,
+            'client_secret': config.NAPSTER_SECRET,
+            'response_type': 'code',
+            'grant_type': 'authorization_code',
+            'redirect_uri': config.NAPSTER_REDIRECT,
+            'code': code
+        }).json()
 
-    def get_music(self, ids):
-        return self.tracks(ids)
+        self.token = response['access_token']
+        self.refresh_token = response['refresh_token']
 
-    def tracks(self, ids):
+    def refresh_token(self):
+        response = requests.post('https://api.napster.com/oauth/access_token', {
+            'refresh_token': self.refresh_token,
+            'grant_type': 'refresh_token',
+            'client_id': config.NAPSTER_KEY,
+            'client_secret': config.NAPSTER_SECRET
+        })
+        self.token = response.json()['access_token']
+        self.refresh_token = response.json()['refresh_token']
+        self.save_token()
+
+    def get(self, method, params=None):
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=self.token)
+        }
+
+        response = requests.get(self.base_url + method, params, headers=headers)
+        if response.status_code == 401:
+            if response.json()['error']['message'] == 'The access token expired':
+                self.refresh_token()
+        return response.json()
+
+    def get_music(self, offset, ids):
+        self.ids = ids
         tracks = []
-        items = self.api.get_loved_tracks()
-        for i in items:
-            tracks.append({'title': i.title, 'artist': i.artist.name, 'album': i.album.title,
-                           'service': 'deezer', 'id': ids})
-            ids += 1
-        return tracks
+        albums = []
+        playlists = []
+        artists = []
+        items = self.get('me/favorites', {'offset': offset, 'limit': 15})
+        for i in items['favorites']['data']['tracks']:
+            tracks.append({'title': i['name'], 'artist': i['artistName'], 'album': i['albumName'],
+                           'service': 'napster', 'id': self.ids})
+            self.ids += 1
+        items = self.get('me/library/artists', {'offset': offset, 'limit': 15})
+        for i in items['artists']:
+            artists.append({'title': i['name'], 'id': self.ids, 'photo': None, 'service': 'napster'})
+            self.ids += 1
+
+        items = self.get('me/library/albums', {'offset': offset, 'limit': 15})
+        for i in items['albums']:
+            albums.append({'title': i['name'], 'id': self.ids, 'photo': None,
+                           'service': 'napster'})
+            self.ids += 1
+        return tracks, albums, artists, self.ids
+
+    def save_token(self):
+        db.add_service(self.user_id, self.token, 'napster')
+        db.save_refresh_token(self.user_id, self.refresh_token(), 'napster')
 

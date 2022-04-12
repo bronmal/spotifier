@@ -232,9 +232,9 @@ def send_audio():
         tracks, albums, artists, ids = api_deezer.get_music()
         session['ids'] = ids
 
-    if service_name == 'lastfm':
-        api_lastfm = services.LastFm(token=service_token)
-        tracks, albums, artists, ids = api_lastfm.get_music(session['ids'])
+    if service_name == 'napster':
+        api_napster = services.Napster(token=service_token, user_id=current_user.get_id())
+        tracks, albums, artists, ids = api_napster.get_music(offset=offset, ids=session['ids'])
         session['ids'] = ids
 
     db.save_music(current_user.get_id(), tracks=tracks)
@@ -257,7 +257,8 @@ def get_audio():
         vk_token = db.get_token(current_user.get_id(), 'vk')
         spotify_token = db.get_token(current_user.get_id(), 'spotify')
         yandex_token = db.get_token(current_user.get_id(), 'yandex')
-        deezer_token = db.get_token(32, 'deezer')
+        napster_token = db.get_token(current_user.get_id(), 'napster')
+        deezer_token = db.get_token(current_user.get_id(), 'deezer')
 
         if to_service == 'spotify':
             if spotify_token:
@@ -299,6 +300,19 @@ def get_audio():
         if to_service == 'deezer':
             if deezer_token:
                 api = services.Deezer(token=deezer_token)
+                if db.check_sub(32):
+                    api.transfer_tracks(tracks, current_user.get_id())
+                    api.transfer_albums(albums, current_user.get_id())
+                    api.transfer_artists(artists, 32)
+                if not db.check_sub(32) and db.check_free_transfer(32) > 0:
+                    api.transfer_tracks(tracks, 32, False)
+                return json.dumps({'success': True})
+            else:
+                return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Deezer')})
+
+        if to_service == 'napster':
+            if napster_token:
+                api = services.Napster(token=napster_token)
                 if db.check_sub(32):
                     api.transfer_tracks(tracks, current_user.get_id())
                     api.transfer_albums(albums, current_user.get_id())
@@ -376,11 +390,12 @@ def add_deezer():
         return redirect('/dashboard')
 
 
-@application.route('/add_lastfm', methods=['GET', 'POST'])
+@application.route('/add_napster', methods=['GET', 'POST'])
 @login_required
-def add_lastfm():
-        services.LastFm.save_token(request.args.get('token'), current_user.get_id())
-        return redirect('/dashboard')
+def add_napster():
+    napster = services.Napster(user_id=current_user.get_id())
+    napster.get_token(request.args.get('code'), current_user.get_id())
+    return redirect('/dashboard')
 
 
 @application.errorhandler(401)

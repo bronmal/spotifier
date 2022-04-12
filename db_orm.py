@@ -33,7 +33,7 @@ class User(DeclarativeBase):
     payment_id = sqlalchemy.Column('payment_id', sqlalchemy.TEXT, nullable=True)
     date_end = sqlalchemy.Column('date_end', sqlalchemy.VARCHAR(6), nullable=False)
     connected_services = sqlalchemy.Column('connected_services', sqlalchemy.TEXT)
-    refresh_tokens = sqlalchemy.Column('refresh_tokens', sqlalchemy.JSON, nullable=True)
+    refresh_tokens = sqlalchemy.Column('refresh_tokens', sqlalchemy.TEXT, nullable=True)
 
 
 DeclarativeBase.metadata.create_all(engine)
@@ -116,14 +116,32 @@ def add_service(user_id, token, service):
             break
 
 
-def save_refresh_token(user_id, refresh_token):
+def save_refresh_token(user_id, refresh_token, service):
     session = create_session()
+    connected_services = None
+
     for i in session.query(User):
         if i.user_id == user_id:
-            i.refresh_tokens = refresh_token
+            if i.refresh_tokens is not None:
+                connected_services = json.loads(i.refresh_tokens)
+
+            if connected_services is None:
+                i.refresh_tokens = json.dumps({service: refresh_token})
+            if connected_services is not None:
+                connected_services.update({service: refresh_token})
+                i.refresh_tokens = json.dumps(connected_services)
+
             session.commit()
             session.close()
             break
+
+
+def get_refr_token(user_id, service):
+    session = create_session()
+
+    for i in session.query(User):
+        if i.user_id == user_id:
+            return json.loads(i.refresh_tokens)[service]
 
 
 def remove_service(id, service):

@@ -91,7 +91,7 @@ class SpotAuth:
         auth_header = base64.b64encode(
             six.text_type(config.SPOTIFY_ID + ":" + config.SPOTIFY_SECRET).encode("ascii")
         )
-        response = requests.post('https://accounts.spotify.com/api/token',{
+        response = requests.post('https://accounts.spotify.com/api/token', {
             'code': code,
             'redirect_uri': config.SPOTIFY_REDIRECT,
             'grant_type': 'authorization_code'
@@ -145,7 +145,7 @@ class SpotAuth:
 
     def save_token(self, user_id):
         db.add_service(user_id, self.token, 'spotify')
-        db.save_refresh_token(user_id, self.refr_token)
+        db.save_refresh_token(user_id, self.refr_token, 'spotify')
 
 
 class GoogleAuth:

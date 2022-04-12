@@ -28,6 +28,11 @@ LASTFM_KEY = '6cddd7f7f30775e9c8970f39504f41b3'
 LASTFM_SECRET = '811ebd41610df4fc80edf9bc7d6982a5'
 LASTFM_REDIRECT = f'{URL}/add_lastfm'
 
+NAPSTER_KEY = 'NjhiMjRlNmUtOTljZi00ZTE2LWFmZWUtZDZjZTYxMGJhZmE2'
+NAPSTER_SECRET = 'NDViYzY0M2EtMGM1My00YWQ2LTkwZTItYTlhZGIzMGQwYmZh'
+NAPSTER_ID = 'f8caf26b-587a-400b-961d-17586e4a6a2f'
+NAPSTER_REDIRECT = f'{URL}/add_napster'
+
 
 class Config(object):
     LANGUAGES = ['ru', 'en', 'es', 'fr', 'de']
