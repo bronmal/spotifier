@@ -1,12 +1,9 @@
-import base64
-import hashlib
+import json
 import urllib.parse
 import requests
-import six
 import vk_api
 import yandex_music
 import deezer
-import pylast
 import config
 import db_orm as db
 from auth import SpotAuth
@@ -79,7 +76,7 @@ class Vk:
             items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
         return items
 
-    def transfer_tracks(self, tracks, user_id, sub=True):
+    def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in tracks_ids:
@@ -157,7 +154,7 @@ class Spotify:
                 pass  # TODO отправлять неперенесенные треки
         return items
 
-    def transfer_tracks(self, tracks, user_id, sub=True):
+    def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in range(0, len(tracks_ids), 50):
@@ -283,7 +280,7 @@ class Yandex:
             items.append(result.tracks.results[0].track_id)
         return items
 
-    def transfer_tracks(self, tracks, user_id, sub=True):
+    def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in range(0, len(tracks_ids), 20):
@@ -302,7 +299,7 @@ class Yandex:
             items.append(result.albums.results[0].id)
         return items
 
-    def transfer_albums(self, albums, user_id, sub=True):
+    def transfer_albums(self, albums, user_id, sub=config.TESTING):
         albums_ids = self.search_albums_ids(albums, user_id)
         if sub:
             for i in range(0, len(albums_ids), 20):
@@ -321,7 +318,7 @@ class Yandex:
             items.append(result.artists.results[0].id)
         return items
 
-    def transfer_artists(self, artists, user_id, sub=True):
+    def transfer_artists(self, artists, user_id, sub=config.TESTING):
         artists_ids = self.search_artists_ids(artists, user_id)
         if sub:
             for i in range(0, len(artists_ids), 20):
@@ -340,7 +337,7 @@ class Yandex:
             items.append(result.playlists.results[0].id)
         return items
 
-    def transfer_playlists(self, playlists, user_id, sub=True):
+    def transfer_playlists(self, playlists, user_id, sub=config.TESTING):
         playlists_ids = self.search_playlists_ids(playlists, user_id)
         if sub:
             for i in range(0, len(playlists_ids), 20):
@@ -416,7 +413,7 @@ class Deezer:
                 break
         return items
 
-    def transfer_tracks(self, tracks, user_id, sub=True):
+    def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in tracks_ids:
@@ -445,7 +442,7 @@ class Deezer:
                 break
         return items
 
-    def transfer_albums(self, albums, user_id, sub=True):
+    def transfer_albums(self, albums, user_id, sub=config.TESTING):
         albums_ids = self.search_albums_ids(albums, user_id)
         if sub:
             for i in albums_ids:
@@ -474,7 +471,7 @@ class Deezer:
                 break
         return items
 
-    def transfer_artists(self, artists, user_id, sub=True):
+    def transfer_artists(self, artists, user_id, sub=config.TESTING):
         artists_ids = self.search_artists_ids(artists, user_id)
         if sub:
             for i in artists_ids:
@@ -547,6 +544,15 @@ class Napster:
                 self.refresh_token()
         return response.json()
 
+    def post(self, method, params=None, send_json=None):
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=self.token),
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(self.base_url + method, params=params, json=send_json, headers=headers)
+        a = 9872634
+
     def get_music(self, offset, ids):
         self.ids = ids
         tracks = []
@@ -569,6 +575,35 @@ class Napster:
                            'service': 'napster'})
             self.ids += 1
         return tracks, albums, artists, self.ids
+
+    def search_tracks_ids(self, tracks, user_id):
+        items = []
+        tracks_db = db.get_audio(tracks, 'tracks', user_id)
+        for i in tracks_db:
+            result = self.get('search', {'query': i, 'type': 'track'})
+            for i in result['search']['data']['tracks']:
+                items.append(i['id'])
+                break
+        return items
+
+    def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
+        tracks_ids = self.search_tracks_ids(tracks, user_id)
+        if sub:
+            for i in tracks_ids:
+                try:
+                    self.post('me/favorites', send_json={'favorites': [{'id': i}]})
+                except:
+                    pass
+        if not sub:
+            chunk = tracks_ids[0:config.LIMIT]
+            count = 0
+            for i in chunk:
+                try:
+                    self.post('me/favorites', {'favorites': [{'id': i}]})
+                    count += 1
+                except:
+                    pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
 
     def save_token(self):
         db.add_service(self.user_id, self.token, 'napster')

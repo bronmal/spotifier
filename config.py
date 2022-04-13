@@ -1,5 +1,6 @@
 URL = 'http://127.0.0.1:5000'
 LIMIT = 9
+TESTING = True
 
 DB_LOGIN = 'mysql'
 DB_PASS = '1q2w3e4r5'

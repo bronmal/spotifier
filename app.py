@@ -257,7 +257,7 @@ def get_audio():
         vk_token = db.get_token(current_user.get_id(), 'vk')
         spotify_token = db.get_token(current_user.get_id(), 'spotify')
         yandex_token = db.get_token(current_user.get_id(), 'yandex')
-        napster_token = db.get_token(current_user.get_id(), 'napster')
+        napster_token = db.get_token(1, 'napster')
         deezer_token = db.get_token(current_user.get_id(), 'deezer')
 
         if to_service == 'spotify':
@@ -300,12 +300,12 @@ def get_audio():
         if to_service == 'deezer':
             if deezer_token:
                 api = services.Deezer(token=deezer_token)
-                if db.check_sub(32):
+                if db.check_sub(current_user.get_id()):
                     api.transfer_tracks(tracks, current_user.get_id())
                     api.transfer_albums(albums, current_user.get_id())
-                    api.transfer_artists(artists, 32)
-                if not db.check_sub(32) and db.check_free_transfer(32) > 0:
-                    api.transfer_tracks(tracks, 32, False)
+                    api.transfer_artists(artists, current_user.get_id())
+                if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
+                    api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Deezer')})
@@ -313,12 +313,12 @@ def get_audio():
         if to_service == 'napster':
             if napster_token:
                 api = services.Napster(token=napster_token)
-                if db.check_sub(32):
+                if db.check_sub(current_user.get_id()):
                     api.transfer_tracks(tracks, current_user.get_id())
-                    api.transfer_albums(albums, current_user.get_id())
-                    api.transfer_artists(artists, 32)
-                if not db.check_sub(32) and db.check_free_transfer(32) > 0:
-                    api.transfer_tracks(tracks, 32, False)
+                    # api.transfer_albums(albums, current_user.get_id())
+                    # api.transfer_artists(artists, 32)
+                if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
+                    api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
             else:
                 return json.dumps({'success': False, 'error': _('Ошибка: добавьте сервис Deezer')})
