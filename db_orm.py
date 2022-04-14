@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import select
 
-connect_string = 'mysql+mysqldb://{}:{}@{}:{}/{}?charset=utf8mb4'.format(
+connect_string = 'mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4'.format(
     config.DB_LOGIN, config.DB_PASS, 'localhost', 3306, config.DB_DATABASE)
 
 engine = create_engine(connect_string)#convert_unicode=True, echo=True, future=True)
