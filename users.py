@@ -16,6 +16,13 @@ class User(UserMixin):
     def get_id(self):
         return self.user.user_id
 
+    def is_authenticated(self):
+        try:
+            self.get_id()
+            return True
+        except:
+            return False
+
     @classmethod
     def get(cls, id):
         try:

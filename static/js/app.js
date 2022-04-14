@@ -1,52 +1,112 @@
 const mutableElements = [document.querySelector('.app.chosen.option'), document.querySelector('.app.chosen.add'), document.querySelector('.app.chosen.transfer')]
 const localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), artists: _('артисты'), albums: _("альбомы") }
 
-data = {
-    "tracks": [],
-    "artists": [],
-    "albums": [],
-    "playlists": [],
-    "to_service": ''
-}
+//TODO:
+//Переделать дельты для разнвх типов обьектов например для картинок и остального
+//Выбрать нормальный крестик
+//Добавить анимацию при переносе
+//Попробовать сделать анимацию на переход треков в Подключенных сервисах(необязательно)
 
+class ObjectArray {
+    constructor(dataType, lType) {
+        this._dataType = dataType;
+        this._localType = lType;
+        this._value = []
+    }
+    set value(value) {
+        this._value = value;
+    }
+    get value() {
+        return this._value;
+    }
+    push(value) {
+        if (typeof value === 'object') {
+            this._value.push(...value)
+            if (currentOption === this._localType) {
+                let mainContainer = document.querySelector('.app.main-container')
+                for (let v of value) {
+                    add(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist)
+                    updateCountVars();
+                    mainContainer.style.height = this._value.length * 50 + 208 * deltaH + "px"
+                    document.body.style.height = this._value.length * 50 + 208 * deltaH + "px"
+                }
+            }
+            return;
+        }
+        this._value.push(value)
+    }
+}
 currentOption = "{chosen}"
 
+let data = {
+    _tracks: new ObjectArray("tracks", localizedVars.tracks),
+    _artists: new ObjectArray("artists", localizedVars.artists),
+    _albums: new ObjectArray("albums", localizedVars.albums),
+    _playlists: new ObjectArray("playlists", localizedVars.playlists),
+    set tracks(value) {
+        this._tracks = value;
+    },
+    get tracks() {
+        return this._tracks;
+    },
+    set artists(value) {
+        this._artists = value;
+    },
+    get artists() {
+        return this._artists;
+    },
+    set albums(value) {
+        this._albums = value;
+    },
+    get albums() {
+        return this._albums;
+    },
+    set playlists(value) {
+        this._playlists = value;
+    },
+    get playlists() {
+        return this._playlists;
+    },
+}
+
+
+
+
 function appOnLoad() {
+    parseData('/get_services').then(async(response) => {
+        displayData('tracks', localizedVars.tracks);
+        for (let service of JSON.parse(response).sort()) {
+            await recursiveGetSongs(service, 0, "tracks")
+        }
+
+    })
     bindEvents();
     changeDelta();
     getServices();
-    displayData('tracks', localizedVars.tracks);
 }
 
 async function bindEvents() {
-    const songList = document.querySelector('.app.main-container')
-    const config = { childList: true }
-    const observer = new MutationObserver((mutationsList, observer) => {
-        for (const mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-                let count = document.querySelector(`.app.chosen.option`).innerHTML
-                let length = songList.childElementCount - 5;
-                document.querySelector(`.app.chosen.option`).innerHTML = count.substring(0, count.indexOf(':') + 2) + String(length)
-                let height = 208 + length * 50;
-
-                document.body.style.height = `calc(${height}px*var(--deltaH))`;
-                songList.style.height = `calc(${height}px*var(--deltaH))`;
-            }
-        }
-    })
-    observer.observe(songList, config);
-
-
-
     document.querySelector('.app.added-services.right-arrow-btn').addEventListener('click', () => { next('right') });
     document.querySelector('.app.added-services.left-arrow-btn').addEventListener('click', () => { next('left') });
-    document.querySelector('.app.personal-info.logout').addEventListener('click', () => { logout() });
+    document.querySelector('.app.personal-info.logout').addEventListener('click', () => { window.location.replace("/logout") });
     document.querySelector('.app.menu-button').addEventListener('click', () => { openMenu() });
     document.querySelector('.app.transfer-music.non-selectable').addEventListener('click', () => { showTransferPopUp() });
-    document.querySelector('.app.music-container.my-box.playlists').addEventListener('click', () => { displayData('playlists', localizedVars.playlists) });
-    document.querySelector('.app.music-container.my-box.tracks').addEventListener('click', () => { displayData('tracks', localizedVars.tracks) });
-    document.querySelector('.app.music-container.my-box.artists').addEventListener('click', () => { displayData('artists', localizedVars.artists) });
-    document.querySelector('.app.music-container.my-box.albums').addEventListener('click', () => { displayData('albums', localizedVars.albums) });
+    document.querySelector('.app.music-container.my-box.playlists').addEventListener('click', async() => {
+        await displayData('playlists', localizedVars.playlists);
+        updateCountVars();
+    });
+    document.querySelector('.app.music-container.my-box.tracks').addEventListener('click', async() => {
+        await displayData('tracks', localizedVars.tracks);
+        updateCountVars()
+    });
+    document.querySelector('.app.music-container.my-box.artists').addEventListener('click', async() => {
+        await displayData('artists', localizedVars.artists);
+        updateCountVars()
+    });
+    document.querySelector('.app.music-container.my-box.albums').addEventListener('click', async() => {
+        await displayData('albums', localizedVars.albums);
+        updateCountVars()
+    });
     document.querySelector('.app.chosen.transfer.non-selectable').addEventListener('click', () => { showTransferPopUp() });
     document.querySelector('.app.song.top-part.checkbox').addEventListener('click', () => { chooseAllSongs() });
     document.querySelector('.app.song.top-part.delete').addEventListener('click', () => { deleteAllSongs() });
@@ -54,6 +114,7 @@ async function bindEvents() {
     document.querySelector('.app.popup-container.popup-service-container.service.deezer').addEventListener('click', () => { chooseService('deezer') })
     document.querySelector('.app.popup-container.popup-service-container.service.vk').addEventListener('click', () => { chooseService('vk') })
     document.querySelector('.app.popup-container.popup-service-container.service.yandex').addEventListener('click', () => { chooseService('yandex') })
+    document.body.addEventListener(onload, () => {})
 }
 
 function appOnResize() {
@@ -99,7 +160,6 @@ async function parseServiceData(url, service, offset) {
                 },
                 error: function(response) {
                     return null;
-                    reject(response)
                 }
             })
         })
@@ -107,15 +167,50 @@ async function parseServiceData(url, service, offset) {
 }
 
 async function sendData(to_service) {
+    let checked = getCheckedObjects();
+    let dataToSend = {
+        "tracks": [],
+        "artists": [],
+        "albums": [],
+        "playlists": [],
+        "to_service": ''
+    }
+
+    for (let object of checked) {
+        let id = object.parentNode.className.substring(object.parentNode.className.indexOf("id") + 2)
+        let service = object.parentNode.childNodes[5].className.substring(object.parentNode.childNodes[5].className.indexOf("service") + 8);
+        for (let i of data.tracks.value) {
+            if (i.id === parseInt(id)) {
+                dataToSend.tracks.push({ "id": id, "service": service })
+            }
+        }
+        for (let i of data.artists.value) {
+            if (i.id === parseInt(id)) {
+                dataToSend.artists.push({ "id": id, "service": service })
+            }
+        }
+        for (let i of data.albums.value) {
+            if (i.id === parseInt(id)) {
+                dataToSend.albums.push({ "id": id, "service": service })
+            }
+        }
+        for (let i of data.playlists.value) {
+            if (i.id === parseInt(id)) {
+                dataToSend.playlists.push({ "id": id, "service": service })
+            }
+        }
+    }
+
+
     return new Promise((resolve, reject) => {
-        data.to_service = to_service;
+        dataToSend.to_service = to_service;
         $(() => {
             $.ajax({
                 url: '/send_audio',
                 type: 'POST',
                 contentType: 'application/json;charset=UTF-8',
                 dataType: 'json',
-                data: JSON.stringify(data),
+                data: JSON.stringify(dataToSend),
                 success: (response) => {
                     resolve(response)
                 },
@@ -127,54 +222,57 @@ async function sendData(to_service) {
     })
 }
 
-async function displayData(data, type) {
+async function displayData(valueT, type) {
+    let mainContainer = document.querySelector('.app.main-container')
     if (currentOption != type) {
         deleteAllSongs();
         replaceAllChosen(type);
+        document.querySelector('body > div.app.main-container > div.app.song.top-part > input').checked = false
+
     }
     if (currentOption === type) return;
     currentOption = type
-    setCount(0, "option");
-    let services = JSON.parse(await parseData('/get_services'))
-    for (let service of services.sort()) {
-        await recursiveGetSongs(service, 0, data, type)
+    for (let value of data[valueT].value) {
+        add(value.id, value.title, value.service, value.album === undefined ? "" : value.album, value.artist === undefined ? '' : value.artist)
     }
+    mainContainer.style.height = data[valueT].value.length * 50 + 208 * deltaH + "px"
+    document.body.style.height = data[valueT].value.length * 50 + 208 * deltaH + "px"
+
+
 }
 
-async function recursiveGetSongs(service, offset, data, type) {
-    let mainContainer = document.querySelector('.app.main-container')
-
-    let response = await parseServiceData('/get_audio', service, offset)
-    if (currentOption !== type) {
-        return null;
-    }
-    let ofs = offset + 15;
-    let p_data = response[data]
-    for (let song of p_data) {
-        add(song.id, song.title, song.service, song.album == undefined ? '' : song.album, song.artist == undefined ? '' : song.artist, mainContainer, data)
-    }
-    let len = p_data.length
-    if (len === 15) {
-        let songs = await recursiveGetSongs(service, ofs, data, type);
-        for (let song of songs) {
-            p_data.push(song)
+async function updateCountVars() {
+    let tracks = document.querySelector('.app.chosen.option')
+    let selected = document.querySelector('.app.chosen.count')
+    let songs = document.querySelectorAll('.app.song')
+    let count = 0
+    for (let song of songs) {
+        if (song.className.includes('id')) {
+            count++;
+            document.querySelector('.app.chosen.option').innerHTML = tracks.innerHTML.substring(0, tracks.innerHTML.indexOf(':') + 2) + String(count)
+            document.querySelector('.app.chosen.count').innerHTML = selected.innerHTML.substring(0, selected.innerHTML.indexOf(':') + 2) + String(getCheckedObjects().length)
+        }
+        if (song.classList.contains('hidden')) {
+            count--;
+            document.querySelector('.app.chosen.option').innerHTML = tracks.innerHTML.substring(0, tracks.innerHTML.indexOf(':') + 2) + String(count)
+            document.querySelector('.app.chosen.count').innerHTML = selected.innerHTML.substring(0, selected.innerHTML.indexOf(':') + 2) + String(getCheckedObjects().length)
         }
     }
-    console.log(p_data);
-    return p_data;
 }
 
-async function setCount(value, element) {
-    if (value >= 0) {
-        let count = document.querySelector(`.app.chosen.${element}`).innerHTML
-        document.querySelector(`.app.chosen.${element}`).innerHTML = count.substring(0, count.indexOf(':') + 2) + String(value)
+async function recursiveGetSongs(service, offset, valueT) {
+    let response = await parseServiceData('/get_audio', service, offset)
+    let ofs = offset + 15;
+    let keys = [...Object.keys(response)]
+
+    for (let key of keys) {
+        data[key].push([...response[key]])
     }
-}
+    if (response[valueT].length === 15) {
+        await recursiveGetSongs(service, ofs, valueT);
 
-async function getCount(element) {
-    let count = document.querySelector(`.app.chosen.${element}`).innerHTML
-    let _ = parseInt(count.substring(count.indexOf(':') + 1));
-    return _;
+    }
+
 }
 
 async function replaceAllChosen(element) {
@@ -244,7 +342,18 @@ async function openMenu() {
     }
 }
 
-function add(id, title, service, album, artist, mainContainer, type) {
+function add(id, title, service, album, artist) {
+    let mainContainer = document.querySelector('.app.main-container')
+    let songs = document.querySelectorAll('.app.song')
+
+
+    for (let song of songs) {
+        if (song.classList.contains(`id${id}`)) {
+            song.classList.remove('hidden')
+
+            return;
+        }
+    }
     let fragment = new DocumentFragment();
     let song = document.createElement('div')
     let servicePath = ""
@@ -264,7 +373,7 @@ function add(id, title, service, album, artist, mainContainer, type) {
     }
     song.className = `app song id${id}`
     song.innerHTML = `
-        <input class="app song checkbox" type="checkbox"></input>
+        <input name="object" class="app song checkbox" type="checkbox"></input>
         <label class="app song label">${title}</label>
         <img src="${servicePath}" class="app song service ${service}"></img>
         <div class="app song option1">${artist}</div>
@@ -273,57 +382,40 @@ function add(id, title, service, album, artist, mainContainer, type) {
         <img src="/static/images/delete-btn.svg" class="app song delete-btn"></img>
         </input>`
     fragment.appendChild(song)
-    fragment.querySelector('.app.song.checkbox').addEventListener('click', () => { choose(document.querySelector(`.app.song.id${id}`), type) })
+    fragment.querySelector('.app.song.checkbox').addEventListener('click', () => { updateCountVars() })
     fragment.querySelector('.app.song.delete-btn').addEventListener('click', () => { deleteSong(document.querySelector('.app.song.delete-btn')) })
     mainContainer.appendChild(fragment)
+
+
+
 }
 
-async function choose(object, type) {
-    let id = object.className.substring(object.className.indexOf("id") + 2)
-    let service = object.childNodes[5].className.substring(object.childNodes[5].className.indexOf("service") + 8);
-
-    let _ = { "id": id, "service": service }
-
-    if (data[type].some(item => (item.id === id && item.service === service))) {
-        object.childNodes[1].checked = false;
-        let index = 0;
-        for (key in data[type]) {
-            value = data[type][key];
-            if (id === value.id && service === value.service) {
-                break;
-            }
-            index++;
-        }
-        data[`${type}`].splice(index, 1);
-        setCount(await getCount("count") - 1, "count")
-        return;
-    }
-    object.childNodes[1].checked = true;
-    data[`${type}`].push(_);
-    setCount(await getCount("count") + 1, "count")
+function getCheckedObjects() {
+    return document.querySelectorAll('input[name=object]:checked');
 }
 
 async function chooseAllSongs() {
     let tracks = document.querySelectorAll('.app.song')
-    for (let i = 8; i < tracks.length; i += 8) {
-        await choose(tracks[i], getKeyByValue(localizedVars, chosenElement))
+    let checked = document.querySelector('body > div.app.main-container > div.app.song.top-part > input').checked
+    for (let i = 9; i < tracks.length; i += 8) {
+        if (!tracks[i].parentElement.classList.contains('hidden')) {
+            tracks[i].checked = checked
+        }
     }
+    updateCountVars();
 }
 
 async function deleteSong(element) {
-    element.parentElement.parentElement.removeChild(element.parentElement)
-    setCount(await getCount("option") - 1, "option")
-    setCount(await getCount("count") - 1, "count")
+    element.parentElement.classList.add('hidden')
 }
 
 async function deleteAllSongs() {
-    let mainContainer = document.querySelector('.app.main-container')
     let tracks = document.querySelectorAll('.app.song')
+    updateCountVars()
     for (let i = 9; i < tracks.length; i += 8) {
         deleteSong(tracks[i])
     }
     document.body.style.height = "100%";
-    mainContainer.style.height = "max-content";
 }
 
 async function showTransferPopUp() {

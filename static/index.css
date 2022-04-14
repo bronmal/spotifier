@@ -146,6 +146,10 @@ body {
   user-select: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .auth.logo {
   width: calc(256px * var(--deltaW));
   height: calc(256px * var(--deltaH));

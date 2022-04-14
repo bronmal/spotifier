@@ -12,5 +12,9 @@ body {
     user-select: none;
 }
 
+.hidden {
+    display: none !important;
+}
+
 @import "./auth.scss";
 @import "./app.scss";
