@@ -522,7 +522,7 @@ class Napster:
         self.token = response['access_token']
         self.refresh_token = response['refresh_token']
 
-    def refresh_token(self):
+    def refr_token(self):
         response = requests.post('https://api.napster.com/oauth/access_token', {
             'refresh_token': self.refresh_token,
             'grant_type': 'refresh_token',
@@ -540,8 +540,18 @@ class Napster:
 
         response = requests.get(self.base_url + method, params, headers=headers)
         if response.status_code == 401:
-            if response.json()['error']['message'] == 'The access token expired':
-                self.refresh_token()
+            try:
+                if response.json()['error']['message'] == 'The access token expired':
+                    self.refr_token()
+                    self.get(method, params)
+            except:
+                pass
+            try:
+                if response.json()['code'] == 'UnauthorizedError':
+                    self.refr_token()
+                    self.get(method, params)
+            except:
+                pass
         return response.json()
 
     def post(self, method, params=None, send_json=None):
