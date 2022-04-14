@@ -149,8 +149,11 @@ def remove_service(id, service):
     for i in session.query(User):
         if i.user_id == id:
             connected_services = json.loads(i.connected_services)
+            refreshes_tokens = json.loads(i.refresh_tokens)
             del connected_services[service]
+            del refreshes_tokens[service]
             i.connected_services = json.dumps(connected_services)
+            i.refresh_tokens = json.dumps(refreshes_tokens)
             session.commit()
             session.close()
             break
