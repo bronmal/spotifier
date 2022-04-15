@@ -1,5 +1,7 @@
 import json
 import urllib.parse
+import uuid
+
 import requests
 import vk_api
 import yandex_music
@@ -39,11 +41,11 @@ class Vk:
                 try:
                     tracks.append({'title': i['title'], 'artist': i['artist'],
                                    'photo': i['album']['thumb']['photo_1200'],
-                                   'service': 'vk', 'id': ids})
+                                   'service': 'vk', 'id': uuid.uuid4()})
                 except:
                     try:
                         tracks.append({'title': i['title'], 'artist': i['artist'],
-                                       'service': 'vk', 'id': ids})
+                                       'service': 'vk', 'id': uuid.uuid4()})
                     except:
                         break
                 ids += 1
@@ -53,17 +55,17 @@ class Vk:
             if i['album_type'] == 'playlist':
                 try:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id': ids})
+                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id': uuid.uuid4()})
                 except:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'service': 'vk', 'id': ids})
+                                      'service': 'vk', 'id': uuid.uuid4()})
             if i['album_type'] == 'main_only':
                 try:
                     albums.append({'title': i['title'], 'access_key': i['original'], 'photo': i['photo']['photo_1200'],
-                                   'service': 'vk', 'id': ids})
+                                   'service': 'vk', 'id': uuid.uuid4()})
                 except:
                     albums.append({'title': i['title'], 'access_key': i['original'], 'service': 'vk',
-                                   'id': ids})
+                                   'id': uuid.uuid4()})
             ids += 1
 
         return tracks, playlists, albums, ids
@@ -83,7 +85,7 @@ class Vk:
                 self.api.method('audio.add', values={'audio_id': i['id'], 'owner_id': i['owner_id']})
         if not sub:
             count = 0
-            for i in range(0, config.LIMIT):
+            for i in range(0, db.check_free_transfer(user_id)):
                 try:
                     self.api.method('audio.add', values={'audio_id': tracks_ids[i]['id'],
                                                          'owner_id': tracks_ids[i]['owner_id']})
@@ -94,9 +96,9 @@ class Vk:
 
 
 class Spotify:
-    def __init__(self, token):
+    def __init__(self, token, user_id):
         self.prefix = 'https://api.spotify.com/v1'
-        self.spot = SpotAuth(token)
+        self.spot = SpotAuth(token=token, user_id=user_id)
         self.ids = 0
 
     def tracks(self, offset):
@@ -106,7 +108,7 @@ class Spotify:
             track = item['track']
             tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
                            'album': track['album']['name'], 'photo': track['album']['images'][0]['url'],
-                           'service': 'spotify', 'id': self.ids})
+                           'service': 'spotify', 'id': uuid.uuid4()})
             self.ids += 1
         return tracks
 
@@ -114,7 +116,7 @@ class Spotify:
         playlists = []
         result = self.spot.get('me/playlists', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            playlists.append({'title': item['name'], 'id': self.ids, 'photo': item['images'][0]['url'],
+            playlists.append({'title': item['name'], 'id': uuid.uuid4(), 'photo': item['images'][0]['url'],
                               'service': 'spotify'})
             self.ids += 1
         return playlists
@@ -124,7 +126,7 @@ class Spotify:
         for sp_range in ['short_term', 'medium_term', 'long_term']:
             result = self.spot.get('me/top/artists', {'limit': count_tracks, 'offset': offset})
             for i, item in enumerate(result['items']):
-                artists.append({'title': item['name'], 'id': self.ids, 'photo': item['images'][0]['url'],
+                artists.append({'title': item['name'], 'id': uuid.uuid4(), 'photo': item['images'][0]['url'],
                                 'service': 'spotify'})
                 self.ids += 1
             return artists
@@ -133,7 +135,7 @@ class Spotify:
         albums = []
         result = self.spot.get('me/albums', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            albums.append({'title': item['album']['name'], 'id': self.ids, 'photo': item['album']['images'][0]['url'],
+            albums.append({'title': item['album']['name'], 'id': uuid.uuid4(), 'photo': item['album']['images'][0]['url'],
                            'service': 'spotify'})
             self.ids += 1
         return albums
@@ -161,7 +163,7 @@ class Spotify:
                 chunk = tracks_ids[i:i + 50]
                 self.spot.put("me/tracks/?ids=" + ",".join(chunk))
         if not sub:
-            chunk = tracks_ids[0:config.LIMIT]
+            chunk = tracks_ids[0:db.check_free_transfer(user_id)]
             self.spot.put("me/tracks/?ids=" + ",".join(chunk))
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
@@ -203,7 +205,7 @@ class Spotify:
         items = []
         albums_db = db.get_audio(artists, 'artists', user_id)
         for i in albums_db:
-            result = self.spot.get('search', {'q': i, 'type': 'artist', 'limit': 1})
+            result = self.spot.get('search', {'q': i, 'type': 'artist', 'limit': 1, 'market': 'RS'})
             try:
                 items.append(result['artists']['items'][0]['id'])
             except:
@@ -236,7 +238,7 @@ class Yandex:
         for i in items:
             track = i.fetch_track()
             tracks.append({'title': track['title'], 'artist': track['artists'][0]['name'],
-                           'album': track['albums'][0]['title'], 'service': 'yandex', 'id': ids})
+                           'album': track['albums'][0]['title'], 'service': 'yandex', 'id': uuid.uuid4()})
             ids += 1
         self.ids = ids
         return tracks
@@ -247,7 +249,7 @@ class Yandex:
         count = 0
         for i in items:
             albums.append({'title': i['album']['title'], 'artist': i['album']['artists'][0]['name'],
-                           'service': 'yandex', 'id': count})
+                           'service': 'yandex', 'id': uuid.uuid4()})
             count += 1
         return albums
 
@@ -256,7 +258,7 @@ class Yandex:
         items = self.api.users_likes_artists()
         count = 0
         for i in items:
-            artists.append({'title': i['artist']['name'], 'service': 'yandex', 'id': count})
+            artists.append({'title': i['artist']['name'], 'service': 'yandex', 'id': uuid.uuid4()})
             count += 1
         return artists
 
@@ -265,7 +267,7 @@ class Yandex:
         items = self.api.users_likes_playlists()
         count = 0
         for i in items:
-            playlists.append({'title': i['playlist']['title'], 'service': 'yandex', 'id': count})
+            playlists.append({'title': i['playlist']['title'], 'service': 'yandex', 'id': uuid.uuid4()})
             count += 1
         return playlists
 
@@ -287,7 +289,7 @@ class Yandex:
                 chunk = tracks_ids[i:i + 20]
                 self.api.users_likes_tracks_add(chunk)
         if not sub:
-            chunk = tracks_ids[0:config.LIMIT]
+            chunk = tracks_ids[0:db.check_free_transfer(user_id)]
             self.api.users_likes_tracks_add(chunk)
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
@@ -305,10 +307,6 @@ class Yandex:
             for i in range(0, len(albums_ids), 20):
                 chunk = albums_ids[i:i + 20]
                 self.api.users_likes_albums_add(chunk)
-        if not sub:
-            chunk = albums_ids[0:config.LIMIT]
-            self.api.users_likes_albums_add(chunk)
-            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
     def search_artists_ids(self, artists, user_id):
         items = []
@@ -324,10 +322,6 @@ class Yandex:
             for i in range(0, len(artists_ids), 20):
                 chunk = artists_ids[i:i + 20]
                 self.api.users_likes_artists_add(chunk)
-        if not sub:
-            chunk = artists_ids[0:config.LIMIT]
-            self.api.users_likes_artists_add(chunk)
-            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
     def search_playlists_ids(self, playlists, user_id):
         items = []
@@ -343,10 +337,6 @@ class Yandex:
             for i in range(0, len(playlists_ids), 20):
                 chunk = playlists_ids[i:i + 20]
                 self.api.users_likes_playlists_add(chunk)
-        if not sub:
-            chunk = playlists_ids[0:config.LIMIT]
-            self.api.users_likes_playlists_add(chunk)
-            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - len(chunk))
 
 
 class Deezer:
@@ -378,7 +368,7 @@ class Deezer:
         items = self.api.get_user_tracks()
         for i in items:
             tracks.append({'title': i.title, 'artist': i.artist.name, 'album': i.album.title,
-                           'service': 'deezer', 'id': ids})
+                           'service': 'deezer', 'id': uuid.uuid4()})
             ids += 1
         return tracks
 
@@ -387,7 +377,7 @@ class Deezer:
         items = self.api.get_user_albums()
         count = 0
         for i in items:
-            albums.append({'title': i.title, 'artist': i.artist.name, 'service': 'deezer', 'id': count})
+            albums.append({'title': i.title, 'artist': i.artist.name, 'service': 'deezer', 'id': uuid.uuid4()})
             count += 1
         return albums
 
@@ -396,7 +386,7 @@ class Deezer:
         items = self.api.get_user_artists()
         count = 0
         for i in items:
-            artists.append({'title': i.name, 'service': 'deezer', 'id': count})
+            artists.append({'title': i.name, 'service': 'deezer', 'id': uuid.uuid4()})
             count += 1
         return artists
 
@@ -422,7 +412,7 @@ class Deezer:
                 except:
                     pass
         if not sub:
-            chunk = tracks_ids[0:config.LIMIT]
+            chunk = tracks_ids[0:db.check_free_transfer(user_id)]
             count = 0
             for i in chunk:
                 try:
@@ -450,16 +440,6 @@ class Deezer:
                     self.api.add_user_album(i)
                 except:
                     pass
-        if not sub:
-            chunk = albums_ids[0:config.LIMIT]
-            count = 0
-            for i in chunk:
-                try:
-                    self.api.add_user_album(i)
-                    count += 1
-                except:
-                    pass
-            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
 
     def search_artists_ids(self, artists, user_id):
         items = []
@@ -479,15 +459,6 @@ class Deezer:
                     self.api.add_user_artist(i)
                 except:
                     pass
-        if not sub:
-            chunk = artists_ids[0:config.LIMIT]
-            count = 0
-            for i in chunk:
-                try:
-                    self.api.add_user_artist(i)
-                    count += 1
-                except: pass
-            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
 
 
 class Napster:
@@ -572,16 +543,16 @@ class Napster:
         items = self.get('me/favorites', {'offset': offset, 'limit': 15})
         for i in items['favorites']['data']['tracks']:
             tracks.append({'title': i['name'], 'artist': i['artistName'], 'album': i['albumName'],
-                           'service': 'napster', 'id': self.ids})
+                           'service': 'napster', 'id': uuid.uuid4()})
             self.ids += 1
         items = self.get('me/library/artists', {'offset': offset, 'limit': 15})
         for i in items['artists']:
-            artists.append({'title': i['name'], 'id': self.ids, 'photo': None, 'service': 'napster'})
+            artists.append({'title': i['name'], 'id': uuid.uuid4(), 'photo': None, 'service': 'napster'})
             self.ids += 1
 
         items = self.get('me/library/albums', {'offset': offset, 'limit': 15})
         for i in items['albums']:
-            albums.append({'title': i['name'], 'id': self.ids, 'photo': None,
+            albums.append({'title': i['name'], 'id': uuid.uuid4(), 'photo': None,
                            'service': 'napster'})
             self.ids += 1
         return tracks, albums, artists, self.ids
@@ -605,7 +576,7 @@ class Napster:
                 except:
                     pass
         if not sub:
-            chunk = tracks_ids[0:config.LIMIT]
+            chunk = tracks_ids[0:db.check_free_transfer(user_id)]
             count = 0
             for i in chunk:
                 try:
