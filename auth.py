@@ -71,7 +71,10 @@ class SpotAuth:
     def __init__(self, token=None, refr_token=None, user_id=None):
         self.spot = None
         self.token = token
-        self.refr_token = refr_token
+        try:
+            self.refr_token = db.get_refr_token(user_id, 'spotify')
+        except:
+            self.refr_token = refr_token
         self.user_id = user_id
         self.base_url = 'https://api.spotify.com/v1/'
         self.scopes = 'playlist-modify-private playlist-modify-public ugc-image-upload user-library-read ' \
@@ -113,7 +116,7 @@ class SpotAuth:
             "Authorization": "Basic %s" % auth_header.decode("ascii")
         })
         self.token = response.json()['access_token']
-        self.refr_token = response.json()['refresh_token']
+        self.refr_token = None
         self.save_token(self.user_id)
 
     def get(self, method, params=None):
@@ -123,8 +126,8 @@ class SpotAuth:
 
         response = requests.get(self.base_url + method, params, headers=headers)
         if response.status_code == 401:
-            if response.json()['error']['message'] == 'The access token expired':
-                self.refresh_token()
+            self.refresh_token()
+            self.get(method, params)
         return response.json()
 
     def put(self, method, params=None):

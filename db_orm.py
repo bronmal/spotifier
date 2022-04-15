@@ -24,9 +24,9 @@ class User(DeclarativeBase):
     name = sqlalchemy.Column('name', sqlalchemy.TEXT, nullable=False)
     avatar = sqlalchemy.Column('avatar', sqlalchemy.BLOB, nullable=True)
     tracks = sqlalchemy.Column('tracks', sqlalchemy.JSON, nullable=True)
-    playlists = sqlalchemy.Column('playlists', sqlalchemy.TEXT, nullable=True,)
-    artists = sqlalchemy.Column('artists', sqlalchemy.TEXT, nullable=True)
-    albums = sqlalchemy.Column('albums', sqlalchemy.TEXT, nullable=True)
+    playlists = sqlalchemy.Column('playlists', sqlalchemy.JSON, nullable=True,)
+    artists = sqlalchemy.Column('artists', sqlalchemy.JSON, nullable=True)
+    albums = sqlalchemy.Column('albums', sqlalchemy.JSON, nullable=True)
     subscription = sqlalchemy.Column('subscription', sqlalchemy.BOOLEAN, nullable=True)
     free_transfer = sqlalchemy.Column('free_transfer', sqlalchemy.INTEGER, nullable=True)
     yookassa_id = sqlalchemy.Column('yookassa_id', sqlalchemy.TEXT, nullable=True)
@@ -175,25 +175,54 @@ def get_token(user_id, service):
 def save_music(user_id, tracks=None, albums=None, playlists=None, artists=None):
     session = create_session()
     tr = tracks.copy()
+    al = albums.copy()
+    pl = playlists.copy()
+    ar = artists.copy()
     db_tracks = [tr, 'tracks']
-    db_albums = [albums, 'albums']
-    db_playlists = [playlists, 'playlists']
-    db_artists = [artists, 'artists']
-    music = [db_tracks] #db_artists, db_playlists, db_albums]
+    db_albums = [al, 'albums']
+    db_playlists = [pl, 'playlists']
+    db_artists = [ar, 'artists']
+    music = [db_tracks, db_artists, db_playlists, db_albums]
     for i in session.query(User):
         if i.user_id == user_id:
             if tracks:
                 if i.tracks is not None:
                     for b in json.loads(i.tracks):
                         music[0][0].append(b)
-                for b in music:
-                    try:
-                        i.tracks = json.dumps(b[0])
-                        session.commit()
-                        break
-                    except Exception as err:
-                        print(err)
-                        break
+
+                try:
+                    i.tracks = json.dumps(music[0][0])
+                    session.commit()
+                except Exception as err:
+                    print(err)
+            if artists:
+                if i.artists is not None:
+                    for b in json.loads(i.artists):
+                        music[1][0].append(b)
+                try:
+                    i.artists = json.dumps(music[1][0])
+                    session.commit()
+                except Exception as err:
+                    print(err)
+            if playlists:
+                if i.playlists is not None:
+                    for b in json.loads(i.playlists):
+                        music[2][0].append(b)
+                try:
+                    i.playlists = json.dumps(music[2][0])
+                    session.commit()
+                except Exception as err:
+                    print(err)
+            if albums:
+                if i.albums is not None:
+                    for b in json.loads(i.albums):
+                        music[3][0].append(b)
+                try:
+                    i.albums = json.dumps(music[3][0])
+                    session.commit()
+                except Exception as err:
+                    print(err)
+
     session.close()
 
 
@@ -300,8 +329,9 @@ def get_audio(audio, types, user_id):
     find_tracks = []
     for i in session.query(User):
         if i.user_id == user_id:
-            types_ = {'tracks': i.tracks, 'albums': i.albums, 'playlists': i.playlists, 'artists': i.artists}
-            tracks_db = json.loads(types_[types])
+            types_ = {'tracks': json.loads(i.tracks), 'albums': json.loads(i.albums),
+                      'playlists': json.loads(i.playlists), 'artists': json.loads(i.artists)}
+            tracks_db = types_[types]
 
     for i in tracks_db:
         for b in audio:
@@ -322,6 +352,9 @@ def delete_cache(user_id):
     for i in session.query(User):
         if i.user_id == user_id:
             i.tracks = None
+            i.albums = None
+            i.playlists = None
+            i.artists = None
             session.commit()
             session.close()
             break

@@ -218,7 +218,7 @@ def send_audio():
         session['ids'] = ids
 
     if service_name == 'spotify':
-        api_spotify = services.Spotify(service_token)
+        api_spotify = services.Spotify(service_token, current_user.get_id())
         tracks, playlists, artists, albums, ids = api_spotify.get_music(offset, session['ids'])
         session['ids'] = ids
 
@@ -237,7 +237,7 @@ def send_audio():
         tracks, albums, artists, ids = api_napster.get_music(offset=offset, ids=session['ids'])
         session['ids'] = ids
 
-    db.save_music(current_user.get_id(), tracks=tracks)
+    db.save_music(current_user.get_id(), tracks=tracks, albums=albums, playlists=playlists, artists=artists)
 
     return json.dumps({'tracks': tracks,
                        'albums': albums,
@@ -262,7 +262,7 @@ def get_audio():
 
         if to_service == 'spotify':
             if spotify_token:
-                api = services.Spotify(spotify_token)
+                api = services.Spotify(spotify_token, current_user.get_id())
                 if db.check_sub(current_user.get_id()):
                     api.transfer_tracks(tracks, current_user.get_id())
                     api.transfer_albums(albums, current_user.get_id())
