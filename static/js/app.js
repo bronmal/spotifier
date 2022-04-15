@@ -2,6 +2,7 @@ const mutableElements = [document.querySelector('.app.chosen.option'), document.
 const localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), artists: _('артисты'), albums: _("альбомы") }
 
 //TODO:
+//Пересмотреть формулы высоты маинконтейнер
 //Переделать дельты для разнвх типов обьектов например для картинок и остального
 //Выбрать нормальный крестик
 //Добавить анимацию при переносе
@@ -114,7 +115,6 @@ async function bindEvents() {
     document.querySelector('.app.popup-container.popup-service-container.service.deezer').addEventListener('click', () => { chooseService('deezer') })
     document.querySelector('.app.popup-container.popup-service-container.service.vk').addEventListener('click', () => { chooseService('vk') })
     document.querySelector('.app.popup-container.popup-service-container.service.yandex').addEventListener('click', () => { chooseService('yandex') })
-    document.body.addEventListener(onload, () => {})
 }
 
 function appOnResize() {
@@ -177,7 +177,7 @@ async function sendData(to_service) {
     }
 
     for (let object of checked) {
-        let id = object.parentNode.className.substring(object.parentNode.className.indexOf("id") + 2)
+        let id = object.parentNode.classList[2].substring(2)
         let service = object.parentNode.childNodes[5].className.substring(object.parentNode.childNodes[5].className.indexOf("service") + 8);
         for (let i of data.tracks.value) {
             if (i.id === parseInt(id)) {
@@ -228,15 +228,14 @@ async function displayData(valueT, type) {
         deleteAllSongs();
         replaceAllChosen(type);
         document.querySelector('body > div.app.main-container > div.app.song.top-part > input').checked = false
-
     }
     if (currentOption === type) return;
     currentOption = type
     for (let value of data[valueT].value) {
         add(value.id, value.title, value.service, value.album === undefined ? "" : value.album, value.artist === undefined ? '' : value.artist)
     }
-    mainContainer.style.height = data[valueT].value.length * 50 + 208 * deltaH + "px"
-    document.body.style.height = data[valueT].value.length * 50 + 208 * deltaH + "px"
+    mainContainer.style.height = data[valueT].value.length * 50 * deltaH + 208 * deltaH + "px"
+    document.body.style.height = data[valueT].value.length * 50 * deltaH + 208 * deltaH + "px"
 
 
 }
@@ -342,7 +341,7 @@ async function openMenu() {
     }
 }
 
-function add(id, title, service, album, artist) {
+async function add(id, title, service, album, artist) {
     let mainContainer = document.querySelector('.app.main-container')
     let songs = document.querySelectorAll('.app.song')
 
