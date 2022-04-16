@@ -41,11 +41,11 @@ class Vk:
                 try:
                     tracks.append({'title': i['title'], 'artist': i['artist'],
                                    'photo': i['album']['thumb']['photo_1200'],
-                                   'service': 'vk', 'id': uuid.uuid4()})
+                                   'service': 'vk', 'id': str(uuid.uuid4())})
                 except:
                     try:
                         tracks.append({'title': i['title'], 'artist': i['artist'],
-                                       'service': 'vk', 'id': uuid.uuid4()})
+                                       'service': 'vk', 'id': str(uuid.uuid4())})
                     except:
                         break
                 ids += 1
@@ -55,17 +55,17 @@ class Vk:
             if i['album_type'] == 'playlist':
                 try:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id': uuid.uuid4()})
+                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id':str(uuid.uuid4())})
                 except:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'service': 'vk', 'id': uuid.uuid4()})
+                                      'service': 'vk', 'id': str(uuid.uuid4())})
             if i['album_type'] == 'main_only':
                 try:
                     albums.append({'title': i['title'], 'access_key': i['original'], 'photo': i['photo']['photo_1200'],
-                                   'service': 'vk', 'id': uuid.uuid4()})
+                                   'service': 'vk', 'id': str(uuid.uuid4())})
                 except:
                     albums.append({'title': i['title'], 'access_key': i['original'], 'service': 'vk',
-                                   'id': uuid.uuid4()})
+                                   'id': str(uuid.uuid4())})
             ids += 1
 
         return tracks, playlists, albums, ids
@@ -108,7 +108,7 @@ class Spotify:
             track = item['track']
             tracks.append({'title': track['name'], 'artist': track['artists'][0]['name'],
                            'album': track['album']['name'], 'photo': track['album']['images'][0]['url'],
-                           'service': 'spotify', 'id': uuid.uuid4()})
+                           'service': 'spotify', 'id': str(uuid.uuid4())})
             self.ids += 1
         return tracks
 
@@ -116,7 +116,7 @@ class Spotify:
         playlists = []
         result = self.spot.get('me/playlists', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            playlists.append({'title': item['name'], 'id': uuid.uuid4(), 'photo': item['images'][0]['url'],
+            playlists.append({'title': item['name'], 'id': str(uuid.uuid4()), 'photo': item['images'][0]['url'],
                               'service': 'spotify'})
             self.ids += 1
         return playlists
@@ -126,7 +126,7 @@ class Spotify:
         for sp_range in ['short_term', 'medium_term', 'long_term']:
             result = self.spot.get('me/top/artists', {'limit': count_tracks, 'offset': offset})
             for i, item in enumerate(result['items']):
-                artists.append({'title': item['name'], 'id': uuid.uuid4(), 'photo': item['images'][0]['url'],
+                artists.append({'title': item['name'], 'id': str(uuid.uuid4()), 'photo': item['images'][0]['url'],
                                 'service': 'spotify'})
                 self.ids += 1
             return artists
@@ -135,7 +135,7 @@ class Spotify:
         albums = []
         result = self.spot.get('me/albums', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            albums.append({'title': item['album']['name'], 'id': uuid.uuid4(), 'photo': item['album']['images'][0]['url'],
+            albums.append({'title': item['album']['name'], 'id': str(uuid.uuid4()), 'photo': item['album']['images'][0]['url'],
                            'service': 'spotify'})
             self.ids += 1
         return albums
@@ -238,7 +238,7 @@ class Yandex:
         for i in items:
             track = i.fetch_track()
             tracks.append({'title': track['title'], 'artist': track['artists'][0]['name'],
-                           'album': track['albums'][0]['title'], 'service': 'yandex', 'id': uuid.uuid4()})
+                           'album': track['albums'][0]['title'], 'service': 'yandex', 'id': str(uuid.uuid4())})
             ids += 1
         self.ids = ids
         return tracks
@@ -249,7 +249,7 @@ class Yandex:
         count = 0
         for i in items:
             albums.append({'title': i['album']['title'], 'artist': i['album']['artists'][0]['name'],
-                           'service': 'yandex', 'id': uuid.uuid4()})
+                           'service': 'yandex', 'id': str(uuid.uuid4())})
             count += 1
         return albums
 
@@ -258,7 +258,7 @@ class Yandex:
         items = self.api.users_likes_artists()
         count = 0
         for i in items:
-            artists.append({'title': i['artist']['name'], 'service': 'yandex', 'id': uuid.uuid4()})
+            artists.append({'title': i['artist']['name'], 'service': 'yandex', 'id': str(uuid.uuid4())})
             count += 1
         return artists
 
@@ -267,7 +267,7 @@ class Yandex:
         items = self.api.users_likes_playlists()
         count = 0
         for i in items:
-            playlists.append({'title': i['playlist']['title'], 'service': 'yandex', 'id': uuid.uuid4()})
+            playlists.append({'title': i['playlist']['title'], 'service': 'yandex', 'id': str(uuid.uuid4())})
             count += 1
         return playlists
 
@@ -368,7 +368,7 @@ class Deezer:
         items = self.api.get_user_tracks()
         for i in items:
             tracks.append({'title': i.title, 'artist': i.artist.name, 'album': i.album.title,
-                           'service': 'deezer', 'id': uuid.uuid4()})
+                           'service': 'deezer', 'id': str(uuid.uuid4())})
             ids += 1
         return tracks
 
@@ -377,7 +377,7 @@ class Deezer:
         items = self.api.get_user_albums()
         count = 0
         for i in items:
-            albums.append({'title': i.title, 'artist': i.artist.name, 'service': 'deezer', 'id': uuid.uuid4()})
+            albums.append({'title': i.title, 'artist': i.artist.name, 'service': 'deezer', 'id': str(uuid.uuid4())})
             count += 1
         return albums
 
@@ -386,7 +386,7 @@ class Deezer:
         items = self.api.get_user_artists()
         count = 0
         for i in items:
-            artists.append({'title': i.name, 'service': 'deezer', 'id': uuid.uuid4()})
+            artists.append({'title': i.name, 'service': 'deezer', 'id': str(uuid.uuid4())})
             count += 1
         return artists
 
@@ -543,16 +543,16 @@ class Napster:
         items = self.get('me/favorites', {'offset': offset, 'limit': 15})
         for i in items['favorites']['data']['tracks']:
             tracks.append({'title': i['name'], 'artist': i['artistName'], 'album': i['albumName'],
-                           'service': 'napster', 'id': uuid.uuid4()})
+                           'service': 'napster', 'id': str(uuid.uuid4())})
             self.ids += 1
         items = self.get('me/library/artists', {'offset': offset, 'limit': 15})
         for i in items['artists']:
-            artists.append({'title': i['name'], 'id': uuid.uuid4(), 'photo': None, 'service': 'napster'})
+            artists.append({'title': i['name'], 'id': str(uuid.uuid4()), 'photo': None, 'service': 'napster'})
             self.ids += 1
 
         items = self.get('me/library/albums', {'offset': offset, 'limit': 15})
         for i in items['albums']:
-            albums.append({'title': i['name'], 'id': uuid.uuid4(), 'photo': None,
+            albums.append({'title': i['name'], 'id': str(uuid.uuid4()), 'photo': None,
                            'service': 'napster'})
             self.ids += 1
         return tracks, albums, artists, self.ids

@@ -11,7 +11,7 @@ from sqlalchemy.sql import select
 connect_string = 'mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4'.format(
     config.DB_LOGIN, config.DB_PASS, 'localhost', 3306, config.DB_DATABASE)
 
-engine = create_engine(connect_string)#convert_unicode=True, echo=True, future=True)
+engine = create_engine(connect_string, pool_size=20, max_overflow=0)#convert_unicode=True, echo=True, future=True)
 
 DeclarativeBase = declarative_base()
 
@@ -335,7 +335,7 @@ def get_audio(audio, types, user_id):
 
     for i in tracks_db:
         for b in audio:
-            if i['id'] == int(b['id']):
+            if i['id'] == b['id']:
                 if i['service'] == b['service']:
                     if types == 'tracks':
                         find_tracks.append(i['title'] + ' ' + i['artist'])

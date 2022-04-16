@@ -180,22 +180,22 @@ async function sendData(to_service) {
         let id = object.parentNode.classList[2].substring(2)
         let service = object.parentNode.childNodes[5].className.substring(object.parentNode.childNodes[5].className.indexOf("service") + 8);
         for (let i of data.tracks.value) {
-            if (i.id === parseInt(id)) {
+            if (i.id === id) {
                 dataToSend.tracks.push({ "id": id, "service": service })
             }
         }
         for (let i of data.artists.value) {
-            if (i.id === parseInt(id)) {
+            if (i.id === id) {
                 dataToSend.artists.push({ "id": id, "service": service })
             }
         }
         for (let i of data.albums.value) {
-            if (i.id === parseInt(id)) {
+            if (i.id === id) {
                 dataToSend.albums.push({ "id": id, "service": service })
             }
         }
         for (let i of data.playlists.value) {
-            if (i.id === parseInt(id)) {
+            if (i.id === id) {
                 dataToSend.playlists.push({ "id": id, "service": service })
             }
         }

@@ -114,7 +114,7 @@ def vk():
 
 @application.route('/auth_spotify')
 def spotify():
-    if current_user.get_id() is None:
+    if not current_user.is_authenticated:
         if request.args.get('code'):
             try:
                 spot = auth.SpotAuth()
@@ -125,7 +125,7 @@ def spotify():
                 return redirect('/dashboard')
             except:
                 return redirect('/auth')
-    if current_user.get_id():
+    if current_user.is_authenticated:
         if request.args.get('code'):
             spot = auth.SpotAuth(user_id=current_user.get_id())
             spot.get_token(request.args.get('code'))
