@@ -34,11 +34,6 @@ def get_locale():
     return request.accept_languages.best_match(config.Config.LANGUAGES)
 
 
-caches_folder = '.spotify_caches/'
-if not os.path.exists(caches_folder):
-    os.makedirs(caches_folder)
-
-
 @application.route('/')
 @login_required
 def main_page():

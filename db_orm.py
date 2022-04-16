@@ -66,11 +66,11 @@ def create_user(email, name, photo=None):
 
 def get_user_by_id(id):
     session = create_session()
-    s = select(User).where(User.user_id == id)
-    try:
-        return session.execute(s).one().User
-    except:
-        return None
+    for i in session.query(User):
+        if i.user_id == id:
+            return i
+        else:
+            return None
 
 
 def get_user_by_email(email):
