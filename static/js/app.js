@@ -28,8 +28,8 @@ class ObjectArray {
                 for (let v of value) {
                     add(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist)
                     updateCountVars();
-                    mainContainer.style.height = this._value.length * 50 + 208 * deltaH + "px"
-                    document.body.style.height = this._value.length * 50 + 208 * deltaH + "px"
+                    mainContainer.style.height = this._value.length * 50 * deltaH + 208 * deltaH + "px"
+                    document.body.style.height = this._value.length * 50 * deltaH + 208 * deltaH + "px"
                 }
             }
             return;
