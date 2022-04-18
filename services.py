@@ -116,8 +116,12 @@ class Spotify:
         playlists = []
         result = self.spot.get('me/playlists', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            playlists.append({'title': item['name'], 'id': str(uuid.uuid4()), 'photo': item['images'][0]['url'],
-                              'service': 'spotify'})
+            tracks_spot = self.spot.get('playlists/{}/tracks'.format(item['id']))
+            tracks = []
+            if len(tracks_spot['items']) > 0:
+                for b in tracks_spot['items']:
+                    tracks.append(b['track']['name'] + ' ' + b['track']['artists'][0]['name'])
+            playlists.append({'title': item['name'], 'id': str(uuid.uuid4()), 'tracks': tracks, 'service': 'spotify'})
             self.ids += 1
         return playlists
 
@@ -195,12 +199,6 @@ class Spotify:
                 pass  # TODO отправлять неперенесенные треки
         return items
 
-    def transfer_playlists(self, playlists, user_id):
-        playlists_ids = self.search_albums_ids(playlists, user_id)
-        for i in range(0, len(playlists_ids), 50):
-            chunk = playlists_ids[i:i + 50]
-            self.spot.put("me/tracks/?ids=" + ",".join(chunk))
-
     def search_artists_ids(self, artists, user_id):
         items = []
         albums_db = db.get_audio(artists, 'artists', user_id)
@@ -215,8 +213,30 @@ class Spotify:
     def transfer_artists(self, artists, user_id):
         artists_ids = self.search_artists_ids(artists, user_id)
         for i in range(0, len(artists_ids), 50):
-            chunk = artists_ids[i:i + 50]
+            chunk = artists_ids[i:i+50]
             self.spot.put("me/following?type=artist&ids=" + ",".join(chunk))
+
+    def transfer_playlists(self, playlists, user_id):
+        playlists_ids = db.get_audio(playlists, 'playlists', user_id)
+        users_playlists = self.spot.get('me/playlists', {'limit': 50})['items']
+        for i in users_playlists:
+            for b in playlists_ids:
+                if i['name'] == b['title']:
+                    playlists_ids.remove(b)
+
+        for i in playlists_ids:
+            playlist_id = self.spot.post('users/{}/playlists'.format(self.spot.spot_id),
+                                         json.dumps({'name': i['title']}))['id']
+            tracks_ids = []
+            for b in i['tracks']:
+                result = self.spot.get('search', {'q': b, 'type': 'track', 'limit': 1})
+                try:
+                    tracks_ids.append(result['tracks']['items'][0]['uri'])
+                except:
+                    pass
+            for b in range(0, len(tracks_ids), 50):
+                chunk = tracks_ids[b:b+50]
+                self.spot.post("playlists/{}/tracks".format(playlist_id), json.dumps({'uris': chunk}))
 
 
 class Yandex:
@@ -264,11 +284,33 @@ class Yandex:
 
     def playlists(self):
         playlists = []
-        items = self.api.users_likes_playlists()
+        liked_playlists = self.api.users_playlists_list()
+        user_playlists = self.api.users_likes_playlists()
         count = 0
-        for i in items:
-            playlists.append({'title': i['playlist']['title'], 'service': 'yandex', 'id': str(uuid.uuid4())})
+        for i in user_playlists:
+            info = self.api.playlists_list(i['playlist'].playlist_id)
+            tracks_ya = info[0].fetch_tracks()
+            tracks = []
+            for b in tracks_ya:
+                try:
+                    tracks.append(b['track']['title'] + ' ' + b['track']['artists'][0].name)
+                except:
+                    tracks.append(b['track']['title'])
+            playlists.append({'title': i['playlist']['title'], 'tracks': tracks,
+                              'service': 'yandex', 'id': str(uuid.uuid4())})
             count += 1
+
+        for i in liked_playlists:
+            info = self.api.playlists_list(i.playlist_id)
+            tracks_ya = info[0].fetch_tracks()
+            tracks = []
+            for b in tracks_ya:
+                try:
+                    tracks.append(b['track']['title'] + ' ' + b['track']['artists'][0].name)
+                except:
+                    tracks.append(b['track']['title'])
+            playlists.append({'title': i['title'], 'tracks': tracks,
+                              'service': 'yandex', 'id': str(uuid.uuid4())})
         return playlists
 
     def get_music(self, ids):
@@ -577,6 +619,64 @@ class Napster:
                     pass
         if not sub:
             chunk = tracks_ids[0:db.check_free_transfer(user_id)]
+            count = 0
+            for i in chunk:
+                try:
+                    self.post('me/favorites', {'favorites': [{'id': i}]})
+                    count += 1
+                except:
+                    pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
+    def search_albums_ids(self, albums, user_id):
+        items = []
+        tracks_db = db.get_audio(albums, 'albums', user_id)
+        for i in tracks_db:
+            result = self.get('search', {'query': i, 'type': 'album'})
+            for i in result['search']['data']['tracks']:
+                items.append(i['id'])
+                break
+        return items
+
+    def transfer_albums(self, albums, user_id, sub=config.TESTING):
+        albums_ids = self.search_albums_ids(albums, user_id)
+        if sub:
+            for i in albums_ids:
+                try:
+                    self.post('me/favorites', send_json={'favorites': [{'id': i}]})
+                except:
+                    pass
+        if not sub:
+            chunk = albums_ids[0:db.check_free_transfer(user_id)]
+            count = 0
+            for i in chunk:
+                try:
+                    self.post('me/favorites', {'favorites': [{'id': i}]})
+                    count += 1
+                except:
+                    pass
+            db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
+
+    def search_artists_ids(self, artists, user_id):
+        items = []
+        tracks_db = db.get_audio(artists, 'artists', user_id)
+        for i in tracks_db:
+            result = self.get('search', {'query': i, 'type': 'artists'})
+            for i in result['search']['data']['tracks']:
+                items.append(i['id'])
+                break
+        return items
+
+    def transfer_artists(self, artists, user_id, sub=config.TESTING):
+        artists_ids = self.search_artists_ids(artists, user_id)
+        if sub:
+            for i in artists_ids:
+                try:
+                    self.post('me/favorites', send_json={'favorites': [{'id': i}]})
+                except:
+                    pass
+        if not sub:
+            chunk = artists_ids[0:db.check_free_transfer(user_id)]
             count = 0
             for i in chunk:
                 try:

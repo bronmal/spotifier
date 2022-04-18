@@ -20,6 +20,7 @@ login.init_app(application)
 application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = '.flask_session/'
+
 Session(application)
 babel = Babel(application)
 babel_js = BabelJS(application)
@@ -66,6 +67,7 @@ def auth_in(email, name, photo):
 
 @application.route('/auth')
 def authorization():
+    db_al
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
     if current_user.is_authenticated:
@@ -234,9 +236,9 @@ def send_audio():
 
     db.save_music(current_user.get_id(), tracks=tracks, albums=albums, playlists=playlists, artists=artists)
 
-    return json.dumps({'tracks': tracks,
+    return json.dumps({'tracks': tracks[0:5],
                        'albums': albums,
-                       'playlists': playlists,
+                       'playlists': playlists[0:5],
                        'artists': artists})
 
 
@@ -262,6 +264,7 @@ def get_audio():
                     api.transfer_tracks(tracks, current_user.get_id())
                     api.transfer_albums(albums, current_user.get_id())
                     api.transfer_artists(artists, current_user.get_id())
+                    api.transfer_playlists(playlists, current_user.get_id())
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
@@ -310,8 +313,8 @@ def get_audio():
                 api = services.Napster(token=napster_token)
                 if db.check_sub(current_user.get_id()):
                     api.transfer_tracks(tracks, current_user.get_id())
-                    # api.transfer_albums(albums, current_user.get_id())
-                    # api.transfer_artists(artists, 32)
+                    api.transfer_albums(albums, current_user.get_id())
+                    api.transfer_artists(artists, current_user.get_id())
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
@@ -380,9 +383,8 @@ def add_yandex():
 @application.route('/add_deezer', methods=['GET', 'POST'])
 @login_required
 def add_deezer():
-    if request.method == 'POST':
-        services.Deezer.save_token(request.args.get('code'), current_user.get_id())
-        return redirect('/dashboard')
+    services.Deezer.save_token(request.args.get('code'), current_user.get_id())
+    return redirect('/dashboard')
 
 
 @application.route('/add_napster', methods=['GET', 'POST'])

@@ -11,7 +11,7 @@ from sqlalchemy.sql import select
 connect_string = 'mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4'.format(
     config.DB_LOGIN, config.DB_PASS, 'localhost', 3306, config.DB_DATABASE)
 
-engine = create_engine(connect_string, pool_size=20, max_overflow=0)#convert_unicode=True, echo=True, future=True)
+engine = create_engine(connect_string)#convert_unicode=True, echo=True, future=True)
 
 DeclarativeBase = declarative_base()
 
@@ -151,7 +151,8 @@ def remove_service(id, service):
             connected_services = json.loads(i.connected_services)
             refreshes_tokens = json.loads(i.refresh_tokens)
             del connected_services[service]
-            del refreshes_tokens[service]
+            if service in refreshes_tokens:
+                del refreshes_tokens[service]
             i.connected_services = json.dumps(connected_services)
             i.refresh_tokens = json.dumps(refreshes_tokens)
             session.commit()
@@ -343,6 +344,8 @@ def get_audio(audio, types, user_id):
                         find_tracks.append(i['title'])
                     if types == 'artists':
                         find_tracks.append(i['title'])
+                    if types == 'playlists':
+                        find_tracks.append(i)
     session.close()
     return find_tracks
 

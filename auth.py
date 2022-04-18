@@ -80,6 +80,10 @@ class SpotAuth:
         self.scopes = 'playlist-modify-private playlist-modify-public ugc-image-upload user-library-read ' \
                       'user-library-modify user-follow-modify user-follow-read playlist-read-private ' \
                       'user-top-read user-read-email'
+        try:
+            self.spot_id = self.get('me')['id']
+        except:
+            self.spot_id = None
 
     def create_link(self):
         params = urllib.parse.urlencode({
@@ -128,6 +132,8 @@ class SpotAuth:
         if response.status_code == 401:
             self.refresh_token()
             self.get(method, params)
+        if response.status_code == 503:
+            self.get(method, params)
         return response.json()
 
     def put(self, method, params=None):
@@ -136,6 +142,25 @@ class SpotAuth:
         }
 
         response = requests.put(self.base_url + method, params, headers=headers)
+        if response.status_code == 401:
+            self.refresh_token()
+            self.put(method, params)
+        if response.status_code == 503:
+            self.put(method, params)
+        return response.json()
+
+    def post(self, method, params=None):
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=self.token)
+        }
+
+        response = requests.post(self.base_url + method, params, headers=headers)
+        if response.status_code == 401:
+            self.refresh_token()
+            self.post(method, params)
+        if response.status_code == 503:
+            self.post(method, params)
+        return response.json()
 
     def get_name(self):
         photo = None
