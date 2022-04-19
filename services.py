@@ -374,11 +374,21 @@ class Yandex:
         return items
 
     def transfer_playlists(self, playlists, user_id, sub=config.TESTING):
-        playlists_ids = self.search_playlists_ids(playlists, user_id)
-        if sub:
-            for i in range(0, len(playlists_ids), 20):
-                chunk = playlists_ids[i:i + 20]
-                self.api.users_likes_playlists_add(chunk)
+        playlists_ids = db.get_audio(playlists, 'playlists', user_id)
+        user_playlists = self.api.users_playlists_list()
+        for i in user_playlists:
+            for b in playlists_ids:
+                if b['title'] == i['title']:
+                    playlists_ids.remove(b)
+
+        for i in playlists_ids:
+            playlist = self.api.users_playlists_create(i['title'])
+            for b in i['tracks']:
+                track = self.api.search(b, type_='track')
+                track_id = track.tracks.results[0].id
+                album_id = track.tracks.results[0].albums[0].id
+                playlist = self.api.users_playlists_insert_track(playlist['kind'], track_id, album_id)
+                a = 73
 
 
 class Deezer:

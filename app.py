@@ -67,7 +67,6 @@ def auth_in(email, name, photo):
 
 @application.route('/auth')
 def authorization():
-    db_al
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
     if current_user.is_authenticated:
@@ -236,9 +235,9 @@ def send_audio():
 
     db.save_music(current_user.get_id(), tracks=tracks, albums=albums, playlists=playlists, artists=artists)
 
-    return json.dumps({'tracks': tracks[0:5],
+    return json.dumps({'tracks': tracks,
                        'albums': albums,
-                       'playlists': playlists[0:5],
+                       'playlists': playlists,
                        'artists': artists})
 
 
@@ -286,9 +285,14 @@ def get_audio():
             if yandex_token:
                 api = services.Yandex(token=yandex_token)
                 if db.check_sub(current_user.get_id()):
-                    api.transfer_tracks(tracks, current_user.get_id())
-                    api.transfer_albums(albums, current_user.get_id())
-                    api.transfer_artists(artists, current_user.get_id())
+                    if tracks:
+                        api.transfer_tracks(tracks, current_user.get_id())
+                    if albums:
+                        api.transfer_albums(albums, current_user.get_id())
+                    if artists:
+                        api.transfer_artists(artists, current_user.get_id())
+                    if playlists:
+                        api.transfer_playlists(playlists, current_user.get_id())
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     api.transfer_tracks(tracks, current_user.get_id(), False)
                 return json.dumps({'success': True})
