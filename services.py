@@ -385,10 +385,13 @@ class Yandex:
             playlist = self.api.users_playlists_create(i['title'])
             for b in i['tracks']:
                 track = self.api.search(b, type_='track')
-                track_id = track.tracks.results[0].id
-                album_id = track.tracks.results[0].albums[0].id
-                playlist = self.api.users_playlists_insert_track(playlist['kind'], track_id, album_id)
-                a = 73
+                print(b)
+                try:
+                    track_id = track.tracks.results[0].id
+                    album_id = track.tracks.results[0].albums[0].id
+                    playlist = playlist.insert_track(track_id, album_id)
+                except:
+                    pass
 
 
 class Deezer:
