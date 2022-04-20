@@ -2,10 +2,8 @@ const mutableElements = [document.querySelector('.app.chosen.option'), document.
 const localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), artists: _('артисты'), albums: _("альбомы") }
 
 //TODO:
-//Пересмотреть формулы высоты маинконтейнер
 //Переделать дельты для разнвх типов обьектов например для картинок и остального
 //Выбрать нормальный крестик
-//Добавить анимацию при переносе
 //Попробовать сделать анимацию на переход треков в Подключенных сервисах(необязательно)
 
 class ObjectArray {
@@ -28,8 +26,6 @@ class ObjectArray {
                 for (let v of value) {
                     add(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist)
                     updateCountVars();
-                    mainContainer.style.height = this._value.length * 50 * deltaH + 208 * deltaH + "px"
-                    document.body.style.height = this._value.length * 50 * deltaH + 208 * deltaH + "px"
                 }
             }
             return;
@@ -111,14 +107,28 @@ async function bindEvents() {
     document.querySelector('.app.chosen.transfer.non-selectable').addEventListener('click', () => { showTransferPopUp() });
     document.querySelector('.app.song.top-part.checkbox').addEventListener('click', () => { chooseAllSongs() });
     document.querySelector('.app.song.top-part.delete').addEventListener('click', () => { deleteAllSongs() });
-    document.querySelector('.app.popup-container.popup-service-container.service.spotify').addEventListener('click', () => { chooseService('spotify') })
-    document.querySelector('.app.popup-container.popup-service-container.service.deezer').addEventListener('click', () => { chooseService('deezer') })
-    document.querySelector('.app.popup-container.popup-service-container.service.vk').addEventListener('click', () => { chooseService('vk') })
-    document.querySelector('.app.popup-container.popup-service-container.service.yandex').addEventListener('click', () => { chooseService('yandex') })
+    document.querySelector('.app.popup-container.popup-service-container.service.spotify').addEventListener('click', (e) => { chooseService(e.target) })
+    document.querySelector('.app.popup-container.popup-service-container.service.deezer').addEventListener('click', (e) => { chooseService(e.target) })
+    document.querySelector('.app.popup-container.popup-service-container.service.vk').addEventListener('click', (e) => { chooseService(e.target) })
+    document.querySelector('.app.popup-container.popup-service-container.service.yandex').addEventListener('click', (e) => { chooseService(e.target) })
+    document.querySelector('.app.popup-container.goback-btn').addEventListener('click', () => { goBack() });
 }
 
 function appOnResize() {
     changeDelta();
+}
+
+async function goBack() {
+    let serviceContainer = document.querySelector('.app.popup-container.popup-service-container.non-selectable');
+    let text = document.querySelector('.app.popup-container.popup-label.service-pick');
+    let progressBarContainer = document.querySelector('.app.popup-container.progress-container');
+    progressBarContainer.style.display = 'none';
+    serviceContainer.parentElement.parentElement.style.display = 'none'
+    serviceContainer.style.display = 'block';
+    text.style.textAlign = 'left';
+    text.style.marginLeft = 'calc(16px*var(--deltaW))';
+    text.innerHTML = _('Выберите сервис для переноса:');
+
 }
 
 function getKeyByValue(object, value) {
@@ -223,7 +233,6 @@ async function sendData(to_service) {
 }
 
 async function displayData(valueT, type) {
-    let mainContainer = document.querySelector('.app.main-container')
     if (currentOption != type) {
         deleteAllSongs();
         replaceAllChosen(type);
@@ -234,10 +243,6 @@ async function displayData(valueT, type) {
     for (let value of data[valueT].value) {
         add(value.id, value.title, value.service, value.album === undefined ? "" : value.album, value.artist === undefined ? '' : value.artist)
     }
-    mainContainer.style.height = data[valueT].value.length * 50 * deltaH + 208 * deltaH + "px"
-    document.body.style.height = data[valueT].value.length * 50 * deltaH + 208 * deltaH + "px"
-
-
 }
 
 async function updateCountVars() {
@@ -433,8 +438,19 @@ async function showTransferPopUp() {
 }
 
 async function chooseService(service) {
-    document.querySelector('.app.popup').style.display = 'none'
-    sendData(service)
+    console.log(service.src);
+    let serviceContainer = document.querySelector('.app.popup-container.popup-service-container.non-selectable');
+    let text = document.querySelector('.app.popup-container.popup-label.service-pick');
+    let progressBarContainer = document.querySelector('.app.popup-container.progress-container');
+    let serviceLogo = document.querySelector('.app.popup-container.image.serviceLogo')
+    serviceLogo.src = `${service.src}`
+    progressBarContainer.style.display = 'flex'
+    serviceContainer.style.display = 'none';
+    text.style.textAlign = 'center';
+    text.style.marginLeft = 0;
+    text.innerHTML = _('Перенос треков');
+
+
 }
 
 async function getServices() {

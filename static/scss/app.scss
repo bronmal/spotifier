@@ -3,13 +3,13 @@
         transition-duration: .2s;
     }
     &.slider {
-        position: sticky;
+        position: fixed;
         top: 0;
         transition-duration: 0.25s;
         box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
         background-color: #494781;
         width: calc(256px * var(--deltaW));
-        height: calc(900px * var(--deltaH));
+        height: 100vh;
         float: left;
         margin: 0;
     }
@@ -268,7 +268,6 @@
         float: right;
         overflow-y: hidden;
         width: calc(1050px*var(--deltaW));
-        height: calc(900px*var(--deltaH));
     }
     &.chosen {
         width: calc(200px*var(--deltaW));
@@ -323,11 +322,11 @@
         width: var(--songWidth);
         height: var(--songHeight);
         margin: var(--songMargin);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         border-radius: 8px;
         background-color: rgba($color: #46437B, $alpha: .25);
-        text-decoration: none;
-        text-overflow: ellipsis;
-        overflow: hidden;
         &.checkbox {
             background: none;
             max-width: 18px;
@@ -338,7 +337,6 @@
             margin: 0;
             background: none;
             border-radius: 0;
-            align-items: flex-start;
             width: var(--songLabelWidth);
         }
         &.service {
@@ -349,8 +347,6 @@
             margin: var(--songServiceMargin);
         }
         &.option1 {
-            vertical-align: top;
-            align-items: flex-start;
             border-radius: 0;
             margin: var(--songOption1Margin);
             background: none;
@@ -360,7 +356,6 @@
             margin: var(--songOption2Margin);
             background: none;
             border-radius: 0;
-            align-items: flex-start;
             width: var(--songOption2Width);
         }
         &.change-btn {
@@ -490,6 +485,33 @@
                 border-radius: 99px;
                 background-color: #9A86C3;
             }
+        }
+        &.progress-container {
+            width: calc(439px*var(--deltaW));
+            height: calc(96px*var(--deltaH));
+            display: none;
+            align-items: center;
+            justify-content: center;
+            margin: calc(140px*var(--deltaH)) 0 0 calc(56px*var(--deltaW));
+        }
+        &.image {
+            width: calc(96px*var(--deltaW));
+            height: calc(96px*var(--deltaH));
+            border-radius: 0;
+        }
+        &.progress-bar-container {
+            height: calc(40px*var(--deltaH));
+            display: flex;
+            align-items: center;
+            background-color: rgba(50, 48, 97, 1);
+            border-radius: 0;
+        }
+        &.progress-bar {
+            background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
+            padding: 1%;
+            height: calc(24px*var(--deltaH));
+            width: 10%;
+            border-radius: 0;
         }
     }
     &::-webkit-scrollbar {
