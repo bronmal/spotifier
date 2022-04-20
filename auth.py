@@ -80,10 +80,6 @@ class SpotAuth:
         self.scopes = 'playlist-modify-private playlist-modify-public ugc-image-upload user-library-read ' \
                       'user-library-modify user-follow-modify user-follow-read playlist-read-private ' \
                       'user-top-read user-read-email'
-        try:
-            self.spot_id = self.get('me')['id']
-        except:
-            self.spot_id = None
 
     def create_link(self):
         params = urllib.parse.urlencode({
@@ -119,9 +115,12 @@ class SpotAuth:
         }, headers={
             "Authorization": "Basic %s" % auth_header.decode("ascii")
         })
-        self.token = response.json()['access_token']
-        self.refr_token = None
-        self.save_token(self.user_id)
+        try:
+            self.token = response.json()['access_token']
+            self.refr_token = None
+            self.save_token(self.user_id)
+        except:
+            db.remove_service(self.user_id, 'spotify')
 
     def get(self, method, params=None):
         headers = {

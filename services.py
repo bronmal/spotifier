@@ -1,7 +1,6 @@
 import json
 import urllib.parse
 import uuid
-
 import requests
 import vk_api
 import yandex_music
@@ -100,6 +99,7 @@ class Spotify:
         self.prefix = 'https://api.spotify.com/v1'
         self.spot = SpotAuth(token=token, user_id=user_id)
         self.ids = 0
+        self.spot_id = self.spot.get('me')['id']
 
     def tracks(self, offset):
         tracks = []
@@ -151,17 +151,18 @@ class Spotify:
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
+        items_errors = 0
         tracks_db = db.get_audio(tracks, 'tracks', user_id)
         for i in tracks_db:
             result = self.spot.get('search', {'q': i, 'type': 'track', 'limit': 1})
             try:
                 items.append(result['tracks']['items'][0]['id'])
             except:
-                pass  # TODO отправлять неперенесенные треки
-        return items
+                items_errors += 1
+        return items, items_errors
 
     def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
-        tracks_ids = self.search_tracks_ids(tracks, user_id)
+        tracks_ids, count_errors = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in range(0, len(tracks_ids), 50):
                 chunk = tracks_ids[i:i + 50]
@@ -225,7 +226,7 @@ class Spotify:
                     playlists_ids.remove(b)
 
         for i in playlists_ids:
-            playlist_id = self.spot.post('users/{}/playlists'.format(self.spot.spot_id),
+            playlist_id = self.spot.post('users/{}/playlists'.format(self.spot_id),
                                          json.dumps({'name': i['title']}))['id']
             tracks_ids = []
             for b in i['tracks']:
@@ -397,6 +398,8 @@ class Yandex:
 class Deezer:
     def __init__(self, token=None):
         self.api = deezer.Client(app_id=config.DEEZER_ID, app_secret=config.SPOTIFY_SECRET, access_token=token)
+        self.base_url = 'https://api.deezer.com/'
+        self.token = token
         self.ids = 0
 
     @staticmethod
@@ -410,43 +413,83 @@ class Deezer:
 
     @staticmethod
     def save_token(code, user_id):
+        perms = "basic_access,email,offline_access,manage_library,manage_community,delete_library,listening_history"
         response = requests.post('https://connect.deezer.com/oauth/access_token.php',
                                  params={'app_id': config.DEEZER_ID,
                                          'secret': config.DEEZER_SECRET_KEY,
                                          'code': code,
+                                         'perms': perms,
                                          'output': 'json'})
         token = response.json()['access_token']
         db.add_service(user_id, token, 'deezer')
 
-    def tracks(self, ids):
+    def get(self, method, params={}):
+        params.update({'access_token': self.token})
+        response = requests.get(self.base_url + method, params=params)
+        return response.json()
+
+    def post(self, method, params={}):
+        params.update({'access_token': self.token})
+        response = requests.post(self.base_url + method, params=params)
+        return response.json()
+
+    def tracks(self):
         tracks = []
         items = self.api.get_user_tracks()
         for i in items:
             tracks.append({'title': i.title, 'artist': i.artist.name, 'album': i.album.title,
                            'service': 'deezer', 'id': str(uuid.uuid4())})
-            ids += 1
         return tracks
 
     def albums(self):
         albums = []
         items = self.api.get_user_albums()
-        count = 0
         for i in items:
             albums.append({'title': i.title, 'artist': i.artist.name, 'service': 'deezer', 'id': str(uuid.uuid4())})
-            count += 1
         return albums
 
     def artists(self):
         artists = []
         items = self.api.get_user_artists()
-        count = 0
         for i in items:
             artists.append({'title': i.name, 'service': 'deezer', 'id': str(uuid.uuid4())})
-            count += 1
         return artists
 
+    def playlists(self):
+        playlists = []
+        items = self.get('user/me/playlists')
+        for i in items['data']:
+            tracks = []
+            track_items = requests.get(i['tracklist'], params={'access_token': self.token}).json()
+            if track_items['total'] > 0:
+                if len(track_items['data']) == 25:
+                    while track_items.get('next'):
+                        for b in track_items['data']:
+                            try:
+                                tracks.append(b['title'] + ' ' + b['artist']['name'])
+                            except:
+                                tracks.append(b['title'])
+                        track_items = requests.get(track_items['next'], {'access_token': self.token}).json()
+
+                    if (len(track_items['data']) == 25) and (not track_items.get('next')):
+                        for b in track_items['data']:
+                            try:
+                                tracks.append(b['title'] + ' ' + b['artist']['name'])
+                            except:
+                                tracks.append(b['title'])
+
+                if (len(track_items['data']) < 25) and len(track_items['data']) > 0:
+                    for b in track_items['data']:
+                        try:
+                            tracks.append(b['title'] + ' ' + b['artist']['name'])
+                        except:
+                            tracks.append(b['title'])
+
+            playlists.append({'title': i['title'], 'service': 'deezer', 'tracks': tracks, 'id': str(uuid.uuid4())})
+        return playlists
+
     def get_music(self,):
-        return self.tracks(0), self.albums(), self.artists(), self.ids
+        return self.tracks(), self.albums(), self.artists(), self.playlists(), self.ids
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
@@ -514,6 +557,34 @@ class Deezer:
                     self.api.add_user_artist(i)
                 except:
                     pass
+
+    def transfer_playlists(self, playlists, user_id, sub=config.TESTING):
+        playlists = db.get_audio(playlists, 'playlists', user_id)
+        de_playlists = self.get('user/me/playlists')['data']
+        if sub:
+            for i in playlists:
+                for b in de_playlists:
+                    if i['title'] == b['title']:
+                        playlists.remove(i)
+
+            for i in playlists:
+                errors = 0
+                tracks = []
+                playlist_id = self.post('user/me/playlists', params={'title': i['title']})['id']
+
+                for b in i['tracks']:
+                    result = self.api.search(b, ordering='TRACK_ASC')
+                    if len(result) > 0:
+                        tracks.append(result[0].id)
+
+                    if len(result) == 0:
+                        errors += 1
+                    print(f"Найдено {len(tracks)} из {len(i['tracks'])}")
+                    print(f"Не найдено {errors} \n")
+
+                for b in range(0, len(tracks), 50):
+                    chunk = str(tracks[b:b+50]).replace('[', '').replace(']', '')
+                    self.post(f"playlist/{playlist_id}/tracks", params={'songs': chunk})
 
 
 class Napster:

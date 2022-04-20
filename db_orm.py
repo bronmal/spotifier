@@ -6,12 +6,11 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql import select
 
 connect_string = 'mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4'.format(
     config.DB_LOGIN, config.DB_PASS, 'localhost', 3306, config.DB_DATABASE)
 
-engine = create_engine(connect_string)#convert_unicode=True, echo=True, future=True)
+engine = create_engine(connect_string)  # convert_unicode=True, echo=True, future=True)
 
 DeclarativeBase = declarative_base()
 
@@ -24,7 +23,7 @@ class User(DeclarativeBase):
     name = sqlalchemy.Column('name', sqlalchemy.TEXT, nullable=False)
     avatar = sqlalchemy.Column('avatar', sqlalchemy.BLOB, nullable=True)
     tracks = sqlalchemy.Column('tracks', sqlalchemy.JSON, nullable=True)
-    playlists = sqlalchemy.Column('playlists', sqlalchemy.JSON, nullable=True,)
+    playlists = sqlalchemy.Column('playlists', sqlalchemy.JSON, nullable=True, )
     artists = sqlalchemy.Column('artists', sqlalchemy.JSON, nullable=True)
     albums = sqlalchemy.Column('albums', sqlalchemy.JSON, nullable=True)
     subscription = sqlalchemy.Column('subscription', sqlalchemy.BOOLEAN, nullable=True)
@@ -40,8 +39,8 @@ DeclarativeBase.metadata.create_all(engine)
 
 
 def create_session():
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    _session = sessionmaker(bind=engine)
+    session = _session()
     return session
 
 
