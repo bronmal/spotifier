@@ -3,7 +3,6 @@ const localizedVars = { tracks: _('треки'), playlists: _('плейлист�
 
 //TODO:
 //Переделать дельты для разнвх типов обьектов например для картинок и остального
-//Выбрать нормальный крестик
 //Попробовать сделать анимацию на переход треков в Подключенных сервисах(необязательно)
 
 class ObjectArray {
@@ -438,7 +437,7 @@ async function showTransferPopUp() {
 }
 
 async function chooseService(service) {
-    console.log(service.src);
+    sendData(service.classList[4])
     let serviceContainer = document.querySelector('.app.popup-container.popup-service-container.non-selectable');
     let text = document.querySelector('.app.popup-container.popup-label.service-pick');
     let progressBarContainer = document.querySelector('.app.popup-container.progress-container');
