@@ -10,12 +10,67 @@ import db_orm as db
 from auth import SpotAuth
 
 count_tracks = 15
+# TODO
+"""сделать авторизацию с подделкой под android приложение
+https://ru.stackoverflow.com/questions/1179262/
+Библиотека-vk-api-для-импорта-списка-audio-пользователя-вконтакта-и-альтернативн
+Должно помочь для работы с плейлистами и альбомами"""
+
+import requests, hashlib, urllib, random, string, re
+
+"""class VkAndroidApi(object):
+    session = requests.Session()
+    session.headers={"User-Agent": "VKAndroidApp/4.13.1-1206 (Android 4.4.3; SDK 19; armeabi; ; ru)","Accept": "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*"}
+    
+    def __init__(this,login=None,password=None,token=None,secret=None,v=5.95):
+        this.v=v
+        this.device_id = "".join( random.choice(string.ascii_lowercase+string.digits) for i in range(16))
+
+        if token is not None and secret is not None:
+            this.token=token
+            this.secret=secret
+            return
+        #Генерируем рандомный device_id
+        answer =  this.session.get(
+            "https://oauth.vk.com/token?grant_type=password&scope=nohttps,audio&client_id=2274003&client_secret=hHbZxrka2uZ6jB1inYsH&username={login}&password={password}".format(
+                login=login,
+                password=password
+            ),
+                                   headers={'User-Agent': 'Mozilla/4.0 (compatible; ICS)'}).json()
+        if("error" in answer): raise PermissionError("invalid login|password!")
+        this.secret = answer["secret"]
+        this.token = answer["access_token"]
+        #Методы, "Открывающие" доступ к аудио. Без них, аудио получить не получится
+        this.method('execute.getUserInfo',func_v=9), 
+        this._send('/method/auth.refreshToken?access_token={token}&v={v}&device_id={device_id}&lang=ru'.format(token=this.token,v=v,device_id=this.device_id))
+    def method(this,method,**params):
+        url =( "/method/{method}?v={v}&access_token={token}&device_id={device_id}".format(method=method,v=this.v,token=this.token,device_id=this.device_id)
+            +"".join("&%s=%s"%(i,params[i]) for i in params if params[i] is not None)
+        )#генерация ссылки по которой будет генерироваться md5-подпись
+        #обратите внимание - в даннаой ссылке нет urlencode параметров 
+        return this._send(url,params,method);
+    def _send(this,url,params=None,method=None,headers=None):
+        hash = hashlib.md5((url+this.secret).encode()).hexdigest()
+        if method is not None and params is not None:
+            url = ("/method/{method}?v={v}&access_token={token}&device_id={device_id}".format(method=method,token=this.token,device_id=this.device_id,v=this.v)
+                + "".join(
+                "&"+i+"="+urllib.parse.quote_plus(str(params[i])) for i in params if(params[i] is not None)
+                ))
+        if headers is None:
+            return this.session.get('https://api.vk.com'+url+"&sig="+hash).json()
+        else:
+            return this.session.get('https://api.vk.com'+url+"&sig="+hash,headers=headers).json()
+    _pattern = re.compile(r'/[a-zA-Z\d]{6,}(/.*?[a-zA-Z\d]+?)/index.m3u8()')
+    def to_mp3(self,url):
+        return self._pattern.sub(r'\1\2.mp3',url)"""
 
 
 class Vk:
-    def __init__(self, token):
-        self.api = vk_api.VkApi(token=token)
+    def __init__(self, token, socket=None):
+        self.api = vk_api.VkApi(token=token, api_version="5.131")
         self.user_id = self.api.method('users.get')[0]['id']
+        if socket:
+            self.socket = socket
 
     def tracks(self, offset):
         try:
@@ -54,7 +109,7 @@ class Vk:
             if i['album_type'] == 'playlist':
                 try:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
-                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id':str(uuid.uuid4())})
+                                      'photo': i['thumbs'][0]['photo_1200'], 'service': 'vk', 'id': str(uuid.uuid4())})
                 except:
                     playlists.append({'title': i['title'], 'access_key': i['access_key'],
                                       'service': 'vk', 'id': str(uuid.uuid4())})
@@ -74,7 +129,11 @@ class Vk:
         tracks_db = db.get_audio(tracks, 'tracks', user_id)
         for i in tracks_db:
             result = self.api.method('audio.search', values={'q': i, 'owner_id': self.user_id})
-            items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
+            try:
+                items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
+                self.socket.emit('audio_found', {'data': 1})
+            except:
+                self.socket.emit('audio_found', {'data': 0})
         return items
 
     def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
@@ -93,13 +152,19 @@ class Vk:
                     pass
             db.use_free_transfer(user_id, db.check_free_transfer(user_id) - count)
 
+    def transfer_playlists(self, playlists, user_id, sub=config.TESTING):
+        playlist_id = self.api.method('audio.addAlbum', values={'title': 'test'})
+        print(playlist_id)
+
 
 class Spotify:
-    def __init__(self, token, user_id):
+    def __init__(self, token, user_id, socket=None):
         self.prefix = 'https://api.spotify.com/v1'
         self.spot = SpotAuth(token=token, user_id=user_id)
         self.ids = 0
         self.spot_id = self.spot.get('me')['id']
+        if socket:
+            self.socket = socket
 
     def tracks(self, offset):
         tracks = []
@@ -139,30 +204,31 @@ class Spotify:
         albums = []
         result = self.spot.get('me/albums', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
-            albums.append({'title': item['album']['name'], 'id': str(uuid.uuid4()), 'photo': item['album']['images'][0]['url'],
-                           'service': 'spotify'})
+            albums.append(
+                {'title': item['album']['name'], 'id': str(uuid.uuid4()), 'photo': item['album']['images'][0]['url'],
+                 'service': 'spotify'})
             self.ids += 1
         return albums
 
     def get_music(self, offset, ids):
         self.ids = ids
-        return self.tracks(offset), self.playlists(offset),\
+        return self.tracks(offset), self.playlists(offset), \
                self.artists(offset), self.albums(offset), self.ids
 
     def search_tracks_ids(self, tracks, user_id):
         items = []
-        items_errors = 0
         tracks_db = db.get_audio(tracks, 'tracks', user_id)
         for i in tracks_db:
             result = self.spot.get('search', {'q': i, 'type': 'track', 'limit': 1})
+            self.socket.emit('audio_found', {'data': 1})
             try:
                 items.append(result['tracks']['items'][0]['id'])
             except:
-                items_errors += 1
-        return items, items_errors
+                self.socket.emit('audio_found', {'data': 0})
+        return items
 
     def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
-        tracks_ids, count_errors = self.search_tracks_ids(tracks, user_id)
+        tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in range(0, len(tracks_ids), 50):
                 chunk = tracks_ids[i:i + 50]
@@ -179,8 +245,9 @@ class Spotify:
             result = self.spot.get('search', {'q': i, 'type': 'album', 'limit': 1})
             try:
                 items.append(result['albums']['items'][0]['id'])
+                self.socket.emit('audio_found', {'data': 1})
             except:
-                pass  # TODO отправлять неперенесенные треки
+                self.socket.emit('audio_found', {'data': 0})  # TODO отправлять неперенесенные треки
         return items
 
     def transfer_albums(self, albums, user_id):
@@ -189,17 +256,6 @@ class Spotify:
             chunk = albums_ids[i:i + 50]
             self.spot.put("me/albums?ids=" + ",".join(chunk))
 
-    def search_playlists_ids(self, playlists, user_id):
-        items = []
-        albums_db = db.get_audio(playlists, 'playlists', user_id)
-        for i in albums_db:
-            result = self.spot.get('search', {'q': i, 'type': 'playlist', 'limit': 1})
-            try:
-                items.append(result['playlist']['items'][0]['id'])
-            except:
-                pass  # TODO отправлять неперенесенные треки
-        return items
-
     def search_artists_ids(self, artists, user_id):
         items = []
         albums_db = db.get_audio(artists, 'artists', user_id)
@@ -207,14 +263,15 @@ class Spotify:
             result = self.spot.get('search', {'q': i, 'type': 'artist', 'limit': 1, 'market': 'RS'})
             try:
                 items.append(result['artists']['items'][0]['id'])
+                self.socket.emit('audio_found', {'data': 1})
             except:
-                pass  # TODO отправлять неперенесенные треки
+                self.socket.emit('audio_found', {'data': 0})  # TODO отправлять неперенесенные треки
         return items
 
     def transfer_artists(self, artists, user_id):
         artists_ids = self.search_artists_ids(artists, user_id)
         for i in range(0, len(artists_ids), 50):
-            chunk = artists_ids[i:i+50]
+            chunk = artists_ids[i:i + 50]
             self.spot.put("me/following?type=artist&ids=" + ",".join(chunk))
 
     def transfer_playlists(self, playlists, user_id):
@@ -233,15 +290,16 @@ class Spotify:
                 result = self.spot.get('search', {'q': b, 'type': 'track', 'limit': 1})
                 try:
                     tracks_ids.append(result['tracks']['items'][0]['uri'])
+                    self.socket.emit('audio_found', {'data': 1})
                 except:
-                    pass
+                    self.socket.emit('audio_found', {'data': 0})
             for b in range(0, len(tracks_ids), 50):
-                chunk = tracks_ids[b:b+50]
+                chunk = tracks_ids[b:b + 50]
                 self.spot.post("playlists/{}/tracks".format(playlist_id), json.dumps({'uris': chunk}))
 
 
 class Yandex:
-    def __init__(self, login=None, password=None, token=None):
+    def __init__(self, login=None, password=None, token=None, socket=None):
         if login and password:
             self.api = yandex_music.Client.from_credentials(login, password)
         if token:
@@ -249,6 +307,8 @@ class Yandex:
         self.api.report_new_fields = False
         self.api.report_new_fields_callback = False
         self.ids = 0
+        if socket:
+            self.socket = socket
 
     def save_token(self, user_id):
         db.add_service(user_id, self.api.token, 'yandex')
@@ -322,7 +382,11 @@ class Yandex:
         tracks_db = db.get_audio(tracks, 'tracks', user_id)
         for i in tracks_db:
             result = self.api.search(i, type_='track')
-            items.append(result.tracks.results[0].track_id)
+            try:
+                items.append(result.tracks.results[0].track_id)
+                self.socket.emit('audio_found', {'data': 1})
+            except:
+                self.socket.emit('audio_found', {'data': 0})
         return items
 
     def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
@@ -341,7 +405,11 @@ class Yandex:
         tracks_db = db.get_audio(albums, 'albums', user_id)
         for i in tracks_db:
             result = self.api.search(i, type_='album')
-            items.append(result.albums.results[0].id)
+            try:
+                items.append(result.albums.results[0].id)
+                self.socket.emit('audio_found', {'data': 1})
+            except:
+                self.socket.emit('audio_found', {'data': 0})
         return items
 
     def transfer_albums(self, albums, user_id, sub=config.TESTING):
@@ -356,7 +424,11 @@ class Yandex:
         tracks_db = db.get_audio(artists, 'artists', user_id)
         for i in tracks_db:
             result = self.api.search(i, type_='artist')
-            items.append(result.artists.results[0].id)
+            try:
+                items.append(result.artists.results[0].id)
+                self.socket.emit('audio_found', {'data': 1})
+            except:
+                self.socket.emit('audio_found', {'data': 0})
         return items
 
     def transfer_artists(self, artists, user_id, sub=config.TESTING):
@@ -386,13 +458,13 @@ class Yandex:
             playlist = self.api.users_playlists_create(i['title'])
             for b in i['tracks']:
                 track = self.api.search(b, type_='track')
-                print(b)
                 try:
                     track_id = track.tracks.results[0].id
                     album_id = track.tracks.results[0].albums[0].id
                     playlist = playlist.insert_track(track_id, album_id)
+                    self.socket.emit('audio_found', {'data': 1})
                 except:
-                    pass
+                    self.socket.emit('audio_found', {'data': 0})
 
 
 class Deezer:
@@ -488,7 +560,7 @@ class Deezer:
             playlists.append({'title': i['title'], 'service': 'deezer', 'tracks': tracks, 'id': str(uuid.uuid4())})
         return playlists
 
-    def get_music(self,):
+    def get_music(self, ):
         return self.tracks(), self.albums(), self.artists(), self.playlists(), self.ids
 
     def search_tracks_ids(self, tracks, user_id):
@@ -583,7 +655,7 @@ class Deezer:
                     print(f"Не найдено {errors} \n")
 
                 for b in range(0, len(tracks), 50):
-                    chunk = str(tracks[b:b+50]).replace('[', '').replace(']', '')
+                    chunk = str(tracks[b:b + 50]).replace('[', '').replace(']', '')
                     self.post(f"playlist/{playlist_id}/tracks", params={'songs': chunk})
 
 
@@ -773,4 +845,3 @@ class Napster:
     def save_token(self):
         db.add_service(self.user_id, self.token, 'napster')
         db.save_refresh_token(self.user_id, self.refresh_token(), 'napster')
-

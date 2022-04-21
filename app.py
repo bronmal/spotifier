@@ -6,10 +6,12 @@ import db_orm as db
 import kassa
 import services
 from flask import Flask, session, request, redirect, render_template, json, send_from_directory, Response
+from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_session import Session
 from flask_babel import Babel, _
 from flask_babel_js import BabelJS
+from threading import Lock
 from users import login, User
 
 application = Flask(__name__)
@@ -21,9 +23,32 @@ application.config['SECRET_KEY'] = os.urandom(64)
 application.config['SESSION_TYPE'] = 'filesystem'
 application.config['SESSION_FILE_DIR'] = '.flask_session/'
 
+socketio = SocketIO(application)
+thread = None
+thread_lock = Lock()
+
 Session(application)
 babel = Babel(application)
 babel_js = BabelJS(application)
+
+
+def auth_in(email, name, photo):
+    if db.in_db(email):
+        user = User(db.get_user_by_email(email))
+        login_user(user)
+    else:
+        db.create_user(email, name, photo)
+        user = User(db.get_user_by_email(email))
+        login_user(user)
+
+
+def background_thread():
+    count = 0
+    while True:
+        socketio.sleep(10)
+        count += 1
+        socketio.emit('my_response',
+                      {'data': 'Server generated event', 'count': count})
 
 
 @babel.localeselector
@@ -37,7 +62,7 @@ def main_page():
     if not session.get('uuid'):
         session['uuid'] = str(uuid.uuid4())
 
-    return redirect('/dashboard')#render_template('index.html')
+    return redirect('/dashboard')  # render_template('index.html')
 
 
 @login.user_loader
@@ -49,16 +74,6 @@ def load_user(id):
 @application.route('/img')
 def serve_img():
     return Response(db.get_user_info_dashboard(current_user.get_id(), True))
-
-
-def auth_in(email, name, photo):
-    if db.in_db(email):
-        user = User(db.get_user_by_email(email))
-        login_user(user)
-    else:
-        db.create_user(email, name, photo)
-        user = User(db.get_user_by_email(email))
-        login_user(user)
 
 
 @application.route('/auth')
@@ -237,6 +252,11 @@ def send_audio():
                        'artists': artists})
 
 
+@application.route('/test')
+def test():
+    return render_template('socket_test.html')
+
+
 @application.route('/send_audio', methods=['POST'])
 def get_audio():
     if request.method == 'POST':
@@ -254,7 +274,7 @@ def get_audio():
 
         if to_service == 'spotify':
             if spotify_token:
-                api = services.Spotify(spotify_token, current_user.get_id())
+                api = services.Spotify(spotify_token, current_user.get_id(), socketio)
                 if db.check_sub(current_user.get_id()):
                     if tracks:
                         api.transfer_tracks(tracks, current_user.get_id())
@@ -273,10 +293,12 @@ def get_audio():
 
         if to_service == 'vk':
             if vk_token:
-                api = services.Vk(vk_token)
+                api = services.Vk(vk_token, socketio)
                 if db.check_sub(current_user.get_id()):
                     if tracks:
                         api.transfer_tracks(tracks, current_user.get_id())
+                    if playlists:
+                        api.transfer_playlists(playlists, current_user.get_id())
                 if not db.check_sub(current_user.get_id()) and db.check_free_transfer(current_user.get_id()) > 0:
                     if tracks:
                         api.transfer_tracks(tracks, current_user.get_id(), False)
@@ -286,7 +308,7 @@ def get_audio():
 
         if to_service == 'yandex':
             if yandex_token:
-                api = services.Yandex(token=yandex_token)
+                api = services.Yandex(token=yandex_token, socket=socketio)
                 if db.check_sub(current_user.get_id()):
                     if tracks:
                         api.transfer_tracks(tracks, current_user.get_id())
@@ -443,4 +465,5 @@ def disconnect_sub():
 
 
 if __name__ == '__main__':
-    application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='127.0.0.1')
+    # application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='127.0.0.1')
+    socketio.run(application)

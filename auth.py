@@ -146,7 +146,10 @@ class SpotAuth:
             self.put(method, params)
         if response.status_code == 503:
             self.put(method, params)
-        return response.json()
+        if response.text != '':
+            return response.json()
+        if response.text == '':
+            return None
 
     def post(self, method, params=None):
         headers = {
