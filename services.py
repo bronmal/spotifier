@@ -4,6 +4,7 @@ import uuid
 import requests
 import vk_api
 import yandex_music
+from yandex_music.utils.difference import Difference
 import deezer
 import config
 import db_orm as db
@@ -182,12 +183,28 @@ class Spotify:
         result = self.spot.get('me/playlists', {'limit': count_tracks, 'offset': offset})
         for i, item in enumerate(result['items']):
             tracks_spot = self.spot.get('playlists/{}/tracks'.format(item['id']))
-            tracks = []
-            if len(tracks_spot['items']) > 0:
+
+            if tracks_spot['next'] is not None:
+                tracks = []
+                while tracks_spot['next'] is not None:
+                    if len(tracks_spot['items']) > 0:
+                        for b in tracks_spot['items']:
+                            tracks.append(b['track']['name'] + ' ' + b['track']['artists'][0]['name'])
+                    tracks_spot = self.spot.get(tracks_spot['next'][27:])
+
                 for b in tracks_spot['items']:
                     tracks.append(b['track']['name'] + ' ' + b['track']['artists'][0]['name'])
-            playlists.append({'title': item['name'], 'id': str(uuid.uuid4()), 'tracks': tracks, 'service': 'spotify'})
-            self.ids += 1
+
+                playlists.append({'title': item['name'], 'id': str(uuid.uuid4()), 'tracks': tracks, 'service': 'spotify'})
+
+            else:
+                tracks = []
+                if len(tracks_spot['items']) > 0:
+                    for b in tracks_spot['items']:
+                        tracks.append(b['track']['name'] + ' ' + b['track']['artists'][0]['name'])
+                playlists.append(
+                    {'title': item['name'], 'id': str(uuid.uuid4()), 'tracks': tracks, 'service': 'spotify'})
+
         return playlists
 
     def artists(self, offset):
@@ -247,7 +264,7 @@ class Spotify:
                 items.append(result['albums']['items'][0]['id'])
                 self.socket.emit('audio_found', {'data': 1})
             except:
-                self.socket.emit('audio_found', {'data': 0})  # TODO отправлять неперенесенные треки
+                self.socket.emit('audio_found', {'data': 0})
         return items
 
     def transfer_albums(self, albums, user_id):
@@ -265,7 +282,7 @@ class Spotify:
                 items.append(result['artists']['items'][0]['id'])
                 self.socket.emit('audio_found', {'data': 1})
             except:
-                self.socket.emit('audio_found', {'data': 0})  # TODO отправлять неперенесенные треки
+                self.socket.emit('audio_found', {'data': 0})
         return items
 
     def transfer_artists(self, artists, user_id):
@@ -456,15 +473,16 @@ class Yandex:
 
         for i in playlists_ids:
             playlist = self.api.users_playlists_create(i['title'])
+            tracks = []
             for b in i['tracks']:
                 track = self.api.search(b, type_='track')
                 try:
-                    track_id = track.tracks.results[0].id
-                    album_id = track.tracks.results[0].albums[0].id
-                    playlist = playlist.insert_track(track_id, album_id)
+                    tracks.append({'id': track.tracks.results[0].id, 'album_id': track.tracks.results[0].albums[0].id})
                     self.socket.emit('audio_found', {'data': 1})
                 except:
                     self.socket.emit('audio_found', {'data': 0})
+            diff = Difference().add_insert(0, tracks)
+            self.api.users_playlists_change(playlist.kind, diff.to_json())
 
 
 class Deezer:
