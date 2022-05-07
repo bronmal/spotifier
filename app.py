@@ -42,13 +42,13 @@ def auth_in(email, name, photo):
         login_user(user)
 
 
-def background_thread():
+"""def background_thread():
     count = 0
     while True:
         socketio.sleep(10)
         count += 1
         socketio.emit('my_response',
-                      {'data': 'Server generated event', 'count': count})
+                      {'data': 'Server generated event', 'count': count})"""
 
 
 @babel.localeselector

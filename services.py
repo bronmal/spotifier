@@ -11,64 +11,12 @@ import db_orm as db
 from auth import SpotAuth
 
 count_tracks = 15
-# TODO
-"""сделать авторизацию с подделкой под android приложение
-https://ru.stackoverflow.com/questions/1179262/
-Библиотека-vk-api-для-импорта-списка-audio-пользователя-вконтакта-и-альтернативн
-Должно помочь для работы с плейлистами и альбомами"""
-
-import requests, hashlib, urllib, random, string, re
-
-"""class VkAndroidApi(object):
-    session = requests.Session()
-    session.headers={"User-Agent": "VKAndroidApp/4.13.1-1206 (Android 4.4.3; SDK 19; armeabi; ; ru)","Accept": "image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*"}
-    
-    def __init__(this,login=None,password=None,token=None,secret=None,v=5.95):
-        this.v=v
-        this.device_id = "".join( random.choice(string.ascii_lowercase+string.digits) for i in range(16))
-
-        if token is not None and secret is not None:
-            this.token=token
-            this.secret=secret
-            return
-        #Генерируем рандомный device_id
-        answer =  this.session.get(
-            "https://oauth.vk.com/token?grant_type=password&scope=nohttps,audio&client_id=2274003&client_secret=hHbZxrka2uZ6jB1inYsH&username={login}&password={password}".format(
-                login=login,
-                password=password
-            ),
-                                   headers={'User-Agent': 'Mozilla/4.0 (compatible; ICS)'}).json()
-        if("error" in answer): raise PermissionError("invalid login|password!")
-        this.secret = answer["secret"]
-        this.token = answer["access_token"]
-        #Методы, "Открывающие" доступ к аудио. Без них, аудио получить не получится
-        this.method('execute.getUserInfo',func_v=9), 
-        this._send('/method/auth.refreshToken?access_token={token}&v={v}&device_id={device_id}&lang=ru'.format(token=this.token,v=v,device_id=this.device_id))
-    def method(this,method,**params):
-        url =( "/method/{method}?v={v}&access_token={token}&device_id={device_id}".format(method=method,v=this.v,token=this.token,device_id=this.device_id)
-            +"".join("&%s=%s"%(i,params[i]) for i in params if params[i] is not None)
-        )#генерация ссылки по которой будет генерироваться md5-подпись
-        #обратите внимание - в даннаой ссылке нет urlencode параметров 
-        return this._send(url,params,method);
-    def _send(this,url,params=None,method=None,headers=None):
-        hash = hashlib.md5((url+this.secret).encode()).hexdigest()
-        if method is not None and params is not None:
-            url = ("/method/{method}?v={v}&access_token={token}&device_id={device_id}".format(method=method,token=this.token,device_id=this.device_id,v=this.v)
-                + "".join(
-                "&"+i+"="+urllib.parse.quote_plus(str(params[i])) for i in params if(params[i] is not None)
-                ))
-        if headers is None:
-            return this.session.get('https://api.vk.com'+url+"&sig="+hash).json()
-        else:
-            return this.session.get('https://api.vk.com'+url+"&sig="+hash,headers=headers).json()
-    _pattern = re.compile(r'/[a-zA-Z\d]{6,}(/.*?[a-zA-Z\d]+?)/index.m3u8()')
-    def to_mp3(self,url):
-        return self._pattern.sub(r'\1\2.mp3',url)"""
 
 
 class Vk:
     def __init__(self, token, socket=None):
         self.api = vk_api.VkApi(token=token, api_version="5.131")
+        self.api.RPS_DELAY = 1
         self.user_id = self.api.method('users.get')[0]['id']
         if socket:
             self.socket = socket
@@ -129,7 +77,9 @@ class Vk:
         items = []
         tracks_db = db.get_audio(tracks, 'tracks', user_id)
         for i in tracks_db:
-            result = self.api.method('audio.search', values={'q': i, 'owner_id': self.user_id})
+            values = {'q': i, 'owner_id': self.user_id}
+            result = self.api.method('execute', values={'code': f'return API.audio.search({values});'})
+            # result = self.api.method('audio.search', values={'q': i, 'owner_id': self.user_id}, raw=True)
             try:
                 items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
                 self.socket.emit('audio_found', {'data': 1})
@@ -141,7 +91,9 @@ class Vk:
         tracks_ids = self.search_tracks_ids(tracks, user_id)
         if sub:
             for i in tracks_ids:
-                self.api.method('audio.add', values={'audio_id': i['id'], 'owner_id': i['owner_id']})
+                values = {'audio_id': i['id'], 'owner_id': i['owner_id']}
+                self.api.method('execute', values={'code': f'return API.audio.add({values});'})
+                # self.api.method('audio.add', values={'audio_id': i['id'], 'owner_id': i['owner_id']})
         if not sub:
             count = 0
             for i in range(0, db.check_free_transfer(user_id)):
@@ -163,7 +115,12 @@ class Spotify:
         self.prefix = 'https://api.spotify.com/v1'
         self.spot = SpotAuth(token=token, user_id=user_id)
         self.ids = 0
-        self.spot_id = self.spot.get('me')['id']
+        try:
+            self.spot_id = self.spot.get('me')['id']
+        except:
+            self.spot.refresh_token()
+            if self.spot.token:
+                self.spot_id = self.spot.get('me')['id']
         if socket:
             self.socket = socket
 
@@ -475,7 +432,11 @@ class Yandex:
             playlist = self.api.users_playlists_create(i['title'])
             tracks = []
             for b in i['tracks']:
-                track = self.api.search(b, type_='track')
+                track = type
+                try:
+                    track = self.api.search(b, type_='track')
+                except:
+                    continue
                 try:
                     tracks.append({'id': track.tracks.results[0].id, 'album_id': track.tracks.results[0].albums[0].id})
                     self.socket.emit('audio_found', {'data': 1})

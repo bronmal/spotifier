@@ -120,7 +120,8 @@ class SpotAuth:
             self.refr_token = None
             self.save_token(self.user_id)
         except:
-            db.remove_service(self.user_id, 'spotify')
+            if db.get_refr_token(self.user_id, 'spotify'):
+                db.remove_service(self.user_id, 'spotify')
 
     def get(self, method, params=None):
         headers = {

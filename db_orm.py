@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 connect_string = 'mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4'.format(
     config.DB_LOGIN, config.DB_PASS, 'localhost', 3306, config.DB_DATABASE)
 
-engine = create_engine(connect_string)  # convert_unicode=True, echo=True, future=True)
+engine = create_engine(connect_string, connect_args={'read_timeout': 3000, 'write_timeout': 3000})  # convert_unicode=True, echo=True, future=True)
 
 DeclarativeBase = declarative_base()
 
