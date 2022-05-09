@@ -732,8 +732,18 @@ body {
   height: calc(96px * var(--deltaH));
   border-radius: 0;
 }
+.app.popup-container.container {
+  width: calc(247px * var(--deltaW));
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .app.popup-container.progress-bar-container {
   height: calc(40px * var(--deltaH));
+  margin: calc(14px * var(--deltaH)) 0 0 0;
+  width: 100%;
   display: flex;
   align-items: center;
   background-color: #323061;
@@ -741,10 +751,16 @@ body {
 }
 .app.popup-container.progress-bar {
   background: linear-gradient(90deg, #FF527F 0%, #FD9590 100%);
-  padding: 1%;
+  padding: 0;
   height: calc(24px * var(--deltaH));
-  width: 10%;
+  width: 0;
   border-radius: 0;
+}
+.app.popup-container.text {
+  width: 100%;
+  text-align: center;
+  height: 20px;
+  color: #CFC4C5;
 }
 .app::-webkit-scrollbar {
   width: 6px;

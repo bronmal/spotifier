@@ -466,4 +466,4 @@ def disconnect_sub():
 
 if __name__ == '__main__':
     # application.run(threaded=True, debug=True, port=int(os.environ.get("PORT", 5000)), host='127.0.0.1')
-    socketio.run(application)
+    socketio.run(application, debug=True)

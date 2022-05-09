@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8" />
     <script type="text/javascript" src="/static/js/metrika.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/static/index.css" />
     <link rel="icon" href="/static/images/spotifier-logo.svg" />
     <meta name="theme-color" content="#000000" />
@@ -114,13 +115,18 @@
             </div>
             <div class="app popup-container progress-container">
                 <img src="/static/images/spotifier 96x96.svg" class="app popup-container image spotifier">
-                <div class="app popup-container progress-bar-container">
-                    <div class="app popup-container progress-bar">
-
+                <div class="app popup-container container">
+                    <div class="app popup-container progress-bar-container">
+                        <div class="app popup-container progress-bar">
+                        </div>
+                    </div>
+                    <div class="app popup-container text hidden">
                     </div>
                 </div>
+
                 <img src="/static/images/spotify 96x96.svg" class="app popup-container image serviceLogo">
             </div>
+
 
         </div>
 

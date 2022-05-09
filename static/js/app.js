@@ -1,5 +1,6 @@
 const mutableElements = [document.querySelector('.app.chosen.option'), document.querySelector('.app.chosen.add'), document.querySelector('.app.chosen.transfer')]
 const localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), artists: _('артисты'), albums: _("альбомы") }
+const socket = io();
 
 //TODO:
 //Переделать дельты для разнвх типов обьектов например для картинок и остального
@@ -31,6 +32,7 @@ class ObjectArray {
         }
         this._value.push(value)
     }
+
 }
 currentOption = "{chosen}"
 
@@ -118,9 +120,16 @@ function appOnResize() {
 }
 
 async function goBack() {
+    let progressBar = document.querySelector('.app.popup-container.progress-bar');
     let serviceContainer = document.querySelector('.app.popup-container.popup-service-container.non-selectable');
     let text = document.querySelector('.app.popup-container.popup-label.service-pick');
     let progressBarContainer = document.querySelector('.app.popup-container.progress-container');
+    let text_ = document.querySelector('.app.popup-container.text');
+    text_.classList.add('hiddden');
+    text_.innerHTML = '';
+    progressBar.style.width = 0;
+    progressBar.style.padding = 0;
+
     progressBarContainer.style.display = 'none';
     serviceContainer.parentElement.parentElement.style.display = 'none'
     serviceContainer.style.display = 'block';
@@ -213,6 +222,7 @@ async function sendData(to_service) {
 
     return new Promise((resolve, reject) => {
         dataToSend.to_service = to_service;
+        console.log(dataToSend);
         $(() => {
             $.ajax({
                 url: '/send_audio',
@@ -438,19 +448,82 @@ async function showTransferPopUp() {
 
 async function chooseService(service) {
     sendData(service.classList[4])
+    let count = 0;
+
+    let checked = getCheckedObjects();
+    let dataToSend = {
+        "tracks": [],
+        "artists": [],
+        "albums": [],
+        "playlists": [],
+        "to_service": ''
+    }
+
+    for (let object of checked) {
+        let id = object.parentNode.classList[2].substring(2)
+        let service = object.parentNode.childNodes[5].className.substring(object.parentNode.childNodes[5].className.indexOf("service") + 8);
+        for (let i of data.tracks.value) {
+            if (i.id === id) {
+                dataToSend.tracks.push({ "id": id, "service": service })
+            }
+        }
+        for (let i of data.artists.value) {
+            if (i.id === id) {
+                dataToSend.artists.push({ "id": id, "service": service })
+            }
+        }
+        for (let i of data.albums.value) {
+            if (i.id === id) {
+                dataToSend.albums.push({ "id": id, "service": service })
+            }
+        }
+        for (let i of data.playlists.value) {
+            if (i.id === id) {
+                dataToSend.playlists.push({ "id": id, "service": service })
+            }
+        }
+    }
+    let text = document.querySelector('.app.popup-container.text')
+    text.classList.remove('hidden');
+
+    socket.on('audio_found', (msg, cb) => {
+        let progressBar = document.querySelector('.app.popup-container.progress-bar');
+
+
+        let sum = dataToSend.tracks.length + dataToSend.artists.length + dataToSend.albums.length + dataToSend.playlists.length;
+        if (parseInt(msg.data) == 1) {
+            count += parseInt(msg.data);
+        } else {
+            sum -= 1;
+        }
+        let d = (count / sum) * 100 + "%";
+
+
+        console.log('sum', sum);
+        console.log('d', d);
+        console.log('count', count);
+        progressBar.style.width = d;
+        progressBar.style.padding = '1%';
+
+        text.innerHTML = msg.track;
+        if (cb)
+            cb();
+    });
     let serviceContainer = document.querySelector('.app.popup-container.popup-service-container.non-selectable');
-    let text = document.querySelector('.app.popup-container.popup-label.service-pick');
+    let text_ = document.querySelector('.app.popup-container.popup-label.service-pick');
     let progressBarContainer = document.querySelector('.app.popup-container.progress-container');
-    let serviceLogo = document.querySelector('.app.popup-container.image.serviceLogo')
+    let serviceLogo = document.querySelector('.app.popup-container.image.serviceLogo');
+
     serviceLogo.src = `${service.src}`
     progressBarContainer.style.display = 'flex'
     serviceContainer.style.display = 'none';
-    text.style.textAlign = 'center';
-    text.style.marginLeft = 0;
-    text.innerHTML = _('Перенос треков');
+    text_.style.textAlign = 'center';
+    text_.style.marginLeft = 0;
+    text_.innerHTML = _('Перенос треков');
 
 
 }
+
 
 async function getServices() {
     parseData('/get_services').then((response) => {

@@ -82,7 +82,7 @@ class Vk:
             # result = self.api.method('audio.search', values={'q': i, 'owner_id': self.user_id}, raw=True)
             try:
                 items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
-                self.socket.emit('audio_found', {'data': 1})
+                self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
                 self.socket.emit('audio_found', {'data': 0})
         return items
