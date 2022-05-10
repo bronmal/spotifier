@@ -332,7 +332,7 @@ def get_audio(audio, types, user_id):
             types_ = {'tracks': json.loads(i.tracks) if i.tracks is not None else None,
                       'albums': json.loads(i.albums) if i.albums is not None else None,
                       'playlists': json.loads(i.playlists) if i.playlists is not None else None,
-                      'artists': json.loads(i.artists) if i.artists is  not None else None}
+                      'artists': json.loads(i.artists) if i.artists is not None else None}
             tracks_db = types_[types]
 
     for i in tracks_db:
