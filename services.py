@@ -84,7 +84,7 @@ class Vk:
                 items.append({'id': result['items'][0]['id'], 'owner_id': result['items'][0]['owner_id']})
                 self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
-                self.socket.emit('audio_found', {'data': 0})
+                self.socket.emit('audio_found', {'data': 0, 'track': i})
         return items
 
     def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
@@ -194,11 +194,11 @@ class Spotify:
         tracks_db = db.get_audio(tracks, 'tracks', user_id)
         for i in tracks_db:
             result = self.spot.get('search', {'q': i, 'type': 'track', 'limit': 1})
-            self.socket.emit('audio_found', {'data': 1})
             try:
                 items.append(result['tracks']['items'][0]['id'])
+                self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
-                self.socket.emit('audio_found', {'data': 0})
+                self.socket.emit('audio_found', {'data': 0, 'track': i})
         return items
 
     def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
@@ -219,9 +219,9 @@ class Spotify:
             result = self.spot.get('search', {'q': i, 'type': 'album', 'limit': 1})
             try:
                 items.append(result['albums']['items'][0]['id'])
-                self.socket.emit('audio_found', {'data': 1})
+                self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
-                self.socket.emit('audio_found', {'data': 0})
+                self.socket.emit('audio_found', {'data': 0, 'track': i})
         return items
 
     def transfer_albums(self, albums, user_id):
@@ -237,9 +237,9 @@ class Spotify:
             result = self.spot.get('search', {'q': i, 'type': 'artist', 'limit': 1, 'market': 'RS'})
             try:
                 items.append(result['artists']['items'][0]['id'])
-                self.socket.emit('audio_found', {'data': 1})
+                self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
-                self.socket.emit('audio_found', {'data': 0})
+                self.socket.emit('audio_found', {'data': 0, 'track': i})
         return items
 
     def transfer_artists(self, artists, user_id):
@@ -264,9 +264,9 @@ class Spotify:
                 result = self.spot.get('search', {'q': b, 'type': 'track', 'limit': 1})
                 try:
                     tracks_ids.append(result['tracks']['items'][0]['uri'])
-                    self.socket.emit('audio_found', {'data': 1})
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
                 except:
-                    self.socket.emit('audio_found', {'data': 0})
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
             for b in range(0, len(tracks_ids), 50):
                 chunk = tracks_ids[b:b + 50]
                 self.spot.post("playlists/{}/tracks".format(playlist_id), json.dumps({'uris': chunk}))
@@ -358,9 +358,9 @@ class Yandex:
             result = self.api.search(i, type_='track')
             try:
                 items.append(result.tracks.results[0].track_id)
-                self.socket.emit('audio_found', {'data': 1})
+                self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
-                self.socket.emit('audio_found', {'data': 0})
+                self.socket.emit('audio_found', {'data': 0, 'track': i})
         return items
 
     def transfer_tracks(self, tracks, user_id, sub=config.TESTING):
@@ -381,9 +381,9 @@ class Yandex:
             result = self.api.search(i, type_='album')
             try:
                 items.append(result.albums.results[0].id)
-                self.socket.emit('audio_found', {'data': 1})
+                self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
-                self.socket.emit('audio_found', {'data': 0})
+                self.socket.emit('audio_found', {'data': 0, 'track': i})
         return items
 
     def transfer_albums(self, albums, user_id, sub=config.TESTING):
@@ -400,9 +400,9 @@ class Yandex:
             result = self.api.search(i, type_='artist')
             try:
                 items.append(result.artists.results[0].id)
-                self.socket.emit('audio_found', {'data': 1})
+                self.socket.emit('audio_found', {'data': 1, 'track': i})
             except:
-                self.socket.emit('audio_found', {'data': 0})
+                self.socket.emit('audio_found', {'data': 0, 'track': i})
         return items
 
     def transfer_artists(self, artists, user_id, sub=config.TESTING):
@@ -439,19 +439,21 @@ class Yandex:
                     continue
                 try:
                     tracks.append({'id': track.tracks.results[0].id, 'album_id': track.tracks.results[0].albums[0].id})
-                    self.socket.emit('audio_found', {'data': 1})
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
                 except:
-                    self.socket.emit('audio_found', {'data': 0})
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
             diff = Difference().add_insert(0, tracks)
             self.api.users_playlists_change(playlist.kind, diff.to_json())
 
 
 class Deezer:
-    def __init__(self, token=None):
+    def __init__(self, token=None, socket=None):
         self.api = deezer.Client(app_id=config.DEEZER_ID, app_secret=config.SPOTIFY_SECRET, access_token=token)
         self.base_url = 'https://api.deezer.com/'
         self.token = token
         self.ids = 0
+        if socket:
+            self.socket = socket
 
     @staticmethod
     def create_url():
@@ -548,7 +550,11 @@ class Deezer:
         for i in tracks_db:
             result = self.api.search(i, ordering='TRACK_ASC')
             for i in result:
-                items.append(i.id)
+                try:
+                    items.append(i.id)
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
+                except:
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
                 break
         return items
 
@@ -577,7 +583,11 @@ class Deezer:
         for i in albums_db:
             result = self.api.search(i, ordering='ALBUM_ASC')
             for i in result:
-                items.append(i.album.id)
+                try:
+                    items.append(i.album.id)
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
+                except:
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
                 break
         return items
 
@@ -596,7 +606,11 @@ class Deezer:
         for i in artists_db:
             result = self.api.search(i, ordering='ARTIST_ASC')
             for i in result:
-                items.append(i.artist.id)
+                try:
+                    items.append(i.artist.id)
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
+                except:
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
                 break
         return items
 
@@ -639,11 +653,13 @@ class Deezer:
 
 
 class Napster:
-    def __init__(self, token=None, user_id=None):
+    def __init__(self, token=None, user_id=None, socket=None):
         self.api = None
         self.token = token
         self.user_id = user_id
         self.ids = 0
+        if socket:
+            self.socket = socket
         try:
             self.refresh_token = db.get_refr_token(user_id, 'napster')
         except:
@@ -740,7 +756,11 @@ class Napster:
         for i in tracks_db:
             result = self.get('search', {'query': i, 'type': 'track'})
             for i in result['search']['data']['tracks']:
-                items.append(i['id'])
+                try:
+                    items.append(i['id'])
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
+                except:
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
                 break
         return items
 
@@ -769,7 +789,11 @@ class Napster:
         for i in tracks_db:
             result = self.get('search', {'query': i, 'type': 'album'})
             for i in result['search']['data']['tracks']:
-                items.append(i['id'])
+                try:
+                    items.append(i['id'])
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
+                except:
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
                 break
         return items
 
@@ -798,7 +822,11 @@ class Napster:
         for i in tracks_db:
             result = self.get('search', {'query': i, 'type': 'artists'})
             for i in result['search']['data']['tracks']:
-                items.append(i['id'])
+                try:
+                    items.append(i['id'])
+                    self.socket.emit('audio_found', {'data': 1, 'track': i})
+                except:
+                    self.socket.emit('audio_found', {'data': 0, 'track': i})
                 break
         return items
 
