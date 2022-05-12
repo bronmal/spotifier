@@ -1,6 +1,11 @@
 const mutableElements = [document.querySelector('.app.chosen.option'), document.querySelector('.app.chosen.add'), document.querySelector('.app.chosen.transfer')]
 const localizedVars = { tracks: _('треки'), playlists: _('плейлисты'), artists: _('артисты'), albums: _("альбомы") }
 const socket = io();
+const clusterize = new Clusterize({
+    scrollId: 'scrollArea',
+    contentId: 'contentArea',
+    rows_in_block: 24
+});
 
 //TODO:
 //Переделать дельты для разнвх типов обьектов например для картинок и остального
@@ -11,6 +16,7 @@ class ObjectArray {
         this._dataType = dataType;
         this._localType = lType;
         this._value = []
+        this._checkedObjects = new Map();
     }
     set value(value) {
         this._value = value;
@@ -18,29 +24,61 @@ class ObjectArray {
     get value() {
         return this._value;
     }
-    push(value) {
+    get checkedObjects() {
+        return this._checkedObjects;
+    }
+    getCheckedObjectsLength() {
+        let j = 0;
+        this._checkedObjects.forEach((v, k) => {
+            if (v === true) j += 1;
+        })
+        return j;
+    }
+    get checkedObjects() {
+        return this._checkedObjects;
+    }
+    async push(value) {
         if (typeof value === 'object') {
             this._value.push(...value)
             if (currentOption === this._localType) {
-                let mainContainer = document.querySelector('.app.main-container')
+                let songs = []
                 for (let v of value) {
-                    add(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist)
-                    updateCountVars();
+                    let song = await constructSong(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist);
+                    songs.push(song)
                 }
+                clusterize.append(songs)
+                this.addUncheckedObjects();
+                updateCountVars();
             }
             return;
         }
         this._value.push(value)
     }
+    addUncheckedObjects() {
+        this._value.forEach(e => {
+            this._checkedObjects.set(e.id, [false, e.service]);
+        });
+    }
+    checkObject(elementId) {
+        let service = this._checkedObjects.get(elementId)[1]
+        this._checkedObjects.set(elementId, [true, service]);
+    }
+    uncheckObject(elementId) {
+        let service = this._checkedObjects.get(elementId)[1]
+        this._checkedObjects.set(elementId, [false, service]);
+    }
 
 }
 currentOption = "{chosen}"
+notLocalizedCurrentOption = ''
 
 let data = {
     _tracks: new ObjectArray("tracks", localizedVars.tracks),
     _artists: new ObjectArray("artists", localizedVars.artists),
     _albums: new ObjectArray("albums", localizedVars.albums),
     _playlists: new ObjectArray("playlists", localizedVars.playlists),
+    _checkedObjectsLength: 0,
+    _checkedObjects: [],
     set tracks(value) {
         this._tracks = value;
     },
@@ -65,8 +103,18 @@ let data = {
     get playlists() {
         return this._playlists;
     },
+    get getCheckedObjectsLength() {
+        return this._albums.getCheckedObjectsLength() + this._artists.getCheckedObjectsLength() + this._playlists.getCheckedObjectsLength() + this._tracks.getCheckedObjectsLength()
+    },
+    get checkedObjects() {
+        return new Map([...this._albums.checkedObjects, ...this._artists.checkedObjects, ...this._playlists.checkedObjects, ...this._tracks.checkedObjects])
+    }
 }
 
+function objectChecked(id) {
+    if (data.tracks.checkedObjects.get(id) === true || data.albums.checkedObjects.get(id) === true || data.artists.checkedObjects.get(id) === true || data.playlists.checkedObjects.get(id) === true) return true;
+    else return false;
+}
 
 
 
@@ -125,7 +173,7 @@ async function goBack() {
     let text = document.querySelector('.app.popup-container.popup-label.service-pick');
     let progressBarContainer = document.querySelector('.app.popup-container.progress-container');
     let text_ = document.querySelector('.app.popup-container.text');
-    text_.classList.add('hiddden');
+    text_.classList.add('hidden');
     text_.innerHTML = '';
     progressBar.style.width = 0;
     progressBar.style.padding = 0;
@@ -185,7 +233,6 @@ async function parseServiceData(url, service, offset) {
 }
 
 async function sendData(to_service) {
-    let checked = getCheckedObjects();
     let dataToSend = {
         "tracks": [],
         "artists": [],
@@ -194,30 +241,30 @@ async function sendData(to_service) {
         "to_service": ''
     }
 
-    for (let object of checked) {
-        let id = object.parentNode.classList[2].substring(2)
-        let service = object.parentNode.childNodes[5].className.substring(object.parentNode.childNodes[5].className.indexOf("service") + 8);
-        for (let i of data.tracks.value) {
-            if (i.id === id) {
-                dataToSend.tracks.push({ "id": id, "service": service })
-            }
+    let tracks = data.tracks.checkedObjects;
+    tracks.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.tracks.push({ "id": k, "service": v[1] })
         }
-        for (let i of data.artists.value) {
-            if (i.id === id) {
-                dataToSend.artists.push({ "id": id, "service": service })
-            }
+    })
+    let albums = data.albums.checkedObjects;
+    albums.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.albums.push({ "id": k, "service": v[1] })
         }
-        for (let i of data.albums.value) {
-            if (i.id === id) {
-                dataToSend.albums.push({ "id": id, "service": service })
-            }
+    })
+    let artists = data.artists.checkedObjects;
+    artists.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.artists.push({ "id": k, "service": v[1] })
         }
-        for (let i of data.playlists.value) {
-            if (i.id === id) {
-                dataToSend.playlists.push({ "id": id, "service": service })
-            }
+    })
+    let playlists = data.playlists.checkedObjects;
+    playlists.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.playlists.push({ "id": k, "service": v[1] })
         }
-    }
+    })
 
 
     return new Promise((resolve, reject) => {
@@ -243,34 +290,27 @@ async function sendData(to_service) {
 
 async function displayData(valueT, type) {
     if (currentOption != type) {
+        notLocalizedCurrentOption = valueT;
         deleteAllSongs();
         replaceAllChosen(type);
         document.querySelector('body > div.app.main-container > div.app.song.top-part > input').checked = false
     }
     if (currentOption === type) return;
-    currentOption = type
+    currentOption = type;
+    let songs = []
     for (let value of data[valueT].value) {
-        add(value.id, value.title, value.service, value.album === undefined ? "" : value.album, value.artist === undefined ? '' : value.artist)
+        songs.push(await constructSong(value.id, value.title, value.service, value.album === undefined ? "" : value.album, value.artist === undefined ? '' : value.artist))
     }
+    clusterize.update(songs)
+
 }
 
 async function updateCountVars() {
-    let tracks = document.querySelector('.app.chosen.option')
-    let selected = document.querySelector('.app.chosen.count')
-    let songs = document.querySelectorAll('.app.song')
-    let count = 0
-    for (let song of songs) {
-        if (song.className.includes('id')) {
-            count++;
-            document.querySelector('.app.chosen.option').innerHTML = tracks.innerHTML.substring(0, tracks.innerHTML.indexOf(':') + 2) + String(count)
-            document.querySelector('.app.chosen.count').innerHTML = selected.innerHTML.substring(0, selected.innerHTML.indexOf(':') + 2) + String(getCheckedObjects().length)
-        }
-        if (song.classList.contains('hidden')) {
-            count--;
-            document.querySelector('.app.chosen.option').innerHTML = tracks.innerHTML.substring(0, tracks.innerHTML.indexOf(':') + 2) + String(count)
-            document.querySelector('.app.chosen.count').innerHTML = selected.innerHTML.substring(0, selected.innerHTML.indexOf(':') + 2) + String(getCheckedObjects().length)
-        }
-    }
+    let tracks = document.querySelector('.app.chosen.option > strong')
+    let selected = document.querySelector('.app.chosen.count > strong')
+    tracks.innerHTML = data[notLocalizedCurrentOption].value.length
+    selected.innerHTML = data.albums.getCheckedObjectsLength() + data.artists.getCheckedObjectsLength() + data.playlists.getCheckedObjectsLength() + data.tracks.getCheckedObjectsLength()
+
 }
 
 async function recursiveGetSongs(service, offset, valueT) {
@@ -355,19 +395,7 @@ async function openMenu() {
     }
 }
 
-async function add(id, title, service, album, artist) {
-    let mainContainer = document.querySelector('.app.main-container')
-    let songs = document.querySelectorAll('.app.song')
-
-
-    for (let song of songs) {
-        if (song.classList.contains(`id${id}`)) {
-            song.classList.remove('hidden')
-
-            return;
-        }
-    }
-    let fragment = new DocumentFragment();
+async function constructSong(id, title, service, album, artist) {
     let song = document.createElement('div')
     let servicePath = ""
     switch (service) {
@@ -385,37 +413,44 @@ async function add(id, title, service, album, artist) {
             break;
     }
     song.className = `app song id${id}`
-    song.innerHTML = `
-        <input name="object" class="app song checkbox" type="checkbox"></input>
+    if (objectChecked(id)) {
+        song.innerHTML += `<input name="object" checked class="app song checkbox" type="checkbox" onclick="if (this.checked) data.tracks.checkObject('${id}'); else data.tracks.uncheckObject('${id}'); updateCountVars();"></input>`
+    } else {
+        song.innerHTML += `<input name="object" class="app song checkbox" type="checkbox" onclick="if (this.checked) data.tracks.checkObject('${id}'); else data.tracks.uncheckObject('${id}'); updateCountVars();"></input>`
+    }
+
+    song.innerHTML += `
+        
         <label class="app song label">${title}</label>
         <img src="${servicePath}" class="app song service ${service}"></img>
         <div class="app song option1">${artist}</div>
         <div class="app song option2">${album}</div>
         <img src="/static/images/change-btn.svg" class="app song change-btn"></img>
-        <img src="/static/images/delete-btn.svg" class="app song delete-btn"></img>
+        <img src="/static/images/delete-btn.svg" class="app song delete-btn" onlclick=""></img>
         </input>`
-    fragment.appendChild(song)
-    fragment.querySelector('.app.song.checkbox').addEventListener('click', () => { updateCountVars() })
-    fragment.querySelector('.app.song.delete-btn').addEventListener('click', () => { deleteSong(document.querySelector('.app.song.delete-btn')) })
-    mainContainer.appendChild(fragment)
+    let someElement = song;
+    let someElementToString;
 
+    if (someElement.outerHTML)
+        someElementToString = someElement.outerHTML;
+    else if (XMLSerializer)
+        someElementToString = new XMLSerializer().serializeToString(someElement);
+    return someElementToString;
 
 
 }
 
-function getCheckedObjects() {
-    return document.querySelectorAll('input[name=object]:checked');
+function getCheckedObjectsLength() {
+    return data.tracks.getCheckedObjectsLength() + data.artists.getCheckedObjectsLength() + data.albums.getCheckedObjectsLength() + data.playlists.getCheckedObjectsLength();
 }
 
 async function chooseAllSongs() {
     let tracks = document.querySelectorAll('.app.song')
     let checked = document.querySelector('body > div.app.main-container > div.app.song.top-part > input').checked
     for (let i = 9; i < tracks.length; i += 8) {
-        if (!tracks[i].parentElement.classList.contains('hidden')) {
-            tracks[i].checked = checked
-        }
+        tracks[i].checked = checked
     }
-    updateCountVars();
+    updateCountVars(currentOption);
 }
 
 async function deleteSong(element) {
@@ -425,9 +460,7 @@ async function deleteSong(element) {
 async function deleteAllSongs() {
     let tracks = document.querySelectorAll('.app.song')
     updateCountVars()
-    for (let i = 9; i < tracks.length; i += 8) {
-        deleteSong(tracks[i])
-    }
+    clusterize.update('');
     document.body.style.height = "100%";
 }
 
@@ -450,7 +483,6 @@ async function chooseService(service) {
     sendData(service.classList[4])
     let count = 0;
 
-    let checked = getCheckedObjects();
     let dataToSend = {
         "tracks": [],
         "artists": [],
@@ -459,30 +491,30 @@ async function chooseService(service) {
         "to_service": ''
     }
 
-    for (let object of checked) {
-        let id = object.parentNode.classList[2].substring(2)
-        let service = object.parentNode.childNodes[5].className.substring(object.parentNode.childNodes[5].className.indexOf("service") + 8);
-        for (let i of data.tracks.value) {
-            if (i.id === id) {
-                dataToSend.tracks.push({ "id": id, "service": service })
-            }
+    let tracks = data.tracks.checkedObjects;
+    tracks.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.tracks.push({ "id": k, "service": v[1] })
         }
-        for (let i of data.artists.value) {
-            if (i.id === id) {
-                dataToSend.artists.push({ "id": id, "service": service })
-            }
+    })
+    let albums = data.albums.checkedObjects;
+    albums.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.albums.push({ "id": k, "service": v[1] })
         }
-        for (let i of data.albums.value) {
-            if (i.id === id) {
-                dataToSend.albums.push({ "id": id, "service": service })
-            }
+    })
+    let artists = data.artists.checkedObjects;
+    artists.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.artists.push({ "id": k, "service": v[1] })
         }
-        for (let i of data.playlists.value) {
-            if (i.id === id) {
-                dataToSend.playlists.push({ "id": id, "service": service })
-            }
+    })
+    let playlists = data.playlists.checkedObjects;
+    playlists.forEach((v, k) => {
+        if (v[0] === true) {
+            dataToSend.playlists.push({ "id": k, "service": v[1] })
         }
-    }
+    })
     let text = document.querySelector('.app.popup-container.text')
     text.classList.remove('hidden');
 
@@ -499,9 +531,9 @@ async function chooseService(service) {
         let d = (count / sum) * 100 + "%";
 
 
-        console.log('sum', sum);
-        console.log('d', d);
-        console.log('count', count);
+        // console.log('sum', sum);
+        // console.log('d', d);
+        // console.log('count', count);
         progressBar.style.width = d;
         progressBar.style.padding = '1%';
 
