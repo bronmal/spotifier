@@ -498,7 +498,8 @@ body {
 .app.main-container {
   display: block;
   float: right;
-  overflow-y: hidden;
+  overflow-y: scroll;
+  max-height: 100vh;
   width: calc(1050px * var(--deltaW));
 }
 .app.chosen {
