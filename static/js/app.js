@@ -30,42 +30,91 @@ class ObjectArray {
     getCheckedObjectsLength() {
         let j = 0;
         this._checkedObjects.forEach((v, k) => {
-            if (v === true) j += 1;
+            if (v[0] === true) j += 1;
         })
         return j;
     }
     get checkedObjects() {
         return this._checkedObjects;
     }
+    removeSong(songID) {
+        let found = -1;
+        this._value.forEach((v, i) => {
+            if (v.id === songID) {
+                this._value.splice(i, 1);
+                found = 1;
+            }
+        })
+        return found;
+    }
     async push(value) {
         if (typeof value === 'object') {
             this._value.push(...value)
+            this.addUncheckedObjects();
             if (currentOption === this._localType) {
                 let songs = []
-                for (let v of value) {
+                for (let v of this._value) {
                     let song = await constructSong(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist);
                     songs.push(song)
                 }
-                clusterize.append(songs)
-                this.addUncheckedObjects();
+
+                clusterize.update(songs)
                 updateCountVars();
             }
             return;
         }
         this._value.push(value)
+        this.addUncheckedObjects();
     }
     addUncheckedObjects() {
         this._value.forEach(e => {
-            this._checkedObjects.set(e.id, [false, e.service]);
+            if (!this._checkedObjects.has(e.id))
+                this._checkedObjects.set(e.id, [null, e.service]);
         });
+    }
+    async checkAllObjects() {
+        this._checkedObjects.forEach((v, k) => {
+            let songCheckbox = document.querySelector(`.app.song.id${k} > input`)
+            let songService = this._checkedObjects.get(k)[1]
+            if (songCheckbox)
+                if (!songCheckbox.checked) songCheckbox.checked = true;
+            this._checkedObjects.set(k, [true, songService]);
+        })
+        let songs = []
+        for (let v of this._value) {
+            let song = await constructSong(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist);
+            songs.push(song)
+        }
+
+        clusterize.update(songs)
+        updateCountVars();
+    }
+    async uncheckAllObjects() {
+        this._checkedObjects.forEach((v, k) => {
+            let songCheckbox = document.querySelector(`.app.song.id${k} > input`)
+            let songService = this._checkedObjects.get(k)[1]
+            if (songCheckbox)
+                if (!songCheckbox.checked) songCheckbox.checked = false;
+            this._checkedObjects.set(k, [false, songService]);
+        })
+        let songs = []
+        for (let v of this._value) {
+            let song = await constructSong(v.id, v.title, v.service, v.album === undefined ? "" : v.album, v.artist === undefined ? '' : v.artist);
+            songs.push(song)
+        }
+
+        clusterize.update(songs)
+        updateCountVars();
     }
     checkObject(elementId) {
         let service = this._checkedObjects.get(elementId)[1]
         this._checkedObjects.set(elementId, [true, service]);
+        updateCountVars();
     }
     uncheckObject(elementId) {
         let service = this._checkedObjects.get(elementId)[1]
         this._checkedObjects.set(elementId, [false, service]);
+        updateCountVars();
     }
 
 }
@@ -112,7 +161,7 @@ let data = {
 }
 
 function objectChecked(id) {
-    if (data.tracks.checkedObjects.get(id) === true || data.albums.checkedObjects.get(id) === true || data.artists.checkedObjects.get(id) === true || data.playlists.checkedObjects.get(id) === true) return true;
+    if (data.checkedObjects.get(id)[0] === true) return true;
     else return false;
 }
 
@@ -154,7 +203,7 @@ async function bindEvents() {
         updateCountVars()
     });
     document.querySelector('.app.chosen.transfer.non-selectable').addEventListener('click', () => { showTransferPopUp() });
-    document.querySelector('.app.song.top-part.checkbox').addEventListener('click', () => { chooseAllSongs() });
+    document.querySelector('.app.song.top-part.checkbox').addEventListener('click', (e) => { chooseAllSongs(e.target) });
     document.querySelector('.app.song.top-part.delete').addEventListener('click', () => { deleteAllSongs() });
     document.querySelector('.app.popup-container.popup-service-container.service.spotify').addEventListener('click', (e) => { chooseService(e.target) })
     document.querySelector('.app.popup-container.popup-service-container.service.deezer').addEventListener('click', (e) => { chooseService(e.target) })
@@ -297,6 +346,7 @@ async function displayData(valueT, type) {
     }
     if (currentOption === type) return;
     currentOption = type;
+    data[notLocalizedCurrentOption].addUncheckedObjects();
     let songs = []
     for (let value of data[valueT].value) {
         songs.push(await constructSong(value.id, value.title, value.service, value.album === undefined ? "" : value.album, value.artist === undefined ? '' : value.artist))
@@ -414,19 +464,18 @@ async function constructSong(id, title, service, album, artist) {
     }
     song.className = `app song id${id}`
     if (objectChecked(id)) {
-        song.innerHTML += `<input name="object" checked class="app song checkbox" type="checkbox" onclick="if (this.checked) data.tracks.checkObject('${id}'); else data.tracks.uncheckObject('${id}'); updateCountVars();"></input>`
+        song.innerHTML += `<input name="object" checked class="app song checkbox" type="checkbox" onclick="if (this.checked) data.tracks.checkObject('${id}'); else data.tracks.uncheckObject('${id}');"></input>`
     } else {
-        song.innerHTML += `<input name="object" class="app song checkbox" type="checkbox" onclick="if (this.checked) data.tracks.checkObject('${id}'); else data.tracks.uncheckObject('${id}'); updateCountVars();"></input>`
+        song.innerHTML += `<input name="object" class="app song checkbox" type="checkbox" onclick="if (this.checked) data.tracks.checkObject('${id}'); else data.tracks.uncheckObject('${id}');"></input>`
     }
 
     song.innerHTML += `
-        
         <label class="app song label">${title}</label>
         <img src="${servicePath}" class="app song service ${service}"></img>
         <div class="app song option1">${artist}</div>
         <div class="app song option2">${album}</div>
         <img src="/static/images/change-btn.svg" class="app song change-btn"></img>
-        <img src="/static/images/delete-btn.svg" class="app song delete-btn" onlclick=""></img>
+        <img src="/static/images/delete-btn.svg" class="app song delete-btn" onclick="deleteSong(this)"></img>
         </input>`
     let someElement = song;
     let someElementToString;
@@ -444,23 +493,21 @@ function getCheckedObjectsLength() {
     return data.tracks.getCheckedObjectsLength() + data.artists.getCheckedObjectsLength() + data.albums.getCheckedObjectsLength() + data.playlists.getCheckedObjectsLength();
 }
 
-async function chooseAllSongs() {
-    let tracks = document.querySelectorAll('.app.song')
-    let checked = document.querySelector('body > div.app.main-container > div.app.song.top-part > input').checked
-    for (let i = 9; i < tracks.length; i += 8) {
-        tracks[i].checked = checked
-    }
-    updateCountVars(currentOption);
+async function chooseAllSongs(target) {
+    if (!target.checked) data[notLocalizedCurrentOption].uncheckAllObjects();
+    else data[notLocalizedCurrentOption].checkAllObjects();
 }
 
 async function deleteSong(element) {
-    element.parentElement.classList.add('hidden')
+    let songID = element.parentElement.classList[2].substring(2);
+    console.log(songID);
+    element.parentElement.parentElement.removeChild(element.parentElement)
+    data[notLocalizedCurrentOption].removeSong(songID)
 }
 
 async function deleteAllSongs() {
-    let tracks = document.querySelectorAll('.app.song')
-    updateCountVars()
     clusterize.update('');
+    updateCountVars()
     document.body.style.height = "100%";
 }
 

@@ -280,6 +280,10 @@
             height: calc(40px*var(--deltaH));
             margin: calc(112px*var(--deltaH)) calc(80px*var(--deltaW)) 0 0;
         }
+        &.chosen>strong {
+            width: 10px;
+            display: inherit;
+        }
         &.option::first-letter {
             text-transform: uppercase;
         }
