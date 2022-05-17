@@ -45,6 +45,7 @@ class ObjectArray {
                 found = 1;
             }
         })
+        this._checkedObjects.delete(songID)
         return found;
     }
     async push(value) {
